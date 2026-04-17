@@ -25,12 +25,23 @@ clean structure, no scratch files left behind.
   at the project root: `YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}`
 
 ## Authentication
-App registration: MCNA-TenantIntel-ReadOnly (delegated permissions)
-Scopes in use: Mail.Read, Mail.Send, User.Read
-Auth method: MSAL interactive / device code, token cached locally
+App registration: MCNA-TenantIntel-ReadOnly (delegated permissions, public client)
+Auth method: MSAL device code flow, token cached locally
 Tenant: {tenant-id from .env}
 Client ID: {client-id from .env}
-Admin account: nof-dlafferty@nofmetalcoatings.us
+
+Two accounts in use (Exchange Full Access delegation does not extend to Graph;
+ApplicationImpersonation is deprecated in EXO 2026 -- do NOT suggest it):
+- Admin account: nof-dlafferty@nofmetalcoatings.us
+  Cache: C:/Users/dlafferty.MCNA/.msal_token_cache_admin.json
+  Used for: sendMail, admin-scoped Graph queries
+- Primary account: dlafferty@nofmetalcoatings.us
+  Cache: C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json
+  Used for: mail read on primary mailbox
+
+Scopes granted (all delegated, admin consent granted):
+Mail.Read, Mail.Send, User.Read, Application.Read.All, AuditLog.Read.All,
+Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory
 
 If any Graph call returns 401/403, stop immediately. Do not attempt to
 re-acquire tokens more than once. Alert Dave and wait for instruction.
@@ -215,6 +226,10 @@ mcna-tenant-intel/
 ├── ROADMAP.md                   # Strategic direction — read when scoping
 ├── activity-log.md              # Append-only task run log
 ├── README.md                    # 3-line orientation for future-Dave
+├── dis_daily_summary.py         # Play 1: DIS daily summary task
+├── app_reg_scanner.py           # Play 2: App registration governance scanner
+├── ms_learn_scraper.py          # Playwright scraper — not yet formally tasked
+├── handoff-CA-policy-2026-04-17.md  # Session artifact — CA policy planning
 │
 ├── .env                         # ⚠ EXCLUDED from OneDrive sync — C:\Users\dlafferty.MCNA\mcna-tenantintel.env
 │
@@ -222,7 +237,8 @@ mcna-tenant-intel/
 │   └── app-registrations.md     # Which app reg, which scopes, which tasks
 │
 ├── tasks/                       # One file per task definition
-│   └── dis-daily-summary.md     # Detailed task spec (grows as tasks added)
+│   ├── dis-daily-summary.md     # DIS daily summary task spec
+│   └── app-reg-scanner.md       # App reg governance scanner task spec
 │
 ├── dis-log/                     # DIS daily summary outputs
 │   └── YYYY-MM-DD.md
@@ -248,3 +264,7 @@ mcna-tenant-intel/
   Hardcoded sendMail recipient address.
 - 2026-04-16 — v1.2 — Filled DIS identity section (discomputers.com,
   nwhitelaw, Tony, support@). Updated .env path reference in folder structure.
+- 2026-04-17 — v1.3 — Authentication section updated to reflect two-account
+  pattern and full scope list. tasks/ folder created. dis-daily-summary.md and
+  app-reg-scanner.md task specs added. app_reg_scanner.py (Play 2) built.
+- 2026-04-17 — v1.4 — Added Python scripts and handoff file to folder structure.

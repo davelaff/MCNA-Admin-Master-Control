@@ -10,3 +10,9 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-16 16:14 â€” DIS daily summary â€” 4 threads, 4 messages â€” dis-log/2026-04-16.md
 2026-04-16 16:32 - DIS daily summary - 6 threads, 6 messages - dis-log/2026-04-16.md
 2026-04-17 — MEMORY.md update — CA policy & Entra role audit session captured (v4) — handoff-CA-policy-2026-04-17.md
+2026-04-17 11:38 - App reg scan - 40 apps scanned, 25 with findings (Critical: 7, High: 54) - reports/app-reg-governance/2026-04-17.md
+2026-04-17 11:41 - App reg scan - 40 apps scanned, 25 with findings (Critical: 7, High: 54) - reports/app-reg-governance/2026-04-17.md
+2026-04-17 — Phase 1 Entra role housekeeping — Completed — Removed Authentication Administrator, Power Platform Administrator, AI Administrator from dlafferty@nofmetalcoatings.us; added to nof-dlafferty@nofmetalcoatings.us
+2026-04-17 — Entra role remediation — nof-scala@ cleaned — Removed Fabric Administrator, Power Platform Administrator
+2026-04-17 — Entra role remediation — MIS@ role reduction complete — Roles reduced per governance review
+2026-04-17 — Entra role remediation — nof-dkochever@ — Pending meeting with Diana; Exchange Administrator on hold pending discussion

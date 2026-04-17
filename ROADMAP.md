@@ -121,7 +121,7 @@ This is the M365 Security and Governance Initiative on steroids.
 Target: 60% → 80% Secure Score with a weekly brief that writes itself.
 
 ### Play 2 — Entra app registration governance scanner
-**Status:** Planned. Second task to build.
+**Status:** Active, v1. Built 2026-04-17. app_reg_scanner.py in project root.
 **Risk:** Low. Read-only.
 **App reg:** Same read-only app reg as Play 1.
 **Scopes:** Application.Read.All, AuditLog.Read.All

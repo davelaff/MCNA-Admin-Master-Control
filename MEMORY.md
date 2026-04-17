@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Tenant Intel Project
-Version: v4 | Updated: 2026-04-17
+Version: v6 | Updated: 2026-04-17
 
 ## Purpose of this file
 Handoff document for Claude Cowork. Covers how this project came to
@@ -210,7 +210,10 @@ Outstanding actions from this session:
 2. Identify owner of admin@nofmetalcoatings.us -- ask Tony
 3. Confirm cloudadmin@nofmetalcoatings.us ownership
 4. Move role assignments from dlafferty@ daily driver to nof-dlafferty@ admin account
+   -> DONE in session 5
 5. Confirm Diana Kochever role assignments are intentional
+   -> IN PROGRESS: meeting scheduled. User Admin + Teams Admin removed.
+      Exchange Administrator on hold pending conversation.
 6. Decision point: when to disable Security Defaults and enable CA policies
 
 ### Session 3 -- 2026-04-17 strategy session
@@ -249,6 +252,15 @@ project state from the build session.
   Scheduled task: \MCNA\MCNA-TenantIntel-DISSummary, weekdays 5:30 PM.
   Format: HTML UTF-8, monospace pre block.
 
+- app_reg_scanner.py -- Active, v1. Built and verified 2026-04-17.
+  Inventories all MCNA-owned app registrations and 3rd-party enterprise
+  apps. Scores findings by severity (Critical/High/Medium/Low). Writes
+  risk register to reports/app-reg-governance/YYYY-MM-DD.md + .csv.
+  First run: 40 apps, 25 with findings (Critical: 7, High: 54, Medium: 30).
+  Token cache hot -- no device code on re-run. Run on-demand.
+  Key finding: 6 critical expired certs on Portals-* apps. Workflow app
+  has 57 cert entries -- SharePoint Online auto-provisioned, not actionable.
+
 - ms_learn_scraper.py -- Present in folder, built by Claude Code.
   Playwright-based scraper for learn.microsoft.com. Not yet formally
   tasked or documented in CLAUDE.md. Needs: pip install playwright +
@@ -263,25 +275,28 @@ mcna-tenant-intel/
 |- README.md
 |- activity-log.md
 |- dis_daily_summary.py
+|- app_reg_scanner.py
 |- ms_learn_scraper.py
-|- .claude/
-|   |- settings.local.json     (Claude Code permissions)
+|- handoff-CA-policy-2026-04-17.md
 |- auth/
 |   |- app-registrations.md
+|- tasks/
+|   |- dis-daily-summary.md
+|   |- app-reg-scanner.md
 |- dis-log/
-|   |- 2026-04-16.md           (first run log)
+|   |- 2026-04-16.md
 |- queries/
 |- archive/
 |- reports/
     |- app-reg-governance/
+    |   |- 2026-04-17.md
+    |   |- 2026-04-17.csv
     |- secure-score/
     |- orphaned-assets/
     |- power-platform-hygiene/
 ```
 
-Note: tasks/ folder is in the CLAUDE.md design but not yet created
-on disk. Task specs still live inline in CLAUDE.md. Create tasks/
-and migrate when building task #2.
+Note: tasks/ folder exists on disk with both task specs.
 
 ### Governance housekeeping outstanding
 IT-GOV-ENTRA-v1.0 requires a documented request record for the scope
@@ -299,25 +314,33 @@ the paper trail should exist. Not yet done.
 - ApplicationImpersonation cannot be used -- deprecated. Do not suggest it.
 - This project is Dave's personal workbench. Not a template for
   MCNA-wide deployment without a formal governance review.
-- tasks/ does not yet exist on disk. Don't try to read task specs
-  from tasks/ -- they're still inline in CLAUDE.md.
 
 ---
 
 ## Open items
 
-### CA policy & Entra identity (from session 4, 2026-04-17)
+### CA policy & Entra identity (from sessions 4-5, 2026-04-17)
 - Awaiting Tony response on 4 CA policy gaps (legacy auth, admin
   policy, service accounts, MCNA break-glass)
 - Identify owner of admin@nofmetalcoatings.us before touching it
 - Confirm cloudadmin@nofmetalcoatings.us ownership
-- Move role assignments from dlafferty@ daily driver to nof-dlafferty@ admin account
-- Confirm Diana Kochever role assignments are intentional
 - Decision: when to disable Security Defaults and enable CA policies
+- blynn@nofmetalcoatings.us: holds custom role GUID
+  d24aef57-1500-4070-84db-2666f29cf966. Unknown identity and purpose.
+  Needs investigation before touching.
+
+### Entra role remediation (session 5 -- mostly complete)
+- DONE: dlafferty@ daily driver cleaned -- roles moved to nof-dlafferty@
+- DONE: nof-scala@ -- removed Fabric Administrator, Power Platform Administrator
+- DONE: MIS@ -- role count reduced from 24 per governance review
+- IN PROGRESS: nof-dkochever@ -- User Admin and Teams Admin removed.
+  Exchange Administrator on hold. Key question for meeting: is Diana
+  actively managing shared mailboxes or DLs? If no ongoing use case,
+  remove Exchange Administrator.
 
 ### Project infrastructure
-- tasks/ folder: create on disk when building task #2, migrate
-  DIS summary spec out of CLAUDE.md at that point
+- tasks/ folder: exists on disk. Contains dis-daily-summary.md and
+  app-reg-scanner.md. Task specs are no longer inline in CLAUDE.md.
 - Governance paper trail for 2026-04-16 scope additions per
   IT-GOV-ENTRA-v1.0
 - Sites.Read.All: not yet added, needed for Play 7
@@ -333,6 +356,12 @@ the paper trail should exist. Not yet done.
   from a PowerShell write. Historical, low priority. All future
   writes must use MCP FileSystem tool, not PowerShell.
 
+### VS Code tooling
+- Windows MCP Server (sbroenne.windows-mcp) requires .NET 10 Windows
+  Desktop Runtime. Fixed 2026-04-17 by installing
+  Microsoft.DotNet.DesktopRuntime.10 via winget. If it breaks after
+  a future extension update, check the runtime version requirement first.
+
 ---
 
 ## Change log
@@ -347,3 +376,9 @@ the paper trail should exist. Not yet done.
 - 2026-04-17 -- v4 -- Added session 4 summary (CA policy & Entra
   role audit). Added CA/identity open items section. Saved
   handoff-CA-policy-2026-04-17.md to project root.
+- 2026-04-17 -- v5 -- Added Windows MCP Server .NET dependency note.
+- 2026-04-17 -- v6 -- Session 5: app_reg_scanner.py added to tasks built.
+  Folder structure updated. Entra role remediation status captured.
+  Session 4 outstanding actions updated (items 4+5 partially complete).
+  Open items restructured to separate CA/identity from role remediation.
+  Stale tasks/ disk note removed.
