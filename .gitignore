@@ -1,0 +1,32 @@
+# Secrets and credentials
+.env
+*.env
+*.pem
+*.pfx
+*.p12
+
+# MSAL token caches (stored outside this folder, but belt-and-suspenders)
+*.json.bak
+.msal_*
+
+# DIS daily log outputs (email summaries — sensitive business content)
+dis-log/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Binary/Office files
+*.docx
+*.xlsx
+*.pdf
+
+# Windows
+desktop.ini
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
