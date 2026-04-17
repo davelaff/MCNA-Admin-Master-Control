@@ -11,10 +11,12 @@ Auth: Admin account only (nof-dlafferty@nofmetalcoatings.us)
       MSAL device code flow, token cached locally.
 """
 
+import sys
+sys.dont_write_bytecode = True
+
 import csv
 import datetime
 import pathlib
-import sys
 
 import msal
 import requests

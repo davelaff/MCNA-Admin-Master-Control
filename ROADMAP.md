@@ -146,20 +146,32 @@ which is the right place for a control to sit. When DIS asks about
 app reg controls, Dave hands them data instead of opinions.
 
 ### Play 3 — Orphaned asset cleanup (read phase)
-**Status:** Planned.
+**Status:** Active, v1. Built 2026-04-17. orphaned_asset_scanner.py in project root.
 **Risk:** Low in read phase, medium when write phase is added.
 **App reg:** Read phase uses existing read-only app reg. Write phase
 requires a separate MCNA-TenantIntel-Writer app reg with targeted
 scopes, built later and only if Dave decides it's worth the risk.
 
 Inventories orphaned SharePoint sites, Teams, distribution groups,
-shared mailboxes, Planner plans, Power Platform apps, flows, and
-Dataverse tables. Correlates owners against active HR roster.
-Produces a cleanup queue.
+shared mailboxes, and user accounts. Correlates owners against active
+Entra roster. Produces a cleanup queue.
+
+Planner plans excluded: Tasks.Read.All is application-only and requires
+a confidential client — incompatible with the delegated public-client
+pattern. Orphaned plans carry no license cost or auth surface risk;
+not worth the architecture change. Power Platform apps, flows, and
+Dataverse are Play 5.
 
 Write phase (future, not yet approved): executes approved cleanups
 via the writer app reg. Dave reviews the queue and approves items,
 Cowork executes. Every write operation logged twice (local + SharePoint).
+
+Write phase architecture (designed 2026-04-17, deferred):
+- Approval mechanism: Dave edits the CSV output, adds Approved=YES to rows
+- orphaned_asset_writer.py reads approved rows and executes each action
+- Requires MCNA-TenantIntel-Writer app reg (separate from ReadOnly per principle 2)
+- Write scopes needed: Group.ReadWrite.All, User.ReadWrite.All
+- SharePoint site deletion/archiving kept manual — Sites.FullControl.All is too broad
 
 ### Play 4 — SecureSketCH / Secure Score remediation drafting
 **Status:** Planned. Builds on Play 1.
@@ -284,3 +296,7 @@ leverage for the Secure Score initiative.
 ## Change log
 - 2026-04-14 — v1 — Initial roadmap. Eight plays documented. Principles
   locked. Play 1 (DIS daily summary) is the only task built so far.
+- 2026-04-17 — v1.1 — Play 3 (orphaned asset scanner) built. Status updated to Active.
+- 2026-04-17 — v1.2 — Play 3 write phase architecture documented. Planner excluded
+  from Play 3 scope (Tasks.Read.All is application-only, workaround implemented via
+  client credentials). Write phase deferred pending writer app reg creation.

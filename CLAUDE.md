@@ -39,9 +39,13 @@ ApplicationImpersonation is deprecated in EXO 2026 -- do NOT suggest it):
   Cache: C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json
   Used for: mail read on primary mailbox
 
-Scopes granted (all delegated, admin consent granted):
+Delegated scopes (admin consent granted):
 Mail.Read, Mail.Send, User.Read, Application.Read.All, AuditLog.Read.All,
-Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory
+Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory,
+Sites.Read.All
+
+Application scopes (admin consent granted):
+Tasks.Read.All — client credentials flow, used by orphaned_asset_scanner.py for Planner
 
 If any Graph call returns 401/403, stop immediately. Do not attempt to
 re-acquire tokens more than once. Alert Dave and wait for instruction.
@@ -228,6 +232,7 @@ mcna-tenant-intel/
 ├── README.md                    # 3-line orientation for future-Dave
 ├── dis_daily_summary.py         # Play 1: DIS daily summary task
 ├── app_reg_scanner.py           # Play 2: App registration governance scanner
+├── orphaned_asset_scanner.py    # Play 3: Orphaned asset cleanup (read phase)
 ├── ms_learn_scraper.py          # Playwright scraper — not yet formally tasked
 ├── handoff-CA-policy-2026-04-17.md  # Session artifact — CA policy planning
 │
@@ -238,7 +243,8 @@ mcna-tenant-intel/
 │
 ├── tasks/                       # One file per task definition
 │   ├── dis-daily-summary.md     # DIS daily summary task spec
-│   └── app-reg-scanner.md       # App reg governance scanner task spec
+│   ├── app-reg-scanner.md       # App reg governance scanner task spec
+│   └── orphaned-assets.md       # Orphaned asset scanner task spec
 │
 ├── dis-log/                     # DIS daily summary outputs
 │   └── YYYY-MM-DD.md
@@ -268,3 +274,7 @@ mcna-tenant-intel/
   pattern and full scope list. tasks/ folder created. dis-daily-summary.md and
   app-reg-scanner.md task specs added. app_reg_scanner.py (Play 2) built.
 - 2026-04-17 — v1.4 — Added Python scripts and handoff file to folder structure.
+- 2026-04-17 — v1.5 — Play 3 (orphaned asset scanner) built. orphaned_asset_scanner.py
+  and tasks/orphaned-assets.md added. Folder structure updated.
+- 2026-04-17 — v1.6 — Sites.Read.All added to granted scopes. Play 3 SharePoint
+  enumeration implemented (was stubbed).

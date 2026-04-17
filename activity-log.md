@@ -16,3 +16,9 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-17 — Entra role remediation — nof-scala@ cleaned — Removed Fabric Administrator, Power Platform Administrator
 2026-04-17 — Entra role remediation — MIS@ role reduction complete — Roles reduced per governance review
 2026-04-17 — Entra role remediation — nof-dkochever@ — Pending meeting with Diana; Exchange Administrator on hold pending discussion
+2026-04-17 — Play 3 build — Orphaned asset scanner created — orphaned_asset_scanner.py + tasks/orphaned-assets.md
+2026-04-17 16:25 - Orphaned asset scan - 178 assets flagged (High: 24, Medium: 118, Low: 44) - reports/orphaned-assets/2026-04-17.md
+2026-04-17 16:31 - Orphaned asset scan - 166 assets flagged (High: 26, Medium: 105, Low: 44) - reports/orphaned-assets/2026-04-17.md
+2026-04-17 — QMS site remediation — luribe@nofmetalcoatings.us added as site collection admin on /sites/qualityna — clears High finding on next scan
+2026-04-17 16:55 - Orphaned asset scan - 166 assets flagged (High: 26, Medium: 105, Low: 44) - reports/orphaned-assets/2026-04-17.md
+2026-04-17 17:06 - Orphaned asset scan - 166 assets flagged (High: 26, Medium: 105, Low: 44) - reports/orphaned-assets/2026-04-17.md

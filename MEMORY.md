@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Tenant Intel Project
-Version: v6 | Updated: 2026-04-17
+Version: v7 | Updated: 2026-04-17
 
 ## Purpose of this file
 Handoff document for Claude Cowork. Covers how this project came to
@@ -60,27 +60,31 @@ FAILED entries.
 
 ### App registration: MCNA-TenantIntel-ReadOnly
 Created: 2026-04-16
-Type: Public client, delegated permissions, device code flow
+Type: Public client (delegated) + application permissions (client credentials)
 Tenant ID: 2eb7fcc8-58b3-4f06-9cbc-77d0c178dba3
 Client ID: 96587e5a-65a1-4b20-a82c-e61b2e6bc9db
-Certificate: MCNA-TenantIntel-ReadOnly-2026
-  Thumbprint: 3FCC406A5AC6C2913F111337407201F8F35C2F0B
-  Valid: 2026-04-16 to 2028-04-16
-  Store: CurrentUser\My, NonExportable
+Certificate: MCNA-TenantIntel-Planner (replaces old non-exportable cert)
+  Thumbprint: 8E2A295C98DD065F1ABD08E0E3E5BB9950CBEE40
+  Valid: 2026-04-17 to 2028-04-16
+  PFX: C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.pfx (no password)
+  CER: C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.cer (uploaded to Entra)
 Public client flows: Enabled
 Redirect URI: http://localhost (Mobile & desktop)
 
-Permissions (all delegated, admin consent granted):
+Delegated permissions (admin consent granted):
 Mail.Read, Mail.Send, User.Read, Application.Read.All,
 AuditLog.Read.All, Directory.Read.All, Policy.Read.All,
-Reports.Read.All, RoleManagement.Read.Directory
+Reports.Read.All, RoleManagement.Read.Directory, Sites.Read.All
 
-Not yet added: Sites.Read.All (Play 7), Power Platform API (Play 5)
+Application permissions (admin consent granted):
+Tasks.Read.All — used by orphaned_asset_scanner.py (Planner scan, client credentials flow)
+
+Not yet added: Power Platform API (Play 5)
 
 ### .env location
 C:\Users\dlafferty.MCNA\mcna-tenantintel.env
 Stored outside the OneDrive sync folder -- does not sync to SharePoint.
-Variables: TENANT_ID, CLIENT_ID, CERT_THUMBPRINT, CERT_STORE,
+Variables: TENANT_ID, CLIENT_ID, CERT_THUMBPRINT, CERT_PFX_PATH,
 USER_EMAIL, PRIMARY_MAILBOX, SUMMARY_RECIPIENT
 
 ### OneDrive sync
@@ -261,12 +265,28 @@ project state from the build session.
   Key finding: 6 critical expired certs on Portals-* apps. Workflow app
   has 57 cert entries -- SharePoint Online auto-provisioned, not actionable.
 
+- orphaned_asset_scanner.py -- Active, v1. Built and verified 2026-04-17.
+  Inventories orphaned M365 groups/Teams, distribution groups, users,
+  SharePoint sites, and Planner plans in orphaned groups.
+  Auth: delegated token for groups/users/sites; client credentials (cert)
+  for Planner (Tasks.Read.All application permission).
+  First run (full): 166 assets flagged (High: 26, Medium: 105, Low: 44).
+  Writes to reports/orphaned-assets/YYYY-MM-DD.md + .csv. Run on-demand.
+  Key findings: 14 M365 groups with all owners disabled (lverzella, jsimonic,
+  sfreeman, ariddle, lcannon, tbankole accounts). 3 disabled users holding
+  licenses (cheinz x2, dschultz, skemp). Macola Project group has 3 orphaned
+  Planner plans. QMS site (/sites/qualityna) had stale primary admin --
+  luribe added as site collection admin 2026-04-17.
+  Known limitation: SP usage report Owner Principal Name shows group email
+  for Teams-backed sites, not individual users. High firing = stale primary
+  admin account, not necessarily unmanaged. Verify in SP Admin Center.
+
 - ms_learn_scraper.py -- Present in folder, built by Claude Code.
   Playwright-based scraper for learn.microsoft.com. Not yet formally
   tasked or documented in CLAUDE.md. Needs: pip install playwright +
   playwright install chromium before use.
 
-### Folder structure (confirmed as of 2026-04-16)
+### Folder structure (confirmed as of 2026-04-17)
 ```
 mcna-tenant-intel/
 |- CLAUDE.md
@@ -276,6 +296,7 @@ mcna-tenant-intel/
 |- activity-log.md
 |- dis_daily_summary.py
 |- app_reg_scanner.py
+|- orphaned_asset_scanner.py
 |- ms_learn_scraper.py
 |- handoff-CA-policy-2026-04-17.md
 |- auth/
@@ -283,6 +304,7 @@ mcna-tenant-intel/
 |- tasks/
 |   |- dis-daily-summary.md
 |   |- app-reg-scanner.md
+|   |- orphaned-assets.md
 |- dis-log/
 |   |- 2026-04-16.md
 |- queries/
@@ -291,12 +313,12 @@ mcna-tenant-intel/
     |- app-reg-governance/
     |   |- 2026-04-17.md
     |   |- 2026-04-17.csv
-    |- secure-score/
     |- orphaned-assets/
+    |   |- 2026-04-17.md
+    |   |- 2026-04-17.csv
+    |- secure-score/
     |- power-platform-hygiene/
 ```
-
-Note: tasks/ folder exists on disk with both task specs.
 
 ### Governance housekeeping outstanding
 IT-GOV-ENTRA-v1.0 requires a documented request record for the scope
@@ -339,17 +361,20 @@ the paper trail should exist. Not yet done.
   remove Exchange Administrator.
 
 ### Project infrastructure
-- tasks/ folder: exists on disk. Contains dis-daily-summary.md and
-  app-reg-scanner.md. Task specs are no longer inline in CLAUDE.md.
-- Governance paper trail for 2026-04-16 scope additions per
-  IT-GOV-ENTRA-v1.0
-- Sites.Read.All: not yet added, needed for Play 7
+- Governance paper trail for scope additions per IT-GOV-ENTRA-v1.0:
+  2026-04-16 additions (Application.Read.All, AuditLog.Read.All,
+  Directory.Read.All, Policy.Read.All, Reports.Read.All,
+  RoleManagement.Read.Directory) and 2026-04-17 additions
+  (Sites.Read.All delegated, Tasks.Read.All application). Self-approved
+  as IS Director but paper trail not yet written.
+- MCNA-TenantIntel-Writer app reg: architecture discussed 2026-04-17.
+  Pattern: edited CSV queue as approval mechanism; write script executes
+  approved rows; every write logged twice. Needs separate app reg with
+  Group.ReadWrite.All, User.ReadWrite.All scopes + new cert.
+  Deferred to a future session. DO NOT add write scopes to ReadOnly reg.
 - Power Platform admin API token flow: not yet configured, needed for Play 5
 - ms_learn_scraper.py: needs formal task definition in CLAUDE.md if
   it enters regular use
-- Sunset/decommissioning plan: not yet written
-- "How to onboard a new task" section for CLAUDE.md: deferred until
-  task #2-3 reveals the common shape
 - Play 8 (mail/Teams forensics): gated, requires explicit risk
   sign-off before any work begins
 - activity-log.md line 4 has encoding corruption (em-dashes as â€")
@@ -382,3 +407,10 @@ the paper trail should exist. Not yet done.
   Session 4 outstanding actions updated (items 4+5 partially complete).
   Open items restructured to separate CA/identity from role remediation.
   Stale tasks/ disk note removed.
+- 2026-04-17 -- v7 -- Session 6: Play 3 built (orphaned_asset_scanner.py).
+  Sites.Read.All and Tasks.Read.All added to app reg. Certificate replaced
+  (old cert non-exportable; new MCNA-TenantIntel-Planner cert created as
+  exportable PFX). Planner scan operational via client credentials flow.
+  First full scan: 166 assets flagged. QMS site remediated (luribe added
+  as site collection admin). Write phase architecture discussed and deferred.
+  Folder structure, permissions, tasks, and open items updated.

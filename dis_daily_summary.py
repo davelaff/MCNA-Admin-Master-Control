@@ -12,6 +12,8 @@ Two auth sessions:
 """
 
 import sys
+sys.dont_write_bytecode = True
+
 import json
 import datetime
 import pathlib
