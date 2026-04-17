@@ -40,13 +40,14 @@ on the local workstation and are never stored here.
 | Mailbox | Access method |
 |---|---|
 | nof-dlafferty@nofmetalcoatings.us | /me (signed-in user) |
-| dlafferty@nofmetalcoatings.us | /users/{upn} via Full Access delegation |
+| dlafferty@nofmetalcoatings.us | Separate MSAL device code session (primary account) |
 
 ### Tasks using this registration
 
 | Task | Script | Status |
 |---|---|---|
 | DIS daily summary | dis_daily_summary.py | Active — v1 |
+| App reg governance scanner | app_reg_scanner.py | Active - v1 |
 
 ### Roadmap plays enabled by current scopes
 

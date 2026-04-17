@@ -1,3 +1,4 @@
+<!-- markdownlint-disable -->
 # Session Handoff - 2026-04-17
 ## Conditional Access Policy & M365 Licensing Session
 
@@ -61,7 +62,7 @@ Ran Get-MgDirectoryRole / Get-MgDirectoryRoleMember via Microsoft Graph PowerShe
 
 **admin@nofmetalcoatings.us findings:**
 - Account enabled: True
-- Last sign-in: 2026-05-30 (10 months ago)
+- Last sign-in: 2025-05-30 (~11 months ago)
 - Also holds: Hybrid Identity Administrator
 - Action: Ask Tony who created it and what it was used for before touching it. Do not disable until origin is confirmed and dependency check is done.
 
