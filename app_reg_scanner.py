@@ -193,6 +193,8 @@ def fetch_sp_sign_in_activities(token):
                 activities[app_id] = last_dt
         while "@odata.nextLink" in data:
             resp = requests.get(data["@odata.nextLink"], headers=headers)
+            if resp.status_code in (401, 403):
+                raise RuntimeError(f"Graph auth error {resp.status_code}: {resp.text}")
             resp.raise_for_status()
             data = resp.json()
             for item in data.get("value", []):
@@ -387,7 +389,7 @@ def build_markdown(app_reg_results, enterprise_app_results, today_str, now_str, 
                 counts[sev] += 1
 
     lines = [
-        f"# App Registration Governance Scan - {today_str}",
+        f"# App Registration Governance Scan — {today_str}",
         f"",
         f"Generated: {now_str}  ",
         f"Tenant: {tenant_id}  ",
@@ -447,7 +449,7 @@ def build_markdown(app_reg_results, enterprise_app_results, today_str, now_str, 
 
     if enterprise_app_results:
         display_count = min(len(enterprise_app_results), 20)
-        lines += [f"## Enterprise apps (3rd party) - unverified publisher", ""]
+        lines += [f"## Enterprise apps (3rd party) — unverified publisher", ""]
         for sp, findings in enterprise_app_results[:display_count]:
             name = sp.get("displayName", "(unnamed)")
             app_id = sp.get("appId", "")
@@ -460,7 +462,7 @@ def build_markdown(app_reg_results, enterprise_app_results, today_str, now_str, 
 
     lines += [
         "---",
-        f"mcna-tenant-intel app_reg_scanner.py - {now_str}",
+        f"mcna-tenant-intel app_reg_scanner.py — {now_str}",
     ]
     return "\n".join(lines)
 
@@ -539,7 +541,7 @@ def main():
     except Exception as e:
         msg = f"Admin auth failed: {e}"
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - App reg scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — App reg scan — FAILED — {msg}")
         sys.exit(1)
 
     print("Authenticated. Fetching app registrations...")
@@ -549,7 +551,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - App reg scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — App reg scan — FAILED — {msg}")
         sys.exit(1)
 
     print("Fetching service principals...")
@@ -559,7 +561,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - App reg scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — App reg scan — FAILED — {msg}")
         sys.exit(1)
 
     print("Fetching sign-in activity data...")
@@ -568,7 +570,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - App reg scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — App reg scan — FAILED — {msg}")
         sys.exit(1)
 
     # Build SP lookup: appId -> SP record
@@ -617,8 +619,8 @@ def main():
     )
     print(f"\n{outcome}")
     append_activity_log(
-        f"{now_str} - App reg scan - {outcome}"
-        f" - reports/app-reg-governance/{today_str}.md"
+        f"{now_str} — App reg scan — {outcome}"
+        f" — reports/app-reg-governance/{today_str}.md"
     )
 
 

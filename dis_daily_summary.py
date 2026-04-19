@@ -19,6 +19,7 @@ import datetime
 import pathlib
 import re
 
+import html
 import msal
 import requests
 
@@ -58,6 +59,7 @@ ADMIN_SCOPES = [
 
 DIS_DOMAINS = ["discomputers.com"]
 DIS_KNOWN_SENDERS = ["nwhitelaw@discomputers.com", "tony@discomputers.com"]
+DIS_KNOWN_SENDERS_LOWER = frozenset(s.lower() for s in DIS_KNOWN_SENDERS)
 DIS_TICKET_SENDER = "support@discomputers.com"
 DIS_SUBJECT_MARKERS = ["[DIS]", "[Ticket #]", "DIS Support"]
 
@@ -190,7 +192,7 @@ def is_dis_address(address):
     addr = address.lower()
     if any(addr.endswith("@" + d.lower()) for d in DIS_DOMAINS):
         return True
-    if addr in [s.lower() for s in DIS_KNOWN_SENDERS]:
+    if addr in DIS_KNOWN_SENDERS_LOWER:
         return True
     if addr == DIS_TICKET_SENDER.lower():
         return True
@@ -374,7 +376,7 @@ def main():
     except Exception as e:
         msg = f"Admin auth failed: {e}"
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - DIS daily summary - FAILED - {msg}")
+        append_activity_log(f"{now_str} — DIS daily summary — FAILED — {msg}")
         sys.exit(1)
 
     # Auth: primary account
@@ -387,7 +389,7 @@ def main():
     except Exception as e:
         msg = f"Primary auth failed: {e}"
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - DIS daily summary - FAILED - {msg}")
+        append_activity_log(f"{now_str} — DIS daily summary — FAILED — {msg}")
         sys.exit(1)
 
     print("Both accounts authenticated. Fetching mail...")
@@ -400,7 +402,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - DIS daily summary - FAILED - {msg}")
+        append_activity_log(f"{now_str} — DIS daily summary — FAILED — {msg}")
         sys.exit(1)
 
     try:
@@ -410,7 +412,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - DIS daily summary - FAILED - {msg}")
+        append_activity_log(f"{now_str} — DIS daily summary — FAILED — {msg}")
         sys.exit(1)
 
     all_messages = {}
@@ -433,7 +435,7 @@ def main():
     print(summary)
     print("---\n")
 
-    DIS_LOG_DIR.mkdir(exist_ok=True)
+    DIS_LOG_DIR.mkdir(parents=True, exist_ok=True)
     log_path = DIS_LOG_DIR / f"{today_str}.md"
     with open(log_path, "w", encoding="utf-8") as f:
         f.write(f"# DIS activity - {today_str}\n\n")
@@ -450,7 +452,7 @@ def main():
     )
 
     # Send as HTML with UTF-8 charset to avoid encoding issues
-    html_body = f"<html><head><meta charset='utf-8'></head><body><pre style='font-family:monospace'>{summary}</pre></body></html>"
+    html_body = f"<html><head><meta charset='utf-8'></head><body><pre style='font-family:monospace'>{html.escape(summary)}</pre></body></html>"
 
     mail_body = {
         "message": {
@@ -467,13 +469,13 @@ def main():
     except Exception as e:
         msg = f"sendMail failed: {e}"
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - DIS daily summary - FAILED - {msg}")
+        append_activity_log(f"{now_str} — DIS daily summary — FAILED — {msg}")
         sys.exit(1)
 
     total_messages = sum(len(v) for v in threads.values())
     append_activity_log(
-        f"{now_str} - DIS daily summary - {n_threads} threads, {total_messages} messages"
-        f" - dis-log/{today_str}.md"
+        f"{now_str} — DIS daily summary — {n_threads} threads, {total_messages} messages"
+        f" — dis-log/{today_str}.md"
     )
 
     print("Done.")
