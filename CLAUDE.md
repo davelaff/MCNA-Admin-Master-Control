@@ -37,12 +37,14 @@ ApplicationImpersonation is deprecated in EXO 2026 -- do NOT suggest it):
   Used for: sendMail, admin-scoped Graph queries
 - Primary account: dlafferty@nofmetalcoatings.us
   Cache: C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json
-  Used for: mail read on primary mailbox
+  Used for: mail read on primary mailbox, Power Platform queries (Graph + BAP + Dataverse tokens)
 
 Delegated scopes (admin consent granted):
 Mail.Read, Mail.Send, User.Read, Application.Read.All, AuditLog.Read.All,
 Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory,
-Sites.Read.All
+Sites.Read.All,
+Dynamics CRM: user_impersonation (needed for Play 5 — Dataverse Web API per org),
+Power Apps Service: user_impersonation (needed for Play 5 — BAP/PowerApps/Flow APIs)
 
 Application scopes (admin consent granted):
 Tasks.Read.All — client credentials flow, used by orphaned_asset_scanner.py for Planner
@@ -233,6 +235,7 @@ mcna-tenant-intel/
 ├── dis_daily_summary.py         # Play 1: DIS daily summary task
 ├── app_reg_scanner.py           # Play 2: App registration governance scanner
 ├── orphaned_asset_scanner.py    # Play 3: Orphaned asset cleanup (read phase)
+├── power_platform_hygiene.py    # Play 5: Power Platform environment hygiene (read phase)
 ├── ms_learn_scraper.py          # Playwright scraper — not yet formally tasked
 ├── handoff-CA-policy-2026-04-17.md  # Session artifact — CA policy planning
 │
@@ -244,7 +247,8 @@ mcna-tenant-intel/
 ├── tasks/                       # One file per task definition
 │   ├── dis-daily-summary.md     # DIS daily summary task spec
 │   ├── app-reg-scanner.md       # App reg governance scanner task spec
-│   └── orphaned-assets.md       # Orphaned asset scanner task spec
+│   ├── orphaned-assets.md       # Orphaned asset scanner task spec
+│   └── power-platform-hygiene.md  # Power Platform hygiene scanner task spec
 │
 ├── dis-log/                     # DIS daily summary outputs
 │   └── YYYY-MM-DD.md
@@ -278,3 +282,7 @@ mcna-tenant-intel/
   and tasks/orphaned-assets.md added. Folder structure updated.
 - 2026-04-17 — v1.6 — Sites.Read.All added to granted scopes. Play 3 SharePoint
   enumeration implemented (was stubbed).
+- 2026-04-19 — v1.7 — Play 5 (Power Platform hygiene) built. power_platform_hygiene.py
+  and tasks/power-platform-hygiene.md added. Delegated scopes section updated with
+  Dynamics CRM and Power Apps Service user_impersonation (must be added to app reg).
+  Primary account note updated to reflect PP usage.

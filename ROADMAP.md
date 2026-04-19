@@ -191,9 +191,10 @@ future writer app reg. Compresses the 60% → 80% Secure Score project
 from months of ticket-by-ticket work to weeks of review-and-approve.
 
 ### Play 5 — Power Platform environment hygiene
-**Status:** Planned.
+**Status:** Active, v1. Built 2026-04-19. power_platform_hygiene.py in project root.
 **Risk:** Low. Read-only.
-**App reg:** Existing read-only app reg + Power Platform admin API access.
+**App reg:** Existing read-only app reg. Two new delegated permissions required before first run:
+Dynamics CRM: user_impersonation, Power Apps Service: user_impersonation (admin consent needed).
 
 Inventories all environments, solutions, connection references,
 environment variables, and security roles. Flags:
@@ -300,3 +301,5 @@ leverage for the Secure Score initiative.
 - 2026-04-17 — v1.2 — Play 3 write phase architecture documented. Planner excluded
   from Play 3 scope (Tasks.Read.All is application-only, workaround implemented via
   client credentials). Write phase deferred pending writer app reg creation.
+- 2026-04-19 — v1.3 — Play 5 (Power Platform hygiene) built. Status updated to Active.
+  Requires Dynamics CRM and Power Apps Service user_impersonation on app reg before first run.

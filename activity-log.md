@@ -22,3 +22,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-17 — QMS site remediation — luribe@nofmetalcoatings.us added as site collection admin on /sites/qualityna — clears High finding on next scan
 2026-04-17 16:55 - Orphaned asset scan - 166 assets flagged (High: 26, Medium: 105, Low: 44) - reports/orphaned-assets/2026-04-17.md
 2026-04-17 17:06 - Orphaned asset scan - 166 assets flagged (High: 26, Medium: 105, Low: 44) - reports/orphaned-assets/2026-04-17.md
+2026-04-19 — Play 5 build — Power Platform hygiene scanner created — power_platform_hygiene.py + tasks/power-platform-hygiene.md
