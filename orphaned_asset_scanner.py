@@ -205,7 +205,7 @@ def fetch_group_member_count(token, group_id):
     try:
         resp = graph_get(token, url, headers_extra={"ConsistencyLevel": "eventual"})
         return int(resp.text)
-    except Exception:
+    except RuntimeError:
         return None
 
 
@@ -243,7 +243,7 @@ def fetch_planner_plans_for_group(app_token, group_id):
     try:
         data = graph_get(app_token, url).json()
         return data.get("value", [])
-    except Exception:
+    except RuntimeError:
         return []
 
 
@@ -872,7 +872,7 @@ def main():
     except Exception as e:
         msg = f"Admin auth failed: {e}"
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - Orphaned asset scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — Orphaned asset scan — FAILED — {msg}")
         sys.exit(1)
 
     print("Authenticated. Fetching groups...")
@@ -882,7 +882,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - Orphaned asset scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — Orphaned asset scan — FAILED — {msg}")
         sys.exit(1)
 
     print("Fetching users...")
@@ -905,7 +905,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - Orphaned asset scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — Orphaned asset scan — FAILED — {msg}")
         sys.exit(1)
 
     # Classify groups
@@ -963,7 +963,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - Orphaned asset scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — Orphaned asset scan — FAILED — {msg}")
         sys.exit(1)
 
     print("Fetching SharePoint site usage report...")
@@ -972,7 +972,7 @@ def main():
     except RuntimeError as e:
         msg = str(e)
         print(f"ERROR: {msg}")
-        append_activity_log(f"{now_str} - Orphaned asset scan - FAILED - {msg}")
+        append_activity_log(f"{now_str} — Orphaned asset scan — FAILED — {msg}")
         sys.exit(1)
 
     print(f"Analyzing {len(all_sites)} SharePoint sites...")
@@ -1014,18 +1014,26 @@ def main():
             for row in results:
                 yield row[1]  # findings is always index 1
 
-    high_count = sum(1 for f in iter_findings(m365_results, dl_results, user_results, sp_results) if any(s == HIGH for s, _ in f))
-    medium_count = sum(1 for f in iter_findings(m365_results, dl_results, user_results, sp_results) if any(s == MEDIUM for s, _ in f))
-    low_count = sum(1 for f in iter_findings(m365_results, dl_results, user_results, sp_results) if any(s == LOW for s, _ in f))
-    total_flagged = sum(1 for f in iter_findings(m365_results, dl_results, user_results, sp_results) if f)
+    high_count = medium_count = low_count = total_flagged = 0
+    for f in iter_findings(m365_results, dl_results, user_results, sp_results):
+        if not f:
+            continue
+        total_flagged += 1
+        sevs = {s for s, _ in f}
+        if HIGH in sevs:
+            high_count += 1
+        if MEDIUM in sevs:
+            medium_count += 1
+        if LOW in sevs:
+            low_count += 1
 
     outcome = (
         f"{total_flagged} assets flagged (High: {high_count}, Medium: {medium_count}, Low: {low_count})"
     )
     print(f"\n{outcome}")
     append_activity_log(
-        f"{now_str} - Orphaned asset scan - {outcome}"
-        f" - reports/orphaned-assets/{today_str}.md"
+        f"{now_str} — Orphaned asset scan — {outcome}"
+        f" — reports/orphaned-assets/{today_str}.md"
     )
 
 
