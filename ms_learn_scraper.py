@@ -19,15 +19,14 @@ import datetime
 import pathlib
 import re
 import sys
+import urllib.parse
 
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright, Error as PlaywrightError
 
 
 BASE_URL = "https://learn.microsoft.com"
 SEARCH_URL = "https://learn.microsoft.com/en-us/search/"
 
-# CSS selectors for content extraction
-ARTICLE_SELECTOR = "main#main, article.content, div#article-content, div.content"
 STRIP_SELECTORS = [
     "nav",
     "header",
@@ -47,11 +46,6 @@ STRIP_SELECTORS = [
 ]
 
 
-def node_to_markdown(element_handle):
-    """Placeholder — actual conversion done via page.evaluate JS below."""
-    pass
-
-
 async def fetch_article(url: str, browser) -> dict:
     """
     Fetch a single learn.microsoft.com article and return:
@@ -65,7 +59,7 @@ async def fetch_article(url: str, browser) -> dict:
     """
     page = await browser.new_page()
     try:
-        response = await page.goto(url, wait_until="networkidle", timeout=45000)
+        response = await page.goto(url, wait_until="domcontentloaded", timeout=45000)
         if response.status >= 400:
             raise RuntimeError(f"HTTP {response.status} fetching {url}")
 
@@ -78,7 +72,7 @@ async def fetch_article(url: str, browser) -> dict:
                 elements = await page.query_selector_all(sel)
                 for el in elements:
                     await page.evaluate("el => el.remove()", el)
-            except Exception:
+            except PlaywrightError:
                 pass
 
         title = await page.title()
@@ -98,7 +92,7 @@ async def fetch_article(url: str, browser) -> dict:
             if (!article) return '';
 
             // Walk the DOM and emit Markdown-ish text
-            function nodeToMd(node, depth) {
+            function nodeToMd(node) {
                 if (node.nodeType === Node.TEXT_NODE) {
                     return node.textContent;
                 }
@@ -106,7 +100,7 @@ async def fetch_article(url: str, browser) -> dict:
 
                 const tag = node.tagName.toLowerCase();
                 const children = () =>
-                    Array.from(node.childNodes).map(n => nodeToMd(n, depth)).join('');
+                    Array.from(node.childNodes).map(n => nodeToMd(n)).join('');
 
                 if (tag === 'script' || tag === 'style' || tag === 'noscript') return '';
                 if (['h1','h2','h3','h4','h5','h6'].includes(tag)) {
@@ -137,7 +131,13 @@ async def fetch_article(url: str, browser) -> dict:
                     if (href.startsWith('/')) return '[' + text + '](https://learn.microsoft.com' + href + ')';
                     return '[' + text + '](' + href + ')';
                 }
-                if (tag === 'ul' || tag === 'ol') return '\\n' + children() + '\\n';
+                if (tag === 'ul') return '\\n' + children() + '\\n';
+                if (tag === 'ol') {
+                    const items = Array.from(node.querySelectorAll(':scope > li'));
+                    return '\\n' + items.map((li, i) =>
+                        '\\n' + (i + 1) + '. ' + Array.from(li.childNodes).map(n => nodeToMd(n)).join('').trim()
+                    ).join('') + '\\n';
+                }
                 if (tag === 'li') return '\\n- ' + children().trim();
                 if (tag === 'table') {
                     // Basic table — header row only gets the separator
@@ -160,7 +160,7 @@ async def fetch_article(url: str, browser) -> dict:
                 return children();
             }
 
-            return nodeToMd(article, 0);
+            return nodeToMd(article);
         }"""
         )
 
@@ -184,7 +184,7 @@ async def search_ms_learn(query: str, max_results: int, browser) -> list[dict]:
     """
     page = await browser.new_page()
     try:
-        search_url = f"{SEARCH_URL}?terms={query.replace(' ', '+')}&locale=en-us"
+        search_url = f"{SEARCH_URL}?terms={urllib.parse.quote_plus(query)}&locale=en-us"
         await page.goto(search_url, wait_until="domcontentloaded", timeout=30000)
 
         # Wait for search results
