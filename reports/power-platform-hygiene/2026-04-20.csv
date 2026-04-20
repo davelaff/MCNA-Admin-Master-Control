@@ -1,0 +1,4 @@
+﻿Type,Display Name,Environment,Owner,Created,Last Modified,Max Severity,Findings,Recommended Action
+Solution,Asset Management,Jeff Harbin Developer Site,,,,Medium,Solution 'Asset Management' exists in Jeff Harbin Developer Site but has no counterpart in any Production environment,Promote to Production or confirm abandonment and delete
+Solution,Factory Haven,Jeff Harbin Developer Site,,,,Medium,Solution 'Factory Haven' exists in Jeff Harbin Developer Site but has no counterpart in any Production environment,Promote to Production or confirm abandonment and delete
+Environment,Management Info Systems,Management Info Systems,,2024-05-24,,Medium,"[Medium] NotSpecified environment with no apps, flows, or Dataverse solutions (age: 696d) — likely unused",Review and delete or repurpose if unused

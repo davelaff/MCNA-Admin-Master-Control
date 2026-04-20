@@ -194,7 +194,7 @@ from months of ticket-by-ticket work to weeks of review-and-approve.
 **Status:** Active, v1. Built 2026-04-19. power_platform_hygiene.py in project root.
 **Risk:** Low. Read-only.
 **App reg:** Existing read-only app reg. Two new delegated permissions required before first run:
-Dynamics CRM: user_impersonation, Power Apps Service: user_impersonation (admin consent needed).
+Dynamics CRM: user_impersonation, Power Apps Service: User (admin consent granted 2026-04-20).
 
 Inventories all environments, solutions, connection references,
 environment variables, and security roles. Flags:

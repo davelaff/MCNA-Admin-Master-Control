@@ -44,7 +44,7 @@ Mail.Read, Mail.Send, User.Read, Application.Read.All, AuditLog.Read.All,
 Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory,
 Sites.Read.All,
 Dynamics CRM: user_impersonation (needed for Play 5 — Dataverse Web API per org),
-Power Apps Service: user_impersonation (needed for Play 5 — BAP/PowerApps/Flow APIs)
+Power Apps Service: User (needed for Play 5 — BAP/PowerApps/Flow APIs; scope is named "User" not "user_impersonation")
 
 Application scopes (admin consent granted):
 Tasks.Read.All — client credentials flow, used by orphaned_asset_scanner.py for Planner

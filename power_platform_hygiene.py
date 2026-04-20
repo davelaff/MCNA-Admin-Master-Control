@@ -181,12 +181,12 @@ def build_active_upns(users):
 # Power Platform API queries (pp_token)
 # ---------------------------------------------------------------------------
 
-def fetch_environments(pp_token):
+def fetch_environments(bap_token):
     url = (
         f"{BAP_BASE}/providers/Microsoft.BusinessAppPlatform/environments"
         "?api-version=2016-11-01&$expand=properties/linkedEnvironmentMetadata"
     )
-    resp = _get(pp_token, url)
+    resp = _get(bap_token, url)
     return resp.json().get("value", []) if resp else []
 
 
@@ -332,7 +332,11 @@ def analyze_connection_ref(conn_ref, active_upns):
     owner_name = created_by.get("fullname") or owner_email
     is_disabled = created_by.get("isdisabled") or False
 
-    if is_disabled or (owner_email and owner_email not in active_upns):
+    # Skip system/service accounts — no email means not a real user
+    if not owner_email:
+        return None
+
+    if is_disabled or owner_email not in active_upns:
         status = "disabled account" if is_disabled else "departed user"
         return (
             HIGH, name, owner_email,
@@ -342,7 +346,7 @@ def analyze_connection_ref(conn_ref, active_upns):
     return None
 
 
-def analyze_environment(env, apps, flows, now):
+def analyze_environment(env, apps, flows, solutions, now):
     """Returns list of (sev, desc) for environment-level findings."""
     findings = []
     env_type = _env_type(env)
@@ -356,10 +360,10 @@ def analyze_environment(env, apps, flows, now):
 
     created = _env_created(env)
     a = age_days(created, now)
-    if not apps and not flows and a is not None and a > UNUSED_ENV_DAYS:
+    if not apps and not flows and not solutions and a is not None and a > UNUSED_ENV_DAYS:
         findings.append((
             MEDIUM,
-            f"{env_type} environment with no apps or flows (age: {a}d) — likely unused",
+            f"{env_type} environment with no apps, flows, or Dataverse solutions (age: {a}d) — likely unused",
         ))
     return findings
 
@@ -566,7 +570,7 @@ def main():
 
     tenant_id = env_config["TENANT_ID"]
     client_id = env_config["CLIENT_ID"]
-    user_email = env_config["USER_EMAIL"]
+    user_email = env_config["PRIMARY_MAILBOX"]
 
     # Auth: Graph (user roster)
     print(f"Authenticating ({user_email}) for Graph...")
@@ -668,7 +672,7 @@ def main():
     env_findings = []
     for env in envs:
         env_name = _env_name(env)
-        findings = analyze_environment(env, env_apps.get(env_name, []), env_flows.get(env_name, []), now)
+        findings = analyze_environment(env, env_apps.get(env_name, []), env_flows.get(env_name, []), env_solutions.get(env_name, []), now)
         dev_finding = analyze_dev_env_owner(env, active_upns)
         if dev_finding:
             findings.append(dev_finding)
@@ -705,6 +709,11 @@ def main():
                 continue
             uniquename = (sol.get("uniquename") or "").lower()
             friendly = sol.get("friendlyname") or sol.get("uniquename") or "(unnamed)"
+            # Skip built-in system solutions present in every Dataverse environment
+            if uniquename in ("default", "active", "basic"):
+                continue
+            if friendly.lower() in ("common data services default solution",):
+                continue
             if uniquename and uniquename not in prod_solution_names:
                 solution_findings.append((
                     MEDIUM, friendly, env_display,

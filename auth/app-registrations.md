@@ -36,6 +36,8 @@ on the local workstation and are never stored here.
 | RoleManagement.Read.Directory | Delegated | Granted | Read PIM and role assignments |
 | Sites.Read.All | Delegated | Granted | Read SharePoint sites tenant-wide (Play 3 + Play 7) |
 | Tasks.Read.All | Application | Granted | Read Planner plans tenant-wide (Play 3, client credentials) |
+| Dynamics CRM: user_impersonation | Delegated | Granted | Dataverse Web API per org (Play 5) |
+| Power Apps Service: User | Delegated | Granted | BAP environments, canvas apps, flows (Play 5) |
 
 ### Mailboxes in scope
 
@@ -51,6 +53,7 @@ on the local workstation and are never stored here.
 | DIS daily summary | dis_daily_summary.py | Active — v1 |
 | App reg governance scanner | app_reg_scanner.py | Active — v1 |
 | Orphaned asset scanner | orphaned_asset_scanner.py | Active — v1 |
+| Power Platform hygiene scanner | power_platform_hygiene.py | Active — v1 |
 
 ### Roadmap plays enabled by current scopes
 
@@ -60,7 +63,7 @@ on the local workstation and are never stored here.
 | Play 2 | Entra app reg governance scanner | Active | Application.Read.All, AuditLog.Read.All |
 | Play 3 | Orphaned asset cleanup (read phase) | Active | Directory.Read.All, Reports.Read.All, Sites.Read.All, Tasks.Read.All |
 | Play 4 | SecureSketCH / Secure Score remediation drafting | Planned | Reports.Read.All, Policy.Read.All |
-| Play 5 | Power Platform hygiene | Planned | Requires Power Platform API (not yet configured) |
+| Play 5 | Power Platform hygiene | Active | Dynamics CRM: user_impersonation, Power Apps Service: User |
 | Play 7 | SharePoint content intelligence | Planned | Sites.Read.All (already granted) |
 
 ### Notes
@@ -71,7 +74,7 @@ on the local workstation and are never stored here.
   and could not be used for client credentials flow. Replaced 2026-04-17 with
   MCNA-TenantIntel-Planner (thumbprint 8E2A295C...), exportable PFX at
   C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.pfx.
-- Power Platform admin API requires separate token flow. Not yet configured.
+- Power Platform scopes (Dynamics CRM: user_impersonation, Power Apps Service: User) added and admin consent granted 2026-04-20. Play 5 ready to run.
 - MCNA-TenantIntel-Writer (write-capable reg): architecture designed, not yet created.
   Requires separate approval per operating principles. Deferred.
 
@@ -94,3 +97,6 @@ on the local workstation and are never stored here.
 - 2026-04-17 — v1.2 — Added Sites.Read.All (delegated) and Tasks.Read.All (application).
   Replaced non-exportable cert with MCNA-TenantIntel-Planner PFX for client credentials
   flow. Added orphaned_asset_scanner.py to tasks. Updated plays table.
+- 2026-04-20 — v1.3 — Added Dynamics CRM: user_impersonation and Power Apps Service: User
+  (delegated, admin consent granted). Play 5 active. power_platform_hygiene.py added to tasks.
+  Note: Power Apps Service scope is named "User", not "user_impersonation".

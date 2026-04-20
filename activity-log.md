@@ -23,3 +23,9 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-17 16:55 - Orphaned asset scan - 166 assets flagged (High: 26, Medium: 105, Low: 44) - reports/orphaned-assets/2026-04-17.md
 2026-04-17 17:06 - Orphaned asset scan - 166 assets flagged (High: 26, Medium: 105, Low: 44) - reports/orphaned-assets/2026-04-17.md
 2026-04-19 — Play 5 build — Power Platform hygiene scanner created — power_platform_hygiene.py + tasks/power-platform-hygiene.md
+2026-04-20 12:41 — Power Platform hygiene scan — FAILED — Auth error 401 on https://api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01&$expand=properties/linkedEnvironmentMetadata: {"error":{"code":"InvalidAuthenticationAudience","message":"The received access token has been obtained from wrong audience or resource 'https://api.powerapps.com'. It should exactly match (including 
+2026-04-20 12:47 — Power Platform hygiene scan — 12 environments, 26 findings (High: 17, Medium: 9, Low: 0) — reports/power-platform-hygiene/2026-04-20.md
+2026-04-20 12:52 — Power Platform hygiene scan — 12 environments, 5 findings (High: 0, Medium: 5, Low: 0) — reports/power-platform-hygiene/2026-04-20.md
+2026-04-20 12:54 — Power Platform hygiene scan — 12 environments, 3 findings (High: 0, Medium: 3, Low: 0) — reports/power-platform-hygiene/2026-04-20.md
+2026-04-20 13:22 — Orphaned asset scan — 166 assets flagged (High: 26, Medium: 105, Low: 44) — reports/orphaned-assets/2026-04-20.md
+2026-04-20 13:27 — App reg scan — 40 apps scanned, 25 with findings (Critical: 7, High: 55) — reports/app-reg-governance/2026-04-20.md
