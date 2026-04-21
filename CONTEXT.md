@@ -1,4 +1,4 @@
-# CONTEXT.md — Master Control / MCNA Tenant Intel
+# CONTEXT.md — MCNA Admin Master Control
 
 ## Purpose
 
@@ -65,17 +65,27 @@ MC exists to unify those surfaces and answer the questions MCNA actually needs:
 
 The architectural unit is the `domain agent`, not the narrow scan.
 
-Master Control sits above domain agents and shared services.
+**Platform:** Claude Code is Master Control. Domain agent capabilities are
+exposed as MCP server tools. Two MCP server layers:
+
+1. **Microsoft MCP Server for Enterprise** (hosted, Microsoft-managed) —
+   Entra ID read-only via natural language over Microsoft Graph. Configured
+   as a remote MCP server in Claude Code settings. No auth code required.
+
+2. **MCNA-AMC MCP Server** (local Python) — Power Platform, Intune, Exchange
+   hygiene, Purview, Copilot governance, licensing, PIM, sharing posture,
+   Conditional Access, the local knowledge base (SQLite), and eventual write
+   operations. Uses existing MSAL auth pattern and app reg.
 
 High-level model:
 
 - domain agents collect and interpret domain state
-- shared schemas normalize findings and governed objects
-- MC correlates outputs across domains and across time
+- shared schemas normalize findings and governed objects across domains
+- MC (Claude Code) correlates outputs across domains and across time
 - outputs feed governance, evidence, risk, planning, and reporting
 
-Current prototype scripts are useful, but they are seed capabilities only.
-They do not define the permanent architecture.
+Prior prototype scripts are archived. They are seed capabilities only and
+do not define the permanent architecture.
 
 ---
 

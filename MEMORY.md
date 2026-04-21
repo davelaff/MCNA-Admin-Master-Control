@@ -1,142 +1,115 @@
-# MEMORY.md — MCNA Tenant Intel / Master Control
-Version: v8 | Updated: 2026-04-20
+# MEMORY.md — MCNA Admin Master Control
+Version: v9 | Updated: 2026-04-21
 
 ## Purpose of this file
 
-This is the living handoff and project-state file.
+Living handoff and project-state file.
 
 Use it to understand:
-
-- what decisions have already been made
+- what architectural decisions have been made and why
 - what the repo currently contains
-- what is true right now about auth, scope, and risk posture
-- what important context a fresh session should not have to rediscover
+- what is true right now about auth, scope, and open items
+- what a fresh session should not have to rediscover
 
 Read this once at project startup.
-
-After that:
-
-- `CONTEXT.md` governs architecture
-- `CLAUDE.md` governs operational behavior in the repo
-- `ROADMAP.md` remains useful for direction and history
+After that: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational
+behavior, `ROADMAP.md` is for direction and history.
 
 ---
 
 ## Current architectural position
 
-The repo started life as a set of narrow task ideas and early scripts.
+Master Control is a Microsoft estate orchestration and governance platform.
+Its agents are domain authorities, not single-purpose scanners.
 
-Current direction:
+**Platform decision (2026-04-21):** Claude Code IS Master Control. Domain agent
+capabilities are delivered via two MCP server layers:
 
-- treat the repo as the seed of `Master Control`
-- stop treating narrow `Plays` as the long-term architectural unit
-- treat current scripts as prototype capabilities
-- build toward domain agents plus shared schemas plus orchestration
+1. **Microsoft MCP Server for Enterprise** (hosted, Microsoft-managed, public preview)
+   - Remote MCP server: `https://mcp.svc.cloud.microsoft/enterprise`
+   - Entra ID read-only: users, groups, apps, devices, directory, admin reporting
+   - Authenticates via Dave's Entra admin account through Claude Code's OAuth flow
+   - No code to write. Configure in Claude Code MCP settings.
+   - App ID for Graph activity log filtering: `e8c77dc2-69b3-43f4-bc51-3213c9d915b4`
 
-Important working definition:
+2. **MCNA-AMC MCP Server** (local Python, `mcp-server/`)
+   - All domains not covered by Microsoft's server + local knowledge base
+   - Auth: MSAL device code flow with cached tokens (existing pattern)
+   - App reg: MCNA-TenantIntel-ReadOnly (see docs/auth/app-registrations.md)
+   - KB: SQLite at `mcp-server/kb/mcna_amc.db` (OneDrive-synced)
+   - **NOT YET BUILT** — this is the primary next build task
 
-`Master Control is a Microsoft estate orchestration and governance platform. Its agents are domain authorities, not single-purpose scanners.`
-
-This repo is still early-stage. It is not yet Master Control itself.
-It is the proving ground and seed layer for it.
-
----
-
-## Repo role right now
-
-Right now this repo is:
-
-- a local admin-intelligence workspace
-- a place to prototype Microsoft estate discovery and governance logic
-- a source of operational outputs and evidence-capable artifacts
-- a place where durable architecture is now being defined
-
-It is not yet:
-
-- a fully normalized platform
-- a unified data model
-- a mature orchestrator
-- a multi-agent domain system
+The old "Play" model is retired. Existing Play scripts are in `archive/`.
 
 ---
 
-## Durable decisions already made
-
-### 1. Master Control is an orchestrator
-
-The long-term target is not a single fuzzy chatbot.
-
-It is:
-
-- an orchestrator
-- a control plane
-- a governance intelligence backend
-
-### 2. Domain agents are the architectural unit
-
-The durable units are domain agents such as:
-
-- Entra
-- Exchange
-- SharePoint and OneDrive
-- Teams
-- Intune
-- Power Platform
-- Power BI
-- Security
-- Purview
-- Copilot and AI Governance
-
-### 3. Existing narrow scans are prototypes, not architecture
-
-Examples:
-
-- app registration scanning belongs inside the future `Entra Agent`
-- orphaned asset logic belongs inside the future `SharePoint and OneDrive Agent`
-  and may intersect with `Teams Agent`
-- Power Platform hygiene belongs inside the future `Power Platform Agent`
-
-### 4. Read-first posture remains in force
-
-Any write or remediation path should remain explicit, gated, and approval-bound.
-
-### 5. Evidence production matters
-
-Outputs should become usable in:
-
-- Secure SketCH support
-- the 2026 governance program
-- leadership review
-- audit readiness
-
----
-
-## Current repo contents of consequence
+## Repo contents (as of 2026-04-21)
 
 Core docs:
+- `CLAUDE.md` — operational brain
+- `CONTEXT.md` — short architecture orientation
+- `ARCHITECTURE.md` — full AMC design reference
+- `MEMORY.md` — this file
+- `ROADMAP.md` — strategic direction
+- `README.md` — 5-line orientation
+- `activity-log.md` — append-only task log
+- `Secure_SketCH_Guidelines_2026-01-01.docx` — compliance target (binary, not git-tracked)
 
-- `README.md`
-- `CLAUDE.md`
-- `ROADMAP.md`
-- `CONTEXT.md`
-- `MEMORY.md`
-- `activity-log.md`
-- `auth/app-registrations.md`
+Auth and docs:
+- `docs/auth/app-registrations.md` — app reg record (moved from `auth/`)
+- `docs/superpowers/specs/` — design specs
+- `docs/superpowers/plans/` — implementation plans
 
-Current scripts:
+Build artifact (not yet built):
+- `mcp-server/` — MCNA-AMC MCP Server
 
-- `dis_daily_summary.py`
-- `app_reg_scanner.py`
-- `orphaned_asset_scanner.py`
-- `power_platform_hygiene.py`
-- `ms_learn_scraper.py`
+Reports (historical scan outputs, still valid reference):
+- `reports/app-reg-governance/` — 2026-04-17, 2026-04-20
+- `reports/orphaned-assets/` — 2026-04-17, 2026-04-20
+- `reports/power-platform-hygiene/` — 2026-04-20
+- `reports/secure-score/` — empty
 
-Current working interpretation:
+Archive (reference implementations, session artifacts):
+- `archive/*.py` — old Play scripts (useful as Graph query reference)
+- `archive/tasks/` — old Play task specs
+- `archive/dis-log/` — old DIS mail log
+- `archive/AGENTS.md` — old duplicate brain file
+- `archive/SESSION_HANDOFF_*.md` — old session handoffs
+- `archive/handoff-CA-policy-2026-04-17.md` — CA policy session notes
 
-- `dis_daily_summary.py` is an operational utility task
-- the other three major scanners are prototype governance capabilities
-- `ms_learn_scraper.py` is a useful research utility, not part of the core
-  governance model
+---
+
+## MCNA-AMC MCP Server — domain tool surface
+
+Thirteen domains planned for v1:
+
+| Prefix | Domain | Primary Graph endpoints |
+|---|---|---|
+| `pp_*` | Power Platform | BAP, Dataverse, PAD |
+| `entra_*` | Entra governance (gaps + future writes) | /applications, /servicePrincipals, /users |
+| `ca_*` | Conditional Access | /identity/conditionalAccess/policies |
+| `exo_*` | Exchange hygiene | /users/{id}/mailboxSettings, /admin/serviceAnnouncement |
+| `license_*` | Licensing | /subscribedSkus, /users/{id}/licenseDetails |
+| `pim_*` | Privileged Identity Management | /roleManagement/directory |
+| `sharing_*` | External sharing posture | /sites, /drives |
+| `compliance_*` | SecureSketCH mapping, Secure Score | /security/secureScores |
+| `mail_*` | Send summary emails | /me/sendMail |
+| `intune_*` | Device and endpoint governance | /deviceManagement |
+| `copilot_*` | Copilot readiness and governance | /reports, /sites (label coverage) |
+| `purview_*` | Sensitivity labels, DLP, audit | /security/informationProtection, /auditLogs |
+| `kb_*` | Knowledge base (SQLite) | local only |
+
+---
+
+## Knowledge base schema
+
+Five tables in `mcp-server/kb/mcna_amc.db`:
+
+- **`tenant_snapshot`** — one row per entity, JSON properties blob, `last_scanned` timestamp
+- **`findings`** — flagged items: entity type/ID, SecureSketCH control, severity, status (open/acknowledged/resolved), first/last seen
+- **`baselines`** — known-good state for drift detection
+- **`dismissed`** — accepted-risk items with reason and date
+- **`activity_log`** — every tool invocation: timestamp, tool, entity, outcome
 
 ---
 
@@ -144,348 +117,48 @@ Current working interpretation:
 
 ### Accounts in use
 
-This repo currently uses two delegated MSAL user contexts because Exchange
-Full Access delegation does not extend to Graph delegated mailbox access.
-
 - Admin account: `nof-dlafferty@nofmetalcoatings.us`
-  Used for:
-  - sendMail
-  - admin-scoped Graph queries
-  - most admin-side work
-  Cache:
-  - `C:/Users/dlafferty.MCNA/.msal_token_cache_admin.json`
+  Cache: `C:/Users/dlafferty.MCNA/.msal_token_cache_admin.json`
+  Used for: sendMail, admin-scoped Graph queries
 
 - Primary account: `dlafferty@nofmetalcoatings.us`
-  Used for:
-  - primary mailbox read
-  - Power Platform queries where that account context is needed
-  Cache:
-  - `C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json`
+  Cache: `C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json`
+  Used for: primary mailbox read, Power Platform queries
 
-Important:
+ApplicationImpersonation is deprecated in EXO 2026 — do not suggest it.
 
-- `ApplicationImpersonation` in Exchange Online is deprecated and should not be
-  suggested as a solution path.
-- If delegated auth fails or expires, manual reauthentication is currently the
-  operational recovery path.
+### App registration
 
-### App registration currently in use
+- `MCNA-TenantIntel-ReadOnly` — public client, delegated + application perms
+- Certificate: MCNA-TenantIntel-Planner, expires 2028-04-16
+  PFX at `C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.pfx`
+- .env: `C:\Users\dlafferty.MCNA\mcna-tenantintel.env`
+- Current scopes documented in `docs/auth/app-registrations.md`
+- `MCNA-TenantIntel-Writer` (write-capable reg): designed, not yet created
 
-Primary app registration:
+### Governance paper trail outstanding
 
-- `MCNA-TenantIntel-ReadOnly`
-
-Current reality:
-
-- public client flows enabled
-- delegated permissions in use
-- application permission `Tasks.Read.All` also present for Planner access
-
-Important architectural caution:
-
-The project principles aim for clean separation between trust models, but the
-current implementation is still transitional and not perfectly aligned to the
-ideal architecture yet.
-
-### Certificate / PFX reality
-
-Current implementation uses:
-
-- `MCNA-TenantIntel-Planner`
-- exportable PFX path outside the synced repo
-
-This works operationally, but it does not perfectly match the aspirational
-security model described elsewhere. Treat it as current reality, not final
-architecture.
-
-### .env location
-
-Current env file:
-
-- `C:\Users\dlafferty.MCNA\mcna-tenantintel.env`
-
-It lives outside the OneDrive-synced repo on purpose.
-
-Known variables in use include:
-
-- `TENANT_ID`
-- `CLIENT_ID`
-- `CERT_THUMBPRINT`
-- `CERT_PFX_PATH`
-- `USER_EMAIL`
-- `PRIMARY_MAILBOX`
-- `SUMMARY_RECIPIENT`
+IT-GOV-ENTRA-v1.0 requires a documented request record for scope additions:
+- 2026-04-16: Application.Read.All, AuditLog.Read.All, Directory.Read.All,
+  Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory
+- 2026-04-17: Sites.Read.All (delegated), Tasks.Read.All (application)
+Dave self-approves as IS Director but the paper trail has not been written.
 
 ---
 
 ## OneDrive / SharePoint sync reality
 
-This repo is synced into the M365 Security and Governance library in the MIS
-SharePoint site.
-
-Implications:
-
-- repo outputs become organizational content
-- version history exists
-- retention and Purview treatment may apply
-- sloppy temp files are bad
-- filenames and folder structure matter
-
-The `.env` file is intentionally outside the synced repo.
-
----
-
-## Current functional state of the repo
-
-### `dis_daily_summary.py`
-
-Status:
-
-- active
-- operational
-- narrow and task-specific
-
-Role in the broader architecture:
-
-- operational utility
-- proof that the end-to-end pattern works
-- not a future top-level domain architecture concept
-
-### `app_reg_scanner.py`
-
-Status:
-
-- active prototype
-
-Role in the broader architecture:
-
-- seed capability for the future `Entra Agent`
-
-Important note:
-
-- it is already surfacing real governance issues, including owner gaps
-
-### `orphaned_asset_scanner.py`
-
-Status:
-
-- active prototype
-
-Role in the broader architecture:
-
-- seed capability for future `SharePoint and OneDrive Agent`
-- may also intersect with `Teams Agent`
-
-Important note:
-
-- the orphaned-assets concept is useful, but it is only one slice of the future
-  SharePoint/Teams governance surface
-
-### `power_platform_hygiene.py`
-
-Status:
-
-- active prototype
-
-Role in the broader architecture:
-
-- seed capability for future `Power Platform Agent`
-
-Important note:
-
-- this domain is much broader than the current script and will eventually need
-  to cover environments, makers, DLP, ALM, connections, Copilot Studio, and
-  governance posture
-
-### `ms_learn_scraper.py`
-
-Status:
-
-- utility
-
-Role:
-
-- official-doc research helper
-- useful for product/domain discovery and documentation extraction
-
----
-
-## Immediate architectural implications
-
-Before adding many more narrow scripts, the system should define:
-
-- a normalized finding schema
-- a normalized evidence model
-- domain-agent boundaries
-- cross-domain services
-- what gets treated as durable evidence versus disposable analysis
-
-If that does not happen, the repo will grow tentacles in the bad sense:
-
-- too many narrow scripts
-- too much duplicated auth/query logic
-- too many disconnected reports
-- too much context that only Dave remembers
-
----
-
-## Relationship to the 2026 governance program
-
-Master Control should eventually support:
-
-- the Secure SketCH response cycle
-- evidence generation and tracking
-- governance review packets
-- remediation prioritization
-- control-state visibility
-- audit readiness
-
-This repo is therefore not just an admin sandbox. It is becoming part of the
-backend governance capability for the 2026 IT-MIS Security and Governance work.
-
----
-
-## Known risks and tensions
-
-### 1. Architecture drift
-
-The docs may describe a cleaner future-state than the code currently implements.
-
-### 2. Security-model drift
-
-Read/write separation and certificate handling are not yet in their ideal final
-state.
-
-### 3. Schema debt
-
-The repo currently has multiple useful outputs but no unified normalized model
-yet.
-
-### 4. Memory concentration risk
-
-Too much meaning still lives in Dave's head and in ad hoc repo history rather
-than in shared structures.
-
-### 5. Tool sprawl risk
-
-Without domain-agent framing, each new problem could become another standalone
-script.
-
----
-
-## Current best next moves
-
-1. Keep `CONTEXT.md` stable as the durable architecture reference.
-2. Use this file as the living operational memory.
-3. Define the common finding schema before expanding too far.
-4. Define the evidence model and retention expectations.
-5. Recast prototype scripts under future domain-agent ownership.
-6. Choose the first serious domain agents for design and build.
-
-Recommended early serious domains:
-
-- Entra
-- SharePoint and OneDrive
-- Power Platform
-- Security or Purview, depending on whether evidence or security posture is the
-  more urgent next use
-
----
-
-## Things a fresh session should remember
-
-- The current repo is early-stage and promising, but still transitional.
-- The old `Play` framing is no longer the right top-level architecture.
-- `Master Control` is the new architectural center of gravity.
-- Domain agents should replace narrow task-centric thinking.
-- Existing scripts are still useful and should be preserved as prototypes.
-- The next foundational work is context, memory, schema, and evidence design.
-  apps. Scores findings by severity (Critical/High/Medium/Low). Writes
-  risk register to reports/app-reg-governance/YYYY-MM-DD.md + .csv.
-  First run: 40 apps, 25 with findings (Critical: 7, High: 54, Medium: 30).
-  Token cache hot -- no device code on re-run. Run on-demand.
-  Key finding: 6 critical expired certs on Portals-* apps. Workflow app
-  has 57 cert entries -- SharePoint Online auto-provisioned, not actionable.
-
-- orphaned_asset_scanner.py -- Active, v1. Built and verified 2026-04-17.
-  Inventories orphaned M365 groups/Teams, distribution groups, users,
-  SharePoint sites, and Planner plans in orphaned groups.
-  Auth: delegated token for groups/users/sites; client credentials (cert)
-  for Planner (Tasks.Read.All application permission).
-  First run (full): 166 assets flagged (High: 26, Medium: 105, Low: 44).
-  Writes to reports/orphaned-assets/YYYY-MM-DD.md + .csv. Run on-demand.
-  Key findings: 14 M365 groups with all owners disabled (lverzella, jsimonic,
-  sfreeman, ariddle, lcannon, tbankole accounts). 3 disabled users holding
-  licenses (cheinz x2, dschultz, skemp). Macola Project group has 3 orphaned
-  Planner plans. QMS site (/sites/qualityna) had stale primary admin --
-  luribe added as site collection admin 2026-04-17.
-  Known limitation: SP usage report Owner Principal Name shows group email
-  for Teams-backed sites, not individual users. High firing = stale primary
-  admin account, not necessarily unmanaged. Verify in SP Admin Center.
-
-- ms_learn_scraper.py -- Present in folder, built by Claude Code.
-  Playwright-based scraper for learn.microsoft.com. Not yet formally
-  tasked or documented in CLAUDE.md. Needs: pip install playwright +
-  playwright install chromium before use.
-
-### Folder structure (confirmed as of 2026-04-17)
-```
-mcna-tenant-intel/
-|- CLAUDE.md
-|- MEMORY.md
-|- ROADMAP.md
-|- README.md
-|- activity-log.md
-|- dis_daily_summary.py
-|- app_reg_scanner.py
-|- orphaned_asset_scanner.py
-|- ms_learn_scraper.py
-|- handoff-CA-policy-2026-04-17.md
-|- auth/
-|   |- app-registrations.md
-|- tasks/
-|   |- dis-daily-summary.md
-|   |- app-reg-scanner.md
-|   |- orphaned-assets.md
-|- dis-log/
-|   |- 2026-04-16.md
-|- queries/
-|- archive/
-|- reports/
-    |- app-reg-governance/
-    |   |- 2026-04-17.md
-    |   |- 2026-04-17.csv
-    |- orphaned-assets/
-    |   |- 2026-04-17.md
-    |   |- 2026-04-17.csv
-    |- secure-score/
-    |- power-platform-hygiene/
-```
-
-### Governance housekeeping outstanding
-IT-GOV-ENTRA-v1.0 requires a documented request record for the scope
-additions made 2026-04-16 (Application.Read.All, AuditLog.Read.All,
-Directory.Read.All, Policy.Read.All, Reports.Read.All,
-RoleManagement.Read.Directory). Dave self-approves as IS Director but
-the paper trail should exist. Not yet done.
-
----
-
-## Things NOT to assume
-- Dave does not use Obsidian.
-- Dave is already technical and already a global admin. Do not explain
-  basic Graph, Entra, or M365 concepts unless he asks.
-- ApplicationImpersonation cannot be used -- deprecated. Do not suggest it.
-- This project is Dave's personal workbench. Not a template for
-  MCNA-wide deployment without a formal governance review.
+This repo syncs to the M365 Security and Governance library in the MIS SharePoint
+site. Outputs become organizational content with version history and retention.
+The `.env` and cert files live outside the synced repo intentionally.
 
 ---
 
 ## Open items
 
-### CA policy & Entra identity (from sessions 4-5, 2026-04-17)
-- Awaiting Tony response on 4 CA policy gaps (legacy auth, admin
-  policy, service accounts, MCNA break-glass)
+### CA policy and Entra identity (from sessions 4-5, 2026-04-17)
+- Awaiting Tony response on 4 CA policy gaps (legacy auth, admin policy,
+  service accounts, MCNA break-glass)
 - Identify owner of admin@nofmetalcoatings.us before touching it
 - Confirm cloudadmin@nofmetalcoatings.us ownership
 - Decision: when to disable Security Defaults and enable CA policies
@@ -493,66 +166,50 @@ the paper trail should exist. Not yet done.
   d24aef57-1500-4070-84db-2666f29cf966. Unknown identity and purpose.
   Needs investigation before touching.
 
-### Entra role remediation (session 5 -- mostly complete)
-- DONE: dlafferty@ daily driver cleaned -- roles moved to nof-dlafferty@
-- DONE: nof-scala@ -- removed Fabric Administrator, Power Platform Administrator
-- DONE: MIS@ -- role count reduced from 24 per governance review
-- IN PROGRESS: nof-dkochever@ -- User Admin and Teams Admin removed.
-  Exchange Administrator on hold. Key question for meeting: is Diana
-  actively managing shared mailboxes or DLs? If no ongoing use case,
-  remove Exchange Administrator.
+### Entra role remediation (session 5 — mostly complete)
+- DONE: dlafferty@ daily driver cleaned — roles moved to nof-dlafferty@
+- DONE: nof-scala@ — removed Fabric Administrator, Power Platform Administrator
+- DONE: MIS@ — role count reduced from 24 per governance review
+- IN PROGRESS: nof-dkochever@ — User Admin and Teams Admin removed.
+  Exchange Administrator on hold. Key question: is Diana actively managing
+  shared mailboxes or DLs? If no ongoing use case, remove Exchange Administrator.
 
-### Project infrastructure
-- Governance paper trail for scope additions per IT-GOV-ENTRA-v1.0:
-  2026-04-16 additions (Application.Read.All, AuditLog.Read.All,
-  Directory.Read.All, Policy.Read.All, Reports.Read.All,
-  RoleManagement.Read.Directory) and 2026-04-17 additions
-  (Sites.Read.All delegated, Tasks.Read.All application). Self-approved
-  as IS Director but paper trail not yet written.
-- MCNA-TenantIntel-Writer app reg: architecture discussed 2026-04-17.
-  Pattern: edited CSV queue as approval mechanism; write script executes
-  approved rows; every write logged twice. Needs separate app reg with
-  Group.ReadWrite.All, User.ReadWrite.All scopes + new cert.
-  Deferred to a future session. DO NOT add write scopes to ReadOnly reg.
-- Power Platform admin API token flow: not yet configured, needed for Play 5
-- ms_learn_scraper.py: needs formal task definition in CLAUDE.md if
-  it enters regular use
-- Play 8 (mail/Teams forensics): gated, requires explicit risk
-  sign-off before any work begins
-- activity-log.md line 4 has encoding corruption (em-dashes as â€")
-  from a PowerShell write. Historical, low priority. All future
-  writes must use MCP FileSystem tool, not PowerShell.
+### Infrastructure
+- Governance paper trail for scope additions (see above)
+- MCNA-TenantIntel-Writer app reg: architecture designed, not yet created
+- activity-log.md line 4 has encoding corruption (em-dashes as â€"). Historical,
+  low priority. All future writes via MCP FileSystem tool, not PowerShell.
 
 ### VS Code tooling
-- Windows MCP Server (sbroenne.windows-mcp) requires .NET 10 Windows
-  Desktop Runtime. Fixed 2026-04-17 by installing
-  Microsoft.DotNet.DesktopRuntime.10 via winget. If it breaks after
-  a future extension update, check the runtime version requirement first.
+- Windows MCP Server (sbroenne.windows-mcp) requires .NET 10 Windows Desktop
+  Runtime. Fixed 2026-04-17. If it breaks after an extension update, check the
+  runtime version requirement first.
+
+---
+
+## Things NOT to assume
+- Dave does not use Obsidian.
+- Dave is already technical and already a global admin. Do not explain basic
+  Graph, Entra, or M365 concepts unless he asks.
+- ApplicationImpersonation cannot be used — deprecated. Do not suggest it.
+- This project is Dave's personal workbench, not a template for MCNA-wide
+  deployment without a formal governance review.
 
 ---
 
 ## Change log
-- 2026-04-14 -- v1 -- Initial handoff from scoping session.
-- 2026-04-16 -- v2 -- Full rebuild to reflect actual project state
-  after build session.
-- 2026-04-17 -- v3 -- Stripped content already in Claude system
-  instructions (Dave identity, communication style, stack, key
-  people, active initiatives). Added session 2 and session 3
-  summaries. Added tasks/ disk-vs-design discrepancy note.
-  Added activity-log encoding corruption to open items.
-- 2026-04-17 -- v4 -- Added session 4 summary (CA policy & Entra
-  role audit). Added CA/identity open items section. Saved
-  handoff-CA-policy-2026-04-17.md to project root.
-- 2026-04-17 -- v5 -- Added Windows MCP Server .NET dependency note.
-- 2026-04-17 -- v6 -- Session 5: app_reg_scanner.py added to tasks built.
-  Folder structure updated. Entra role remediation status captured.
-  Session 4 outstanding actions updated (items 4+5 partially complete).
-  Open items restructured to separate CA/identity from role remediation.
-  Stale tasks/ disk note removed.
-- 2026-04-17 -- v7 -- Session 6: Play 3 built (orphaned_asset_scanner.py).
-  Sites.Read.All and Tasks.Read.All added to app reg. Certificate replaced
-  (old cert non-exportable; new MCNA-TenantIntel-Planner cert created as
-  exportable PFX). Planner scan operational via client credentials flow.
-  First full scan: 166 assets flagged. QMS site remediated (luribe added
-  as site collection admin). Write phase architecture discussed and deferred.
-  Folder structure, permissions, tasks, and open items updated.
+- 2026-04-14 — v1 — Initial handoff.
+- 2026-04-16 — v2 — Full rebuild after build session.
+- 2026-04-17 — v3 — Session 2 and 3 summaries. Auth/scope additions.
+- 2026-04-17 — v4 — CA policy and Entra role audit session notes.
+- 2026-04-17 — v5 — Windows MCP Server .NET dependency note.
+- 2026-04-17 — v6 — app_reg_scanner.py built. Entra role remediation status.
+- 2026-04-17 — v7 — Play 3 built. Sites.Read.All, Tasks.Read.All added.
+  Cert replaced. QMS site remediated. Write phase deferred.
+- 2026-04-20 — v8 — ARCHITECTURE.md and CONTEXT.md added. Play 5 built.
+  Power Platform scopes granted. AMC direction established.
+- 2026-04-21 — v9 — Platform decision: Claude Code as AMC + MCP server layers.
+  Play model retired. Repo cleaned: Play scripts, task specs, session handoffs,
+  AGENTS.md, dis-log, queries moved to archive/. auth/ moved to docs/auth/.
+  MCNA-AMC MCP Server defined (not yet built). Domain tool surface and KB
+  schema documented.

@@ -9,9 +9,6 @@
 *.json.bak
 .msal_*
 
-# DIS daily log outputs (email summaries — sensitive business content)
-dis-log/
-
 # Claude Code local settings
 .claude/settings.local.json
 

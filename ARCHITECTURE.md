@@ -18,6 +18,67 @@ This file is where the detail lives:
 
 ---
 
+## Platform Architecture
+
+Master Control runs as Claude Code augmented by two MCP server layers.
+
+```
+┌─────────────────────────────────────────────────────┐
+│                  Claude Code (AMC)                  │
+│            CLAUDE.md = operational brain            │
+└───────────────┬──────────────────┬──────────────────┘
+                │                  │
+   ┌────────────▼────┐    ┌────────▼────────────────┐
+   │  Microsoft MCP  │    │   MCNA-AMC MCP Server   │
+   │  Server for     │    │   (local Python)        │
+   │  Enterprise     │    │                         │
+   │  (hosted,       │    │  Domains: pp, entra,    │
+   │   read-only)    │    │  ca, exo, license, pim, │
+   │                 │    │  sharing, compliance,   │
+   │  Entra ID:      │    │  mail, intune, copilot, │
+   │  users, groups, │    │  purview, kb            │
+   │  apps, devices, │    │                         │
+   │  directory      │    │  Auth: MSAL + app reg   │
+   │                 │    │  KB: SQLite (OneDrive-  │
+   │  Auth: Entra    │    │  synced)                │
+   │  delegated via  │    └─────────────────────────┘
+   │  Claude Code    │
+   └─────────────────┘
+```
+
+### MCNA-AMC MCP Server structure
+
+```
+mcp-server/
+├── server.py          # MCP server entry point
+├── auth.py            # MSAL token management
+├── graph.py           # Shared Graph HTTP client
+├── tools/             # One module per domain
+│   ├── pp.py
+│   ├── entra.py
+│   ├── ca.py
+│   ├── exo.py
+│   ├── license.py
+│   ├── pim.py
+│   ├── sharing.py
+│   ├── compliance.py
+│   ├── mail.py
+│   ├── intune.py
+│   ├── copilot.py
+│   ├── purview.py
+│   └── kb.py
+└── kb/
+    └── mcna_amc.db    # SQLite knowledge base
+```
+
+### Knowledge base schema
+
+Five tables: `tenant_snapshot`, `findings`, `baselines`, `dismissed`,
+`activity_log`. KB tools: `kb_get_findings`, `kb_update_finding`,
+`kb_dismiss`, `kb_get_snapshot`, `kb_diff_snapshot`.
+
+---
+
 ## What Master Control Is
 
 Master Control (`MC`) is a Microsoft estate orchestration and governance
@@ -633,9 +694,11 @@ The right next move is:
 
 ## Immediate Priorities
 
-1. Maintain `CONTEXT.md` as the short orientation file.
-2. Maintain this file as the long-form design reference.
-3. Use `MEMORY.md` as the living handoff and current-state file.
-4. Decide which 3-4 domain agents are first-class build priorities.
-5. Define common schemas before adding more narrow repo sprawl.
-6. Tie future outputs directly to governance, evidence, and planning use.
+1. Build the MCNA-AMC MCP Server (`mcp-server/`) with shared auth, graph client,
+   KB schema, and the first domain tools.
+2. Configure Microsoft MCP Server for Enterprise in Claude Code MCP settings.
+3. Define the common finding schema (see above) before expanding tool surface.
+4. First domain tools to build: `entra`, `ca`, `pp`, `kb` — highest SecureSketCH
+   value and most directly fed by existing prototype logic.
+5. Tie every tool output to the KB so findings accumulate over time rather than
+   resetting each session.
