@@ -1,263 +1,405 @@
-# MEMORY.md — MCNA Tenant Intel Project
-Version: v7 | Updated: 2026-04-17
+# MEMORY.md — MCNA Tenant Intel / Master Control
+Version: v8 | Updated: 2026-04-20
 
 ## Purpose of this file
-Handoff document for Claude Cowork. Covers how this project came to
-exist, the current project state as of the last documented session,
-and project-specific context a fresh Cowork instance needs that isn't
-already in the Claude system instructions.
 
-Read this once at project startup. After that, CLAUDE.md governs
-operational behavior and ROADMAP.md governs direction.
+This is the living handoff and project-state file.
 
----
+Use it to understand:
 
-## Context already in Claude system instructions
-The following are fully documented in the Claude project system
-instructions and do not need to be repeated here. A fresh Cowork
-instance starting this project should consult those for:
+- what decisions have already been made
+- what the repo currently contains
+- what is true right now about auth, scope, and risk posture
+- what important context a fresh session should not have to rediscover
 
-- Who Dave is, how he thinks, and his communication preferences
-- MCNA org context (company, NOF relationship, product line)
-- The full technology stack
-- Active initiatives (WorkSmart/KR-9, FIA, Governance Overhaul, etc.)
-- Key MCNA personnel (Gerry Truax, Steve Cala, Chris Gayhart, etc.)
-- Document naming conventions and SharePoint library structure
-- DIS communication style guidelines
+Read this once at project startup.
+
+After that:
+
+- `CONTEXT.md` governs architecture
+- `CLAUDE.md` governs operational behavior in the repo
+- `ROADMAP.md` remains useful for direction and history
 
 ---
 
-## Project-specific context
+## Current architectural position
 
-### DIS identity (project use only)
-DIS is MCNA's managed service provider. These values are the source
-of truth for the DIS daily summary task and should match CLAUDE.md.
+The repo started life as a set of narrow task ideas and early scripts.
 
-Domain: discomputers.com
-Known senders: nwhitelaw@discomputers.com, Tony@discomputers.com
-Ticket system: support@discomputers.com
-Subject markers: [DIS], [Ticket #], DIS Support
+Current direction:
 
-### Auth accounts
-This project uses two MSAL sessions because Exchange Full Access
-delegation does not extend to Graph delegated API access, and
-ApplicationImpersonation is deprecated in Exchange Online as of 2026
-(New-ManagementRoleAssignment throws ManagementRoleDeprecatedException).
-Do not suggest ApplicationImpersonation as a solution -- it cannot be used.
+- treat the repo as the seed of `Master Control`
+- stop treating narrow `Plays` as the long-term architectural unit
+- treat current scripts as prototype capabilities
+- build toward domain agents plus shared schemas plus orchestration
 
-- Admin account: nof-dlafferty@nofmetalcoatings.us
-  Used for: sendMail + admin-scoped Graph queries
-  Token cache: C:/Users/dlafferty.MCNA/.msal_token_cache_admin.json
+Important working definition:
 
-- Primary account: dlafferty@nofmetalcoatings.us
-  Used for: mail read on primary mailbox
-  Token cache: C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json
+`Master Control is a Microsoft estate orchestration and governance platform. Its agents are domain authorities, not single-purpose scanners.`
 
-Both use device code flow + MFA. Refresh tokens last ~90 days.
-When expired, the scheduled task fails with a 403. Fix: run the
-script manually once to re-authenticate. Check activity-log.md for
-FAILED entries.
+This repo is still early-stage. It is not yet Master Control itself.
+It is the proving ground and seed layer for it.
 
-### App registration: MCNA-TenantIntel-ReadOnly
-Created: 2026-04-16
-Type: Public client (delegated) + application permissions (client credentials)
-Tenant ID: 2eb7fcc8-58b3-4f06-9cbc-77d0c178dba3
-Client ID: 96587e5a-65a1-4b20-a82c-e61b2e6bc9db
-Certificate: MCNA-TenantIntel-Planner (replaces old non-exportable cert)
-  Thumbprint: 8E2A295C98DD065F1ABD08E0E3E5BB9950CBEE40
-  Valid: 2026-04-17 to 2028-04-16
-  PFX: C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.pfx (no password)
-  CER: C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.cer (uploaded to Entra)
-Public client flows: Enabled
-Redirect URI: http://localhost (Mobile & desktop)
+---
 
-Delegated permissions (admin consent granted):
-Mail.Read, Mail.Send, User.Read, Application.Read.All,
-AuditLog.Read.All, Directory.Read.All, Policy.Read.All,
-Reports.Read.All, RoleManagement.Read.Directory, Sites.Read.All
+## Repo role right now
 
-Application permissions (admin consent granted):
-Tasks.Read.All — used by orphaned_asset_scanner.py (Planner scan, client credentials flow)
+Right now this repo is:
 
-Not yet added: Power Platform API (Play 5)
+- a local admin-intelligence workspace
+- a place to prototype Microsoft estate discovery and governance logic
+- a source of operational outputs and evidence-capable artifacts
+- a place where durable architecture is now being defined
+
+It is not yet:
+
+- a fully normalized platform
+- a unified data model
+- a mature orchestrator
+- a multi-agent domain system
+
+---
+
+## Durable decisions already made
+
+### 1. Master Control is an orchestrator
+
+The long-term target is not a single fuzzy chatbot.
+
+It is:
+
+- an orchestrator
+- a control plane
+- a governance intelligence backend
+
+### 2. Domain agents are the architectural unit
+
+The durable units are domain agents such as:
+
+- Entra
+- Exchange
+- SharePoint and OneDrive
+- Teams
+- Intune
+- Power Platform
+- Power BI
+- Security
+- Purview
+- Copilot and AI Governance
+
+### 3. Existing narrow scans are prototypes, not architecture
+
+Examples:
+
+- app registration scanning belongs inside the future `Entra Agent`
+- orphaned asset logic belongs inside the future `SharePoint and OneDrive Agent`
+  and may intersect with `Teams Agent`
+- Power Platform hygiene belongs inside the future `Power Platform Agent`
+
+### 4. Read-first posture remains in force
+
+Any write or remediation path should remain explicit, gated, and approval-bound.
+
+### 5. Evidence production matters
+
+Outputs should become usable in:
+
+- Secure SketCH support
+- the 2026 governance program
+- leadership review
+- audit readiness
+
+---
+
+## Current repo contents of consequence
+
+Core docs:
+
+- `README.md`
+- `CLAUDE.md`
+- `ROADMAP.md`
+- `CONTEXT.md`
+- `MEMORY.md`
+- `activity-log.md`
+- `auth/app-registrations.md`
+
+Current scripts:
+
+- `dis_daily_summary.py`
+- `app_reg_scanner.py`
+- `orphaned_asset_scanner.py`
+- `power_platform_hygiene.py`
+- `ms_learn_scraper.py`
+
+Current working interpretation:
+
+- `dis_daily_summary.py` is an operational utility task
+- the other three major scanners are prototype governance capabilities
+- `ms_learn_scraper.py` is a useful research utility, not part of the core
+  governance model
+
+---
+
+## Authentication and identity realities
+
+### Accounts in use
+
+This repo currently uses two delegated MSAL user contexts because Exchange
+Full Access delegation does not extend to Graph delegated mailbox access.
+
+- Admin account: `nof-dlafferty@nofmetalcoatings.us`
+  Used for:
+  - sendMail
+  - admin-scoped Graph queries
+  - most admin-side work
+  Cache:
+  - `C:/Users/dlafferty.MCNA/.msal_token_cache_admin.json`
+
+- Primary account: `dlafferty@nofmetalcoatings.us`
+  Used for:
+  - primary mailbox read
+  - Power Platform queries where that account context is needed
+  Cache:
+  - `C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json`
+
+Important:
+
+- `ApplicationImpersonation` in Exchange Online is deprecated and should not be
+  suggested as a solution path.
+- If delegated auth fails or expires, manual reauthentication is currently the
+  operational recovery path.
+
+### App registration currently in use
+
+Primary app registration:
+
+- `MCNA-TenantIntel-ReadOnly`
+
+Current reality:
+
+- public client flows enabled
+- delegated permissions in use
+- application permission `Tasks.Read.All` also present for Planner access
+
+Important architectural caution:
+
+The project principles aim for clean separation between trust models, but the
+current implementation is still transitional and not perfectly aligned to the
+ideal architecture yet.
+
+### Certificate / PFX reality
+
+Current implementation uses:
+
+- `MCNA-TenantIntel-Planner`
+- exportable PFX path outside the synced repo
+
+This works operationally, but it does not perfectly match the aspirational
+security model described elsewhere. Treat it as current reality, not final
+architecture.
 
 ### .env location
-C:\Users\dlafferty.MCNA\mcna-tenantintel.env
-Stored outside the OneDrive sync folder -- does not sync to SharePoint.
-Variables: TENANT_ID, CLIENT_ID, CERT_THUMBPRINT, CERT_PFX_PATH,
-USER_EMAIL, PRIMARY_MAILBOX, SUMMARY_RECIPIENT
 
-### OneDrive sync
-This project folder is OneDrive-synced to the M365 Security and
-Governance document library in the MIS SharePoint site. Every file
-written here becomes organizational content with SharePoint version
-history and retention applied automatically. The .env file is the
-only exception -- it lives outside the synced folder deliberately.
+Current env file:
 
----
+- `C:\Users\dlafferty.MCNA\mcna-tenantintel.env`
 
-## How this project came to exist
+It lives outside the OneDrive-synced repo on purpose.
 
-### Phase 1 -- Copilot Cowork vs Claude Cowork comparison
-Dave has Copilot Cowork (Microsoft's Claude-powered M365 agent, Wave 3
-/ Frontier program) and Claude Cowork (Anthropic's desktop agent).
-Key conclusion: they are complementary, not competing.
+Known variables in use include:
 
-- Copilot Cowork: tenant-native, governed, Work-IQ-grounded, auditable,
-  org-wide deployable. Cannot reach outside M365 -- no local files,
-  no computer use, no third-party connectors. Survives Dave leaving.
-- Claude Cowork: local, computer use, broader MCP connectors, Dispatch,
-  brain file / project pattern. Explicitly NOT for regulated workloads.
-  Conversation history not in Audit Logs or Compliance API.
-
-Strategic split:
-- Claude Cowork: personal workbench, local files, Macola-adjacent work,
-  tenant admin automation via Graph, FIA prototyping, anything requiring
-  computer use or non-Microsoft connectors.
-- Copilot Cowork: org-wide workflows, anything governed, anything that
-  needs to survive Dave.
-- Regulated data (EPA CDR, TSCA, SDS, customer PII): Copilot Cowork only.
-
-### Phase 2 -- The core architectural insight
-Dave is global admin across Entra, Exchange, SharePoint, Teams, and
-Power Platform. Claude Cowork on his workstation + an Entra app reg
-with Graph permissions = an admin automation layer over the entire
-tenant. Not "AI does my email" -- architectural leverage.
-
-Two app reg flavors to keep separate:
-- Delegated (user-context): acts as Dave, inherits admin rights,
-  interactive sign-in. Good for exploratory work. This is what
-  MCNA-TenantIntel-ReadOnly is.
-- Application (daemon): unattended, cert auth, no user context. Good
-  for scheduled jobs. Higher leverage, higher risk. Not yet built.
-  Requires its own app reg -- never add daemon scopes to the existing
-  delegated reg.
-
-Eight strategic plays identified, ranked by value-to-risk. Full detail
-in ROADMAP.md. Starting point was deliberately delegated + read-only:
-run for a month, see what it surfaces, then decide on write scopes or
-daemon.
-
-### Phase 3 -- Risk framing
-Shadow governance: Graph calls appear in Entra audit logs, but Claude's
-reasoning lives in local conversation history only -- not in Audit Logs,
-Compliance API, or Data Exports. Dave owns this tradeoff. Not a
-replication pattern for other MCNA staff without a formal review.
-
-App reg risk posture is locked as operating principles in ROADMAP.md:
-cert-based auth only, read/write split across separate regs, Application
-Access Policies mandatory for mail scopes, Conditional Access to bound
-where app can run, dual logging (local + SharePoint).
-
-### Phase 4 -- First concrete task
-DIS daily summary chosen as v1: tiny scope, minimal risk, exercises
-the full pattern end to end (auth, Graph, analysis, artifact, delivery,
-logging). Proven pattern then extends to all future tasks.
-
-### Session 2 -- 2026-04-16 build session
-Starting point: brain files only. No code, no folder structure,
-no app reg, no credentials.
-Ending point: fully operational DIS daily summary on a weekday schedule.
-
-Key discoveries during build:
-- Single admin token querying /users/{upn}/mailFolders fails with 403.
-  Exchange Full Access delegation does not extend to Graph delegated
-  API access. Two-account approach is the correct workaround.
-- ApplicationImpersonation deprecated in Exchange Online 2026. Cannot
-  be used. Do not suggest it.
-- Script encoding: do not rewrite Python files with PowerShell
-  Out-File/Set-Content. Use the MCP FileSystem tool. PowerShell
-  corrupts non-ASCII characters. Em-dashes replaced with hyphens
-  in source to avoid recurrence.
-- First two runs failed with 403 (auth not yet settled). Third run
-  at 16:07 succeeded: 4 threads, 4 messages. Script is stable.
-
-### Session 4 -- 2026-04-17 CA policy & Entra role audit session
-Full detail in handoff-CA-policy-2026-04-17.md (project root).
-
-CA current state: Security Defaults still ON. Tony built one policy
-(Require MFA for all users, all resources, dis@nofmetalcoatings.us
-excluded) -- in report-only mode only. 97% of sign-ins would require
-MFA. CA policy cannot go live until Security Defaults are disabled --
-that decision is pending.
-
-Four additional policies recommended and emailed to Tony. Response
-pending:
-1. Legacy auth block (IMAP, POP3, SMTP AUTH, ActiveSync)
-2. Admin role policy (stricter MFA for directory roles)
-3. Service account policy (restrict to known MCNA IP, not MFA-exempt)
-4. MCNA-owned break-glass accounts (currently only DIS-owned one exists)
-
-Entra role audit run via Microsoft Graph PowerShell. Output saved to
-EntraRoleAssignments.csv on Dave's desktop. Key findings:
-
-Global Admins (3):
-- nof-dlafferty@nofmetalcoatings.us (expected)
-- dis@nofmetalcoatings.us (expected)
-- admin@nofmetalcoatings.us -- "admin admin" -- unknown origin.
-  Last sign-in: 2025-05-30 (~11 months ago, note: handoff doc says
-  2026-05-30 which is a typo). Also holds Hybrid Identity
-  Administrator. Do NOT disable until Tony confirms origin and
-  dependency check is done.
-
-Other role items flagged:
-- dlafferty@nofmetalcoatings.us (daily driver) holds Authentication
-  Administrator, Power Platform Administrator, AI Administrator --
-  should move to nof-dlafferty admin account
-- cloudadmin@nofmetalcoatings.us holds Cloud Application Administrator
-  and Application Administrator -- ownership unconfirmed
-- NOF Diana Kochever holds User Administrator, Teams Administrator,
-  Exchange Administrator -- confirm intentional
-
-Outstanding actions from this session:
-1. Tony to respond on CA policy gaps (4 policies above)
-2. Identify owner of admin@nofmetalcoatings.us -- ask Tony
-3. Confirm cloudadmin@nofmetalcoatings.us ownership
-4. Move role assignments from dlafferty@ daily driver to nof-dlafferty@ admin account
-   -> DONE in session 5
-5. Confirm Diana Kochever role assignments are intentional
-   -> IN PROGRESS: meeting scheduled. User Admin + Teams Admin removed.
-      Exchange Administrator on hold pending conversation.
-6. Decision point: when to disable Security Defaults and enable CA policies
-
-### Session 3 -- 2026-04-17 strategy session
-Dave watched a "How I AI" channel tutorial (Claire Vo interviewing
-JJ Englert from Tenex) on Claude Cowork best practices. Key concepts
-analyzed for MCNA applicability:
-
-Brain file strategy: most transferable idea. No direct Copilot Cowork
-equivalent. Aligns with Dave's existing SKILL.md scaffolding habit.
-
-Multi-persona advisory board: spin up sub-agents with different
-personas (CFO lens, skeptical technical peer, Japanese corporate
-reader) to critique work from multiple angles. Claude Cowork play,
-not Copilot Cowork. Directly useful for Dave's multi-register writing.
-
-Personalized voice: explicit brain file voice profile beats Copilot
-Cowork's implicit Work IQ adaptation for Dave's strongly-held
-audience-specific registers.
-
-Progressive trust / draft-don't-send: universal principle. Must be
-explicit in Claude Cowork brain file. Already documented in CLAUDE.md.
-
-Artifacts produced in session 3: CLAUDE.md v1, ROADMAP.md v1,
-MEMORY.md v1-v3, handoff-2026-04-17.md. All grounded in actual
-project state from the build session.
+- `TENANT_ID`
+- `CLIENT_ID`
+- `CERT_THUMBPRINT`
+- `CERT_PFX_PATH`
+- `USER_EMAIL`
+- `PRIMARY_MAILBOX`
+- `SUMMARY_RECIPIENT`
 
 ---
 
-## Current project state (as of 2026-04-17)
+## OneDrive / SharePoint sync reality
 
-### Tasks built
-- dis_daily_summary.py -- Active, v1. Stable as of 2026-04-16 16:07.
-  Reads inbox/sent from both mailboxes, filters for DIS, classifies
-  threads, sends HTML summary email to dlafferty@nofmetalcoatings.us,
-  writes log to dis-log/YYYY-MM-DD.md.
-  Scheduled task: \MCNA\MCNA-TenantIntel-DISSummary, weekdays 5:30 PM.
-  Format: HTML UTF-8, monospace pre block.
+This repo is synced into the M365 Security and Governance library in the MIS
+SharePoint site.
 
-- app_reg_scanner.py -- Active, v1. Built and verified 2026-04-17.
-  Inventories all MCNA-owned app registrations and 3rd-party enterprise
+Implications:
+
+- repo outputs become organizational content
+- version history exists
+- retention and Purview treatment may apply
+- sloppy temp files are bad
+- filenames and folder structure matter
+
+The `.env` file is intentionally outside the synced repo.
+
+---
+
+## Current functional state of the repo
+
+### `dis_daily_summary.py`
+
+Status:
+
+- active
+- operational
+- narrow and task-specific
+
+Role in the broader architecture:
+
+- operational utility
+- proof that the end-to-end pattern works
+- not a future top-level domain architecture concept
+
+### `app_reg_scanner.py`
+
+Status:
+
+- active prototype
+
+Role in the broader architecture:
+
+- seed capability for the future `Entra Agent`
+
+Important note:
+
+- it is already surfacing real governance issues, including owner gaps
+
+### `orphaned_asset_scanner.py`
+
+Status:
+
+- active prototype
+
+Role in the broader architecture:
+
+- seed capability for future `SharePoint and OneDrive Agent`
+- may also intersect with `Teams Agent`
+
+Important note:
+
+- the orphaned-assets concept is useful, but it is only one slice of the future
+  SharePoint/Teams governance surface
+
+### `power_platform_hygiene.py`
+
+Status:
+
+- active prototype
+
+Role in the broader architecture:
+
+- seed capability for future `Power Platform Agent`
+
+Important note:
+
+- this domain is much broader than the current script and will eventually need
+  to cover environments, makers, DLP, ALM, connections, Copilot Studio, and
+  governance posture
+
+### `ms_learn_scraper.py`
+
+Status:
+
+- utility
+
+Role:
+
+- official-doc research helper
+- useful for product/domain discovery and documentation extraction
+
+---
+
+## Immediate architectural implications
+
+Before adding many more narrow scripts, the system should define:
+
+- a normalized finding schema
+- a normalized evidence model
+- domain-agent boundaries
+- cross-domain services
+- what gets treated as durable evidence versus disposable analysis
+
+If that does not happen, the repo will grow tentacles in the bad sense:
+
+- too many narrow scripts
+- too much duplicated auth/query logic
+- too many disconnected reports
+- too much context that only Dave remembers
+
+---
+
+## Relationship to the 2026 governance program
+
+Master Control should eventually support:
+
+- the Secure SketCH response cycle
+- evidence generation and tracking
+- governance review packets
+- remediation prioritization
+- control-state visibility
+- audit readiness
+
+This repo is therefore not just an admin sandbox. It is becoming part of the
+backend governance capability for the 2026 IT-MIS Security and Governance work.
+
+---
+
+## Known risks and tensions
+
+### 1. Architecture drift
+
+The docs may describe a cleaner future-state than the code currently implements.
+
+### 2. Security-model drift
+
+Read/write separation and certificate handling are not yet in their ideal final
+state.
+
+### 3. Schema debt
+
+The repo currently has multiple useful outputs but no unified normalized model
+yet.
+
+### 4. Memory concentration risk
+
+Too much meaning still lives in Dave's head and in ad hoc repo history rather
+than in shared structures.
+
+### 5. Tool sprawl risk
+
+Without domain-agent framing, each new problem could become another standalone
+script.
+
+---
+
+## Current best next moves
+
+1. Keep `CONTEXT.md` stable as the durable architecture reference.
+2. Use this file as the living operational memory.
+3. Define the common finding schema before expanding too far.
+4. Define the evidence model and retention expectations.
+5. Recast prototype scripts under future domain-agent ownership.
+6. Choose the first serious domain agents for design and build.
+
+Recommended early serious domains:
+
+- Entra
+- SharePoint and OneDrive
+- Power Platform
+- Security or Purview, depending on whether evidence or security posture is the
+  more urgent next use
+
+---
+
+## Things a fresh session should remember
+
+- The current repo is early-stage and promising, but still transitional.
+- The old `Play` framing is no longer the right top-level architecture.
+- `Master Control` is the new architectural center of gravity.
+- Domain agents should replace narrow task-centric thinking.
+- Existing scripts are still useful and should be preserved as prototypes.
+- The next foundational work is context, memory, schema, and evidence design.
   apps. Scores findings by severity (Critical/High/Medium/Low). Writes
   risk register to reports/app-reg-governance/YYYY-MM-DD.md + .csv.
   First run: 40 apps, 25 with findings (Critical: 7, High: 54, Medium: 30).

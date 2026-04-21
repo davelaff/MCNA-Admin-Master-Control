@@ -29,3 +29,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-20 12:54 — Power Platform hygiene scan — 12 environments, 3 findings (High: 0, Medium: 3, Low: 0) — reports/power-platform-hygiene/2026-04-20.md
 2026-04-20 13:22 — Orphaned asset scan — 166 assets flagged (High: 26, Medium: 105, Low: 44) — reports/orphaned-assets/2026-04-20.md
 2026-04-20 13:27 — App reg scan — 40 apps scanned, 25 with findings (Critical: 7, High: 55) — reports/app-reg-governance/2026-04-20.md
+2026-04-21 08:17 — Microsoft Learn scraper skill — Created and validated — C:\Users\dlafferty.MCNA\.codex\skills\microsoft-learn-scraper
