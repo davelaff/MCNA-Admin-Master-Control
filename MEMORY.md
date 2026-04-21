@@ -79,6 +79,25 @@ Archive (reference implementations, session artifacts):
 
 ---
 
+## Build status
+
+**Phase 1 plan written and ready for execution (2026-04-21).**
+
+Design spec: `docs/superpowers/specs/2026-04-21-admin-master-control-design.md`
+Implementation plan: `docs/superpowers/plans/2026-04-21-amc-phase1.md`
+
+The plan is 10 tasks, TDD, using FastMCP + pytest. Nothing has been built yet —
+`mcp-server/` does not exist. Next session starts at Task 1 (scaffold).
+
+To execute: open the plan, invoke `superpowers:subagent-driven-development` (recommended)
+or `superpowers:executing-plans`, and work through tasks in order.
+
+**Python environment:** Python 3.14.2, `mcp` 1.26.0 already installed globally.
+Run `pip install -r mcp-server/requirements.txt` in Task 1 to get `msal`, `requests`,
+`pytest`, and `pytest-mock`.
+
+---
+
 ## MCNA-AMC MCP Server — domain tool surface
 
 Thirteen domains planned for v1:
@@ -208,6 +227,7 @@ The `.env` and cert files live outside the synced repo intentionally.
   Cert replaced. QMS site remediated. Write phase deferred.
 - 2026-04-20 — v8 — ARCHITECTURE.md and CONTEXT.md added. Play 5 built.
   Power Platform scopes granted. AMC direction established.
+- 2026-04-21 — v10 — Build status section added. Phase 1 plan ready for execution.
 - 2026-04-21 — v9 — Platform decision: Claude Code as AMC + MCP server layers.
   Play model retired. Repo cleaned: Play scripts, task specs, session handoffs,
   AGENTS.md, dis-log, queries moved to archive/. auth/ moved to docs/auth/.
