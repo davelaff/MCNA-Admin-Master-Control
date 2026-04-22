@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "microsoft-enterprise": {
+      "type": "http",
+      "url": "https://mcp.svc.cloud.microsoft/enterprise",
+      "oauth": { 
+        "clientId": "96587e5a-65a1-4b20-a82c-e61b2e6bc9db",
+        "callbackPort": 8080
+      }
+    },
+    "mcna-amc": {
+      "command": "C:/Python314/python.exe",
+      "args": ["C:/Users/dlafferty.MCNA/OneDrive - NOF/DL OneDrive/OneDrive - NOF/Management Information Systems - Governance and Security Project 2026/MCNA-Admin-Master-Control/mcp-server/server.py"]
+    }
+  }
+}

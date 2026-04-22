@@ -1,14 +1,1 @@
-{
-  "mcpServers": {
-    "microsoft-enterprise": {
-      "type": "remote",
-      "url": "https://mcp.svc.cloud.microsoft/enterprise"
-    },
-    "mcna-amc": {
-      "type": "stdio",
-      "command": "python",
-      "args": ["mcp-server/server.py"],
-      "cwd": "${workspaceFolder}"
-    }
-  }
-}
+{}
