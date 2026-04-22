@@ -1,0 +1,42 @@
+import pytest
+from docx import Document
+from tools.ssk_parser import parse_catalog
+
+
+def _build_minimal_docx(tmp_path):
+    path = tmp_path / "minimal.docx"
+    doc = Document()
+    doc.add_heading("Secure SketCH Guidelines", level=1)
+    doc.add_heading("Introduction", level=2)
+    doc.add_paragraph("General introduction text that should be ignored.")
+    # Control 04-1
+    doc.add_paragraph("04-1 Sample human resources control")
+    doc.add_paragraph("Overview")
+    doc.add_paragraph("Overview text for 04-1.")
+    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_paragraph("Status text for 04-1.")
+    doc.add_paragraph("Recommended Actions")
+    doc.add_paragraph("Action one for 04-1.")
+    doc.add_paragraph("Action two for 04-1.")
+    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_paragraph("Risk text for 04-1.")
+    # Control 06-3
+    doc.add_paragraph("06-3 Sample asset management control")
+    doc.add_paragraph("Overview")
+    doc.add_paragraph("Overview text for 06-3.")
+    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_paragraph("Status text for 06-3.")
+    doc.add_paragraph("Recommended Actions")
+    doc.add_paragraph("Action one for 06-3.")
+    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_paragraph("Risk text for 06-3.")
+    doc.save(path)
+    return path
+
+
+def test_parser_identifies_two_controls(tmp_path):
+    path = _build_minimal_docx(tmp_path)
+    result = parse_catalog(path, source_version="test-1")
+    assert len(result["controls"]) == 2
+    ids = [c["control_id"] for c in result["controls"]]
+    assert ids == ["04-1", "06-3"]
