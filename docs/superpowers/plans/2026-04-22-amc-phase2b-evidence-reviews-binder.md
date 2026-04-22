@@ -8,6 +8,8 @@
 
 **Tech Stack:** Python 3.14, FastMCP, SQLite, pytest, requests, pathlib, json, datetime
 
+**Execution note (2026-04-22):** Phase 2b is being executed from a global git worktree under `~/.config/superpowers/worktrees/MCNA-Admin-Master-Control/` to avoid repo-local worktree noise and to leave local config files in the main workspace untouched.
+
 ---
 
 ## File map
