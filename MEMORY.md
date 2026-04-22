@@ -183,8 +183,21 @@ Built:
   (Medium→08-1). Uses existing Directory.Read.All. 10 new tests, 143/143
   total. Live findings: ATA (unused), 6 stacking, 3 disabled-with-licenses.
 
-Next candidates (in priority order): `exo`, `sharing`, `intune`, `purview`,
-`copilot`, `mail`.
+- `tools/sharing.py` — `sharing_scan_sites`. Enumerates /sites, flags stale
+  (>365d, Medium) and very-stale (>730d, High). Wired to 15-4 (visualization
+  and control of cloud services usage). 6 new tests, 149/149 total. Live:
+  29 sites, 17 very-stale, 5 stale — only ~7 active.
+
+**Scope gaps surfaced during Phase 3:**
+- EXO governance (forwarding, shared-mailbox delegation, transport rules) needs
+  `MailboxSettings.Read` or EXO PowerShell integration. Pivoted away from exo.py
+  for now.
+- Sharing permission-based findings (external sharing, guest site access) need
+  `Sites.FullControl.All` or admin-consent variant. /sites/{id}/permissions
+  returns 403 with current Sites.Read.All. Deferred.
+
+Next candidates (in priority order): `intune`, `purview`, `copilot`, `mail`,
+or add MailboxSettings.Read to unlock `exo`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
