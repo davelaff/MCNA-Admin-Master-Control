@@ -86,15 +86,32 @@ def test_ssk_link_evidence_rejects_unknown_control(db):
     assert result["error_type"] == "UnknownControlError"
 
 
-def test_ssk_verify_pointers_marks_missing_local_file_unresolvable(db):
+def test_ssk_link_evidence_rejects_blank_source_pointer(db):
     _seed_control()
+
+    result = json.loads(
+        ssk_link_evidence(
+            control_id="06-3",
+            evidence_type="policy_link",
+            source_kind="local_file",
+            source_pointer="   ",
+            title="Blank pointer",
+        )
+    )
+
+    assert result["error_type"] == "ValidationError"
+
+
+def test_ssk_verify_pointers_closes_pointer_broken_finding_after_recovery(db, tmp_path):
+    _seed_control()
+    source_path = tmp_path / "evidence.docx"
 
     link_result = json.loads(
         ssk_link_evidence(
             control_id="06-3",
             evidence_type="policy_link",
             source_kind="local_file",
-            source_pointer="C:/definitely/not/here.docx",
+            source_pointer=str(source_path),
             title="Broken local file",
             notes="Should fail verification",
         )
@@ -112,7 +129,7 @@ def test_ssk_verify_pointers_marks_missing_local_file_unresolvable(db):
             (link_result["evidence_id"],),
         ).fetchone()
         finding = conn.execute(
-            "SELECT finding_type, status, evidence_pointer, securesketch_control "
+            "SELECT finding_id, finding_type, status, evidence_pointer, securesketch_control "
             "FROM findings WHERE object_id = ?",
             (link_result["evidence_id"],),
         ).fetchone()
@@ -124,3 +141,25 @@ def test_ssk_verify_pointers_marks_missing_local_file_unresolvable(db):
     assert finding["status"] == "open"
     assert finding["evidence_pointer"] == link_result["evidence_id"]
     assert finding["securesketch_control"] == "06-3"
+
+    source_path.write_text("recovered", encoding="utf-8")
+
+    verify_again_result = json.loads(ssk_verify_pointers(control_id="06-3"))
+    assert verify_again_result["checked"] == 1
+    assert verify_again_result["resolved"] == 1
+    assert verify_again_result["broken"] == 0
+
+    with get_connection() as conn:
+        recovered_evidence = conn.execute(
+            "SELECT verification_status, verification_checked_at FROM ssk_evidence WHERE evidence_id = ?",
+            (link_result["evidence_id"],),
+        ).fetchone()
+        recovered_finding = conn.execute(
+            "SELECT status FROM findings WHERE finding_id = ?",
+            (finding["finding_id"],),
+        ).fetchone()
+
+    assert recovered_evidence["verification_status"] == "resolved"
+    assert recovered_evidence["verification_checked_at"] is not None
+    assert recovered_finding is not None
+    assert recovered_finding["status"] != "open"

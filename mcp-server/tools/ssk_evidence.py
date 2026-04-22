@@ -58,6 +58,20 @@ def _validate_link_inputs(evidence_type: str, source_kind: str) -> None:
         raise ValueError(f"unsupported source_kind '{source_kind}'")
 
 
+def _validate_source_pointer(source_pointer: str) -> None:
+    if not source_pointer or not source_pointer.strip():
+        raise ValueError("source_pointer must not be blank")
+
+
+def _pointer_broken_finding_id(control_id: str, evidence_id: str) -> str:
+    return str(
+        uuid.uuid5(
+            uuid.NAMESPACE_DNS,
+            f"ssk.pointer_broken.{control_id}.{evidence_id}",
+        )
+    )
+
+
 def ssk_link_evidence(
     control_id: str,
     evidence_type: str,
@@ -74,6 +88,7 @@ def ssk_link_evidence(
     expires_at = _compute_expires_at(produced_at, validity_window_days)
     try:
         _validate_link_inputs(evidence_type, source_kind)
+        _validate_source_pointer(source_pointer)
         with get_connection() as conn:
             require_control(conn, normalized_control_id)
             conn.execute(
@@ -244,11 +259,9 @@ def _upsert_pointer_broken_finding(
     checked_at: str,
     verification_detail: dict,
 ) -> None:
-    finding_id = str(
-        uuid.uuid5(
-            uuid.NAMESPACE_DNS,
-            f"ssk.pointer_broken.{evidence_row['control_id']}.{evidence_row['evidence_id']}",
-        )
+    finding_id = _pointer_broken_finding_id(
+        evidence_row["control_id"],
+        evidence_row["evidence_id"],
     )
     existing = conn.execute(
         "SELECT status, first_seen FROM findings WHERE finding_id = ?",
@@ -286,6 +299,30 @@ def _upsert_pointer_broken_finding(
             first_seen,
             checked_at,
             notes,
+        ),
+    )
+
+
+def _resolve_pointer_broken_finding(
+    conn: sqlite3.Connection,
+    evidence_row,
+    checked_at: str,
+) -> None:
+    conn.execute(
+        """
+        UPDATE findings
+        SET status = 'resolved',
+            last_seen = ?
+        WHERE finding_id = ?
+          AND finding_type = 'pointer_broken'
+          AND status = 'open'
+        """,
+        (
+            checked_at,
+            _pointer_broken_finding_id(
+                evidence_row["control_id"],
+                evidence_row["evidence_id"],
+            ),
         ),
     )
 
@@ -336,6 +373,7 @@ def ssk_verify_pointers(control_id: str | None = None) -> str:
                         """,
                         (checked_at, row["evidence_id"]),
                     )
+                    _resolve_pointer_broken_finding(conn, row, checked_at)
                     resolved += 1
                     continue
 
