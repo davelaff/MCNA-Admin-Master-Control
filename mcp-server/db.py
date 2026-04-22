@@ -55,13 +55,121 @@ CREATE TABLE IF NOT EXISTS activity_log (
     outcome    TEXT NOT NULL,
     detail     TEXT
 );
+CREATE TABLE IF NOT EXISTS ssk_controls (
+    control_id                   TEXT PRIMARY KEY,
+    source_version               TEXT NOT NULL,
+    category                     TEXT NOT NULL,
+    category_name                TEXT,
+    title                        TEXT NOT NULL,
+    overview                     TEXT,
+    status_descriptions          TEXT,
+    insufficient_measures_risks  TEXT,
+    imported_at                  TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS ssk_controls_history (
+    history_id                   TEXT PRIMARY KEY,
+    control_id                   TEXT NOT NULL,
+    source_version               TEXT NOT NULL,
+    category                     TEXT,
+    category_name                TEXT,
+    title                        TEXT,
+    overview                     TEXT,
+    status_descriptions          TEXT,
+    insufficient_measures_risks  TEXT,
+    imported_at                  TEXT,
+    superseded_at                TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS ssk_categories (
+    category       TEXT PRIMARY KEY,
+    category_name  TEXT NOT NULL,
+    display_order  INTEGER
+);
+CREATE TABLE IF NOT EXISTS ssk_recommended_actions (
+    action_id             TEXT PRIMARY KEY,
+    control_id            TEXT NOT NULL,
+    source_version        TEXT NOT NULL,
+    sequence              INTEGER NOT NULL,
+    action_text           TEXT NOT NULL,
+    implementation_status TEXT NOT NULL DEFAULT 'not_started',
+    implementation_notes  TEXT,
+    owner                 TEXT,
+    last_updated          TEXT NOT NULL,
+    FOREIGN KEY (control_id) REFERENCES ssk_controls(control_id)
+);
+CREATE TABLE IF NOT EXISTS ssk_control_status (
+    control_id           TEXT PRIMARY KEY,
+    current_maturity     TEXT NOT NULL DEFAULT 'not_regularly_reviewed',
+    target_maturity      TEXT NOT NULL DEFAULT 'Regularly Reviewed',
+    gap_summary          TEXT,
+    owner                TEXT,
+    review_cadence_days  INTEGER NOT NULL DEFAULT 90,
+    last_reviewed_at     TEXT,
+    next_review_due      TEXT,
+    last_updated         TEXT NOT NULL,
+    FOREIGN KEY (control_id) REFERENCES ssk_controls(control_id)
+);
+CREATE TABLE IF NOT EXISTS ssk_evidence (
+    evidence_id              TEXT PRIMARY KEY,
+    control_id               TEXT NOT NULL,
+    evidence_type            TEXT NOT NULL,
+    title                    TEXT,
+    source_kind              TEXT NOT NULL,
+    source_pointer           TEXT NOT NULL,
+    source_metadata          TEXT,
+    produced_at              TEXT NOT NULL,
+    validity_window_days     INTEGER,
+    expires_at               TEXT,
+    verification_status      TEXT NOT NULL DEFAULT 'unverified',
+    verification_checked_at  TEXT,
+    recorded_by              TEXT,
+    notes                    TEXT,
+    FOREIGN KEY (control_id) REFERENCES ssk_controls(control_id)
+);
+CREATE TABLE IF NOT EXISTS ssk_reviews (
+    review_id         TEXT PRIMARY KEY,
+    control_id        TEXT,
+    control_family    TEXT,
+    reviewer          TEXT NOT NULL,
+    reviewed_at       TEXT NOT NULL,
+    scope_summary     TEXT,
+    evidence_ids      TEXT,
+    outcome           TEXT NOT NULL,
+    quality_flag      TEXT NOT NULL DEFAULT 'ok',
+    findings_summary  TEXT,
+    next_review_due   TEXT,
+    prior_review_id   TEXT,
+    CHECK ((control_id IS NOT NULL) <> (control_family IS NOT NULL))
+);
+CREATE TABLE IF NOT EXISTS ssk_registries (
+    registry_entry_id  TEXT PRIMARY KEY,
+    registry_name      TEXT NOT NULL,
+    control_ids        TEXT,
+    entry_key          TEXT NOT NULL,
+    entry_data         TEXT,
+    entry_pointer      TEXT,
+    status             TEXT NOT NULL DEFAULT 'active',
+    effective_from     TEXT NOT NULL,
+    effective_to       TEXT,
+    recorded_by        TEXT,
+    recorded_at        TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS ix_ssk_registries_active_key
+    ON ssk_registries(registry_name, entry_key)
+    WHERE status = 'active';
 """
+
+def _apply_findings_migration(conn):
+    cols = conn.execute("PRAGMA table_info(findings)").fetchall()
+    names = {c[1] for c in cols}
+    if "closure_evidence_id" not in names:
+        conn.execute("ALTER TABLE findings ADD COLUMN closure_evidence_id TEXT")
 
 def init_db(path: Path = KB_PATH) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(path) as conn:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(_SCHEMA)
+        _apply_findings_migration(conn)
         conn.commit()
 
 @contextmanager
