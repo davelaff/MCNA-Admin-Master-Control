@@ -12,7 +12,9 @@ CATEGORY_HEADING_RE = re.compile(r"^(\d{2})\s+(.+)$")
 IGNORED_HEADINGS = {"Introduction", "Secure SketCH Guidelines"}
 SECTION_HEADERS = {
     "Overview": "overview",
+    "Objective": "overview",
     "Regularly Reviewed status": "status_description",
+    "Regularly Reviewed Criteria": "status_description",
     "Recommended Actions": "recommended_actions",
     "Insufficient Measures Risks": "insufficient_measures_risks",
 }
@@ -73,8 +75,9 @@ def parse_catalog(docx_path: Path, source_version: str) -> dict:
         if current is None:
             continue
 
-        if text in SECTION_HEADERS:
-            current["_current_section"] = SECTION_HEADERS[text]
+        normalized_text = text.rstrip(":")
+        if normalized_text in SECTION_HEADERS:
+            current["_current_section"] = SECTION_HEADERS[normalized_text]
             continue
 
         section = current["_current_section"]

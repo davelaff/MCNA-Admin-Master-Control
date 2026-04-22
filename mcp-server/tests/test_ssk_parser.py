@@ -112,6 +112,50 @@ def test_parser_reports_missing_sections(tmp_path):
     assert len(result["controls"]) == 1
 
 
+def test_parser_accepts_objective_and_regularly_reviewed_criteria(tmp_path):
+    path = tmp_path / "legacy-section-names.docx"
+    doc = Document()
+    doc.add_paragraph("01-1 Legacy naming control")
+    doc.add_paragraph("Objective")
+    doc.add_paragraph("Objective text.")
+    doc.add_paragraph("Regularly Reviewed Criteria")
+    doc.add_paragraph("Criteria text.")
+    doc.add_paragraph("Recommended Actions")
+    doc.add_paragraph("Action one.")
+    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_paragraph("Risk text.")
+    doc.save(path)
+
+    result = parse_catalog(path, source_version="test-legacy")
+    control = result["controls"][0]
+    assert control["overview"] == "Objective text."
+    assert control["status_description"] == "Criteria text."
+    assert result["parse_failures"] == []
+
+
+def test_parser_accepts_colon_terminated_section_headers(tmp_path):
+    path = tmp_path / "colon-section-names.docx"
+    doc = Document()
+    doc.add_paragraph("17-3 Colon naming control")
+    doc.add_paragraph("Overview:")
+    doc.add_paragraph("Overview text.")
+    doc.add_paragraph("Regularly Reviewed status:")
+    doc.add_paragraph("Status text.")
+    doc.add_paragraph("Recommended Actions:")
+    doc.add_paragraph("Action one.")
+    doc.add_paragraph("Insufficient Measures Risks:")
+    doc.add_paragraph("Risk text.")
+    doc.save(path)
+
+    result = parse_catalog(path, source_version="test-colons")
+    control = result["controls"][0]
+    assert control["overview"] == "Overview text."
+    assert control["status_description"] == "Status text."
+    assert control["recommended_actions"] == ["Action one."]
+    assert control["insufficient_measures_risks"] == "Risk text."
+    assert result["parse_failures"] == []
+
+
 def test_parser_handles_source_file_missing(tmp_path):
     from tools.ssk_parser import CatalogSourceError
     missing = tmp_path / "does-not-exist.docx"
