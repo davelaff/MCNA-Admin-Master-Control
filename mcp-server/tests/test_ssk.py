@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from docx import Document
-from tools.ssk import ssk_import_catalog
+from tools.ssk import ssk_import_catalog, ssk_list_controls, ssk_get_control
 
 
 def _build_minimal_docx(tmp_path):
@@ -63,3 +63,59 @@ def test_ssk_import_catalog_commit_writes_db(db, tmp_path):
     with get_connection() as conn:
         rows = conn.execute("SELECT COUNT(*) AS c FROM ssk_controls").fetchone()
     assert rows["c"] == 1
+
+
+def _seed_two_controls(db, tmp_path):
+    docx_path = tmp_path / "two.docx"
+    doc = Document()
+    doc.add_paragraph("04-1 HR control")
+    doc.add_paragraph("Overview")
+    doc.add_paragraph("HR overview.")
+    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_paragraph("HR status.")
+    doc.add_paragraph("Recommended Actions")
+    doc.add_paragraph("HR action.")
+    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_paragraph("HR risk.")
+    doc.add_paragraph("06-3 Asset control")
+    doc.add_paragraph("Overview")
+    doc.add_paragraph("Asset overview.")
+    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_paragraph("Asset status.")
+    doc.add_paragraph("Recommended Actions")
+    doc.add_paragraph("Asset action one.")
+    doc.add_paragraph("Asset action two.")
+    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_paragraph("Asset risk.")
+    doc.save(docx_path)
+    ssk_import_catalog(str(docx_path), version="seed", dry_run=False,
+                       intermediate_dir=str(tmp_path / "i"))
+
+
+def test_ssk_list_controls_returns_all(db, tmp_path):
+    _seed_two_controls(db, tmp_path)
+    result = json.loads(ssk_list_controls())
+    ids = [c["control_id"] for c in result]
+    assert ids == ["04-1", "06-3"]
+
+
+def test_ssk_list_controls_filters_by_category(db, tmp_path):
+    _seed_two_controls(db, tmp_path)
+    result = json.loads(ssk_list_controls(category="06"))
+    assert len(result) == 1
+    assert result[0]["control_id"] == "06-3"
+
+
+def test_ssk_get_control_includes_recommended_actions(db, tmp_path):
+    _seed_two_controls(db, tmp_path)
+    result = json.loads(ssk_get_control("06-3"))
+    assert result["control_id"] == "06-3"
+    assert result["title"] == "Asset control"
+    assert len(result["recommended_actions"]) == 2
+    assert result["recommended_actions"][0]["action_text"] == "Asset action one."
+    assert result["recommended_actions"][0]["action_id"] == "06-3-a"
+
+
+def test_ssk_get_control_unknown_returns_error(db):
+    result = json.loads(ssk_get_control("99-9"))
+    assert "error" in result
