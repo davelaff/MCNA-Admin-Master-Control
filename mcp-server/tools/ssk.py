@@ -64,6 +64,40 @@ def ssk_list_controls(category: str | None = None) -> str:
     return json.dumps([dict(r) for r in rows], indent=2)
 
 
+def ssk_status(control_id: str) -> str:
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT s.*, c.title, c.category, c.category_name "
+            "FROM ssk_control_status s "
+            "JOIN ssk_controls c ON c.control_id = s.control_id "
+            "WHERE s.control_id = ?",
+            (control_id,),
+        ).fetchone()
+    if row is None:
+        return json.dumps({"error": f"control '{control_id}' not found"})
+    return json.dumps(dict(row), indent=2)
+
+
+def ssk_status_all(below_target: bool = False, due_before: str | None = None) -> str:
+    clauses: list[str] = []
+    params: list = []
+    if below_target:
+        clauses.append("s.current_maturity != 'regularly_reviewed'")
+    if due_before:
+        clauses.append("s.next_review_due IS NOT NULL AND s.next_review_due < ?")
+        params.append(due_before)
+    where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+    sql = (
+        "SELECT s.*, c.title, c.category, c.category_name "
+        "FROM ssk_control_status s "
+        "JOIN ssk_controls c ON c.control_id = s.control_id "
+        f"{where} ORDER BY c.control_id"
+    )
+    with get_connection() as conn:
+        rows = conn.execute(sql, params).fetchall()
+    return json.dumps([dict(r) for r in rows], indent=2)
+
+
 def ssk_get_control(control_id: str) -> str:
     with get_connection() as conn:
         control = conn.execute(

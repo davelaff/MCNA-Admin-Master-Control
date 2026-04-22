@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from docx import Document
-from tools.ssk import ssk_import_catalog, ssk_list_controls, ssk_get_control
+from tools.ssk import ssk_import_catalog, ssk_list_controls, ssk_get_control, ssk_status, ssk_status_all
 
 
 def _build_minimal_docx(tmp_path):
@@ -119,3 +119,33 @@ def test_ssk_get_control_includes_recommended_actions(db, tmp_path):
 def test_ssk_get_control_unknown_returns_error(db):
     result = json.loads(ssk_get_control("99-9"))
     assert "error" in result
+
+
+def test_ssk_status_default_after_import(db, tmp_path):
+    _seed_two_controls(db, tmp_path)
+    result = json.loads(ssk_status("06-3"))
+    assert result["control_id"] == "06-3"
+    assert result["current_maturity"] == "not_regularly_reviewed"
+    assert result["target_maturity"] == "Regularly Reviewed"
+    assert result["title"] == "Asset control"
+    assert result["last_reviewed_at"] is None
+
+
+def test_ssk_status_unknown_returns_error(db):
+    result = json.loads(ssk_status("99-9"))
+    assert "error" in result
+
+
+def test_ssk_status_all_returns_every_imported_control(db, tmp_path):
+    _seed_two_controls(db, tmp_path)
+    result = json.loads(ssk_status_all())
+    assert len(result) == 2
+    ids = [r["control_id"] for r in result]
+    assert ids == ["04-1", "06-3"]
+
+
+def test_ssk_status_all_below_target_filter(db, tmp_path):
+    _seed_two_controls(db, tmp_path)
+    # All controls start below target after import — filter should return both
+    result = json.loads(ssk_status_all(below_target=True))
+    assert len(result) == 2
