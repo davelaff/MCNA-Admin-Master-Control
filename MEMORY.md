@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v11 | Updated: 2026-04-22
+Version: v12 | Updated: 2026-04-22
 
 ## Purpose of this file
 
@@ -113,19 +113,45 @@ Built and functional:
 Outstanding Phase 1 work: validation that all tool outputs are schema-conformant,
 snapshot/diff end-to-end testing.
 
-### Phase 2 — spec approved, plan pending (2026-04-22)
+### Phase 2a — COMPLETE (2026-04-22)
 
 Design spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`
-Implementation plan: NOT YET WRITTEN (next step — invoke `superpowers:writing-plans`)
+Implementation plan: `docs/superpowers/plans/2026-04-22-amc-phase2a-catalog-import.md`
 
-Scope: Secure SketCH tracking layer. 7 new tables (`ssk_*` namespace), ~17 MCP
-tools, catalog import pipeline for `Secure_SketCH_Guidelines_2026-01-01.docx`,
-audit binder export format. Approach A locked: SQLite-first, conversational-only,
-migration-ready. Target maturity globally fixed at "Regularly Reviewed" (binary
-pass/fail per MCNA's bar).
+Built and functional:
+- DB schema: 7 `ssk_*` tables (controls, history, categories, recommended_actions,
+  control_status, evidence, reviews) + actions + registries
+- `tools/ssk_control_map.py` — alias normalization (canonical_control_id)
+- `tools/ssk_parser.py` — docx catalog parser
+- `tools/ssk_loader.py` — catalog import with idempotent upsert
+- `tools/ssk.py` — ssk_import_catalog, ssk_get_control, ssk_list_controls,
+  ssk_family_summary, ssk_search_controls
+- `kb/ssk_control_aliases.json` — alias map
+- `kb/catalog-imports/2026-01-01.json` — first import snapshot
+- 105 tests passing (commit 32e2427)
 
-**Python environment:** Python 3.14.2, `mcp` 1.26.0 installed. Phase 2 adds
-`python-docx` to `mcp-server/requirements.txt` for the catalog parser.
+### Phase 2b — COMPLETE (2026-04-22)
+
+Scope: Evidence, reviews, action tracking, registries, audit binder, and tool
+registration. All tools registered in server.py and verified 120/120 tests.
+
+Built and functional:
+- `tools/ssk_common.py` — json_ok, json_error, utc_now, shared helpers
+- `tools/ssk_evidence.py` — ssk_link_evidence, ssk_list_evidence,
+  ssk_evidence_expiring, ssk_verify_pointers
+- `tools/ssk_reviews.py` — ssk_record_review, ssk_review_history, ssk_alerts, ssk_due
+- `tools/ssk_actions.py` — ssk_mark_action, ssk_action_queue
+- `tools/ssk_registry.py` — registry_add, registry_list, registry_get, registry_retire
+- `tools/ssk_binder.py` — ssk_coverage, ssk_export_binder (markdown per-control,
+  index.md, manifest.json)
+- `tools/entra.py`, `ca.py`, `pp.py` — CONTRIBUTES_TO dicts wired to ssk_binder
+- `server.py` — all 16 Phase 2b tools registered with FastMCP
+- `tests/test_ssk.py` — end-to-end integration test (import → link → review → export)
+- 120 tests passing (commit eee9e12, branch phase2b-task0-control-map)
+
+**Next:** Merge branch to main. Then Phase 3 (live Graph evidence ingestion).
+
+**Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
 ---
 
@@ -265,6 +291,10 @@ The `.env` and cert files live outside the synced repo intentionally.
 ---
 
 ## Change log
+- 2026-04-22 — v12 — Phase 2b complete. Evidence, reviews, actions, registries, and
+  audit binder tools built, tested (120/120), and registered in server.py.
+  CONTRIBUTES_TO wired across entra/ca/pp scan tools. Branch phase2b-task0-control-map
+  ready to merge.
 - 2026-04-22 — v11 — Phase 2 Secure SketCH tracking layer designed (Approach A).
   Spec committed. ROADMAP v3.0 reframed around audit evidence as primary product.
   Phase 1 status corrected to reflect partial completion (scan tools working

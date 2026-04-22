@@ -4,8 +4,28 @@ from datetime import datetime, timezone, timedelta
 from auth import get_token
 from graph import graph_get_all, GraphError
 from db import get_connection
+from tools.ssk_control_map import canonical_control_id
 
 DOMAIN = "entra"
+
+CONTRIBUTES_TO = {
+    "__tool__": [
+        canonical_control_id("IAM-APP-01"),
+        canonical_control_id("IAM-APP-02"),
+        canonical_control_id("IAM-APP-03"),
+        canonical_control_id("IAM-GUEST-01"),
+        canonical_control_id("IAM-GUEST-02"),
+    ],
+    "missing_owner":         [canonical_control_id("IAM-APP-01")],
+    "expired_secret":        [canonical_control_id("IAM-APP-02")],
+    "expiring_secret":       [canonical_control_id("IAM-APP-02")],
+    "expired_cert":          [canonical_control_id("IAM-APP-02")],
+    "wildcard_redirect_uri": [canonical_control_id("IAM-APP-03")],
+    "http_redirect_uri":     [canonical_control_id("IAM-APP-03")],
+    "recently_added_guest":  [canonical_control_id("IAM-GUEST-01")],
+    "inactive_guest":        [canonical_control_id("IAM-GUEST-02")],
+    "never_signed_in_guest": [canonical_control_id("IAM-GUEST-02")],
+}
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()

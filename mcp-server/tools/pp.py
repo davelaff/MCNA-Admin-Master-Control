@@ -5,9 +5,19 @@ from datetime import datetime, timezone
 from auth import get_token
 from graph import graph_get_all, GraphError
 from db import get_connection
+from tools.ssk_control_map import canonical_control_id
 
 DOMAIN = "pp"
 BAP_BASE = "https://api.bap.microsoft.com"
+
+CONTRIBUTES_TO = {
+    "__tool__": [
+        canonical_control_id("PP-ENV-01"),
+        canonical_control_id("PP-APP-01"),
+    ],
+    "production_in_default": [canonical_control_id("PP-ENV-01")],
+    "inactive_owner":        [canonical_control_id("PP-APP-01")],
+}
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()

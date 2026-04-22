@@ -101,3 +101,16 @@ def test_kb_diff_snapshot_detects_changed(db):
     result = json.loads(kb_diff_snapshot("app_reg", "entra", current))
     assert len(result["changed"]) == 1
     assert result["changed"][0]["after"]["name"] == "New"
+
+
+def test_kb_update_finding_records_closure_evidence_on_resolve(db):
+    _insert_finding(db, "f1")
+    result = json.loads(kb_update_finding("f1", "resolved", closure_evidence_id="ev-123"))
+    assert result["closure_evidence_id"] == "ev-123"
+    assert result["status"] == "resolved"
+
+
+def test_kb_update_finding_rejects_closure_evidence_on_non_resolve(db):
+    _insert_finding(db, "f1")
+    result = json.loads(kb_update_finding("f1", "acknowledged", closure_evidence_id="ev-123"))
+    assert "error" in result

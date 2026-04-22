@@ -4,8 +4,20 @@ from datetime import datetime, timezone
 from auth import get_token
 from graph import graph_get, graph_get_all, GraphError
 from db import get_connection
+from tools.ssk_control_map import canonical_control_id
 
 DOMAIN = "ca"
+
+CONTRIBUTES_TO = {
+    "__tool__": [
+        canonical_control_id("CA-POL-01"),
+        canonical_control_id("CA-POL-02"),
+        canonical_control_id("CA-COV-01"),
+    ],
+    "report_only_policy":    [canonical_control_id("CA-POL-01")],
+    "broken_group_reference": [canonical_control_id("CA-POL-02")],
+    "no_ca_coverage":        [canonical_control_id("CA-COV-01")],
+}
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()

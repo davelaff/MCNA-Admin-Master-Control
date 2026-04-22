@@ -22,24 +22,35 @@ def kb_get_findings(domain: str = None, severity: str = None, status: str = "ope
         ).fetchall()
     return json.dumps([dict(r) for r in rows], indent=2)
 
-def kb_update_finding(finding_id: str, status: str, notes: str = None) -> str:
+def kb_update_finding(
+    finding_id: str,
+    status: str,
+    notes: str = None,
+    closure_evidence_id: str = None,
+) -> str:
     if status not in ("acknowledged", "resolved"):
         return json.dumps({"error": "status must be 'acknowledged' or 'resolved'"})
+    if closure_evidence_id and status != "resolved":
+        return json.dumps({"error": "closure_evidence_id may only be set when status is 'resolved'"})
     with get_connection() as conn:
-        if notes:
-            conn.execute(
-                "UPDATE findings SET status=?, notes=?, last_seen=? WHERE finding_id=?",
-                (status, notes, _now(), finding_id),
-            )
-        else:
-            conn.execute(
-                "UPDATE findings SET status=?, last_seen=? WHERE finding_id=?",
-                (status, _now(), finding_id),
-            )
+        conn.execute(
+            """
+            UPDATE findings
+            SET status = ?,
+                notes = COALESCE(?, notes),
+                closure_evidence_id = COALESCE(?, closure_evidence_id),
+                last_seen = ?
+            WHERE finding_id = ?
+            """,
+            (status, notes, closure_evidence_id, _now(), finding_id),
+        )
         changed = conn.execute("SELECT changes()").fetchone()[0]
-    if not changed:
-        return json.dumps({"error": f"finding '{finding_id}' not found"})
-    return json.dumps({"updated": finding_id, "status": status})
+        if not changed:
+            return json.dumps({"error": f"finding '{finding_id}' not found"})
+        row = conn.execute(
+            "SELECT * FROM findings WHERE finding_id = ?", (finding_id,)
+        ).fetchone()
+    return json.dumps(dict(row))
 
 def kb_dismiss(finding_id: str, reason: str) -> str:
     with get_connection() as conn:
