@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v9 | Updated: 2026-04-21
+Version: v11 | Updated: 2026-04-22
 
 ## Purpose of this file
 
@@ -37,9 +37,20 @@ capabilities are delivered via two MCP server layers:
    - Auth: MSAL device code flow with cached tokens (existing pattern)
    - App reg: MCNA-TenantIntel-ReadOnly (see docs/auth/app-registrations.md)
    - KB: SQLite at `mcp-server/kb/mcna_amc.db` (OneDrive-synced)
-   - **NOT YET BUILT** — this is the primary next build task
+   - **PARTIALLY BUILT** — FastMCP scaffold, auth, graph client, KB schema,
+     and first domain scan tools are functional. See Build status below.
 
 The old "Play" model is retired. Existing Play scripts are in `archive/`.
+
+**Project purpose decision (2026-04-22):** AMC's primary product is
+**audit-ready Secure SketCH evidence**, not tenant hygiene. MCNA's score
+is high because policies are written (maturity "Implemented") but has no
+evidence trail. AMC exists to close that gap. See ROADMAP.md v3.0 thesis.
+
+**SSK tracking layer design (2026-04-22):** Approach A chosen — SQLite-first,
+conversational-only, migration-ready. 7 new tables in `ssk_*` namespace,
+~17 MCP tools, audit binder exports as markdown files per control.
+Spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`.
 
 ---
 
@@ -81,20 +92,40 @@ Archive (reference implementations, session artifacts):
 
 ## Build status
 
-**Phase 1 plan written and ready for execution (2026-04-21).**
+### Phase 1 — partially complete (2026-04-22)
 
 Design spec: `docs/superpowers/specs/2026-04-21-admin-master-control-design.md`
 Implementation plan: `docs/superpowers/plans/2026-04-21-amc-phase1.md`
 
-The plan is 10 tasks, TDD, using FastMCP + pytest. Nothing has been built yet —
-`mcp-server/` does not exist. Next session starts at Task 1 (scaffold).
+Built and functional:
+- `mcp-server/` scaffold (Task 1)
+- `mcp-server/db.py` KB schema (Task 2)
+- `mcp-server/auth.py` MSAL auth (Task 3)
+- `mcp-server/graph.py` HTTP client (Task 4)
+- `tools/entra.py` — `entra_scan_app_regs`, `entra_scan_guests` verified
+  working against live tenant (2026-04-22 run: 40 apps, 49 findings)
+- `tools/ca.py` — `ca_scan_policies`, `ca_scan_coverage_gaps`
+- `tools/pp.py` — `pp_scan_environments`, `pp_scan_apps`
+- `tools/kb.py` — `kb_get_findings`, `kb_get_snapshot`, `kb_diff_snapshot`,
+  `kb_update_finding`, `kb_dismiss`
+- MCP server registered in Claude Code (commit 8d07819)
 
-To execute: open the plan, invoke `superpowers:subagent-driven-development` (recommended)
-or `superpowers:executing-plans`, and work through tasks in order.
+Outstanding Phase 1 work: validation that all tool outputs are schema-conformant,
+snapshot/diff end-to-end testing.
 
-**Python environment:** Python 3.14.2, `mcp` 1.26.0 already installed globally.
-Run `pip install -r mcp-server/requirements.txt` in Task 1 to get `msal`, `requests`,
-`pytest`, and `pytest-mock`.
+### Phase 2 — spec approved, plan pending (2026-04-22)
+
+Design spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`
+Implementation plan: NOT YET WRITTEN (next step — invoke `superpowers:writing-plans`)
+
+Scope: Secure SketCH tracking layer. 7 new tables (`ssk_*` namespace), ~17 MCP
+tools, catalog import pipeline for `Secure_SketCH_Guidelines_2026-01-01.docx`,
+audit binder export format. Approach A locked: SQLite-first, conversational-only,
+migration-ready. Target maturity globally fixed at "Regularly Reviewed" (binary
+pass/fail per MCNA's bar).
+
+**Python environment:** Python 3.14.2, `mcp` 1.26.0 installed. Phase 2 adds
+`python-docx` to `mcp-server/requirements.txt` for the catalog parser.
 
 ---
 
@@ -117,18 +148,35 @@ Thirteen domains planned for v1:
 | `copilot_*` | Copilot readiness and governance | /reports, /sites (label coverage) |
 | `purview_*` | Sensitivity labels, DLP, audit | /security/informationProtection, /auditLogs |
 | `kb_*` | Knowledge base (SQLite) | local only |
+| `ssk_*` | Secure SketCH tracking (Phase 2, pending) | local only |
+| `registry_*` | Generic human-authored record registries (Phase 2, pending) | local only |
 
 ---
 
 ## Knowledge base schema
 
-Five tables in `mcp-server/kb/mcna_amc.db`:
+Existing (Phase 1, built) — five tables in `mcp-server/kb/mcna_amc.db`:
 
 - **`tenant_snapshot`** — one row per entity, JSON properties blob, `last_scanned` timestamp
 - **`findings`** — flagged items: entity type/ID, SecureSketCH control, severity, status (open/acknowledged/resolved), first/last seen
 - **`baselines`** — known-good state for drift detection
 - **`dismissed`** — accepted-risk items with reason and date
 - **`activity_log`** — every tool invocation: timestamp, tool, entity, outcome
+
+Planned (Phase 2, designed) — 6 new tables + 1 new column:
+
+- **`ssk_controls`** — the Secure SketCH catalog (76 controls after import)
+- **`ssk_controls_history`** — superseded control rows after re-import
+- **`ssk_categories`** — small lookup (category → name, ~10-20 rows)
+- **`ssk_recommended_actions`** — per-action checklist rows (flat, ~600 rows)
+- **`ssk_control_status`** — MCNA's current position per control
+- **`ssk_evidence`** — any record supporting a control (scan outputs,
+  SharePoint pointers, reviews, attestations, policy links, registry entries)
+- **`ssk_reviews`** — append-only attestation ledger
+- **`ssk_registries`** — generic human-authored records (approved_software,
+  exceptions, vendor_support, policies, nda_ledger, approved_browsers, ...)
+- **`findings.closure_evidence_id`** — new column linking resolved findings
+  to the evidence row that proves closure
 
 ---
 
@@ -217,6 +265,11 @@ The `.env` and cert files live outside the synced repo intentionally.
 ---
 
 ## Change log
+- 2026-04-22 — v11 — Phase 2 Secure SketCH tracking layer designed (Approach A).
+  Spec committed. ROADMAP v3.0 reframed around audit evidence as primary product.
+  Phase 1 status corrected to reflect partial completion (scan tools working
+  against live tenant). Domain tool surface extended with `ssk_*` and
+  `registry_*` namespaces. KB schema extended with 7 new tables.
 - 2026-04-14 — v1 — Initial handoff.
 - 2026-04-16 — v2 — Full rebuild after build session.
 - 2026-04-17 — v3 — Session 2 and 3 summaries. Auth/scope additions.

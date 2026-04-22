@@ -27,3 +27,8 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+
+# SQLite KB — preserved via OneDrive sync, not git
+mcp-server/kb/*.db
+mcp-server/kb/*.db-shm
+mcp-server/kb/*.db-wal

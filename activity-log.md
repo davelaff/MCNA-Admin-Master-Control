@@ -3,6 +3,12 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-22 15:45 — entra_scan_app_regs — 40 apps scanned, 49 findings (8 Critical expired creds, 1 expiring, 40 missing owner) — mcp-server/kb/mcna_amc.db
+2026-04-22 16:30 — Secure SketCH tracking layer design — Spec approved (Approach A, 7 tables, ~17 tools, audit binder format defined) — docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md
+2026-04-22 16:30 — ROADMAP.md v3.0 — Rewritten around Secure SketCH audit evidence as primary product. Phase 2 recast as SSK alignment layer. — ROADMAP.md
+2026-04-22 00:00 — Task 4: Graph HTTP Client (TDD) — 7/7 tests passed, committed 9dec58e — mcp-server/graph.py, mcp-server/tests/test_graph.py
+2026-04-22 00:00 — Task 2: Database Module (TDD) — 4/4 tests passed, committed 25f4c18 — mcp-server/db.py, mcp-server/tests/test_db.py
+2026-04-22 00:00 — Task 1: mcp-server scaffold — DONE — mcp-server/ (tools/, kb/, tests/, requirements.txt)
 
 2026-04-16 15:31 — DIS daily summary — FAILED — Graph auth error 403: {"error":{"code":"ErrorAccessDenied","message":"Access is denied. Check credentials and try again."}}
 2026-04-16 16:00 — DIS daily summary — FAILED — Graph auth error 403: {"error":{"code":"ErrorAccessDenied","message":"Access is denied. Check credentials and try again."}}
@@ -30,3 +36,6 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-20 13:22 — Orphaned asset scan — 166 assets flagged (High: 26, Medium: 105, Low: 44) — reports/orphaned-assets/2026-04-20.md
 2026-04-20 13:27 — App reg scan — 40 apps scanned, 25 with findings (Critical: 7, High: 55) — reports/app-reg-governance/2026-04-20.md
 2026-04-21 08:17 — Microsoft Learn scraper skill — Created and validated — C:\Users\dlafferty.MCNA\.codex\skills\microsoft-learn-scraper
+2026-04-22 00:00 — Task 7: CA Tools (TDD) — 5/5 tests passed, 40/40 total, committed 5fc2162 — mcp-server/tools/ca.py, mcp-server/tests/test_ca.py
+2026-04-22 00:00 — Task 8: Power Platform Tools (TDD) — 5/5 tests passed, 45/45 total, committed dfd74a8 — mcp-server/tools/pp.py, mcp-server/tests/test_pp.py
+2026-04-22 00:00 — Task 10: Claude Code MCP Configuration — DONE, committed 8d07819 — .claude/settings.json
