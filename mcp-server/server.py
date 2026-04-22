@@ -7,6 +7,10 @@ from tools.kb import (
 from tools.entra import entra_scan_app_regs, entra_scan_guests
 from tools.ca import ca_scan_policies, ca_scan_coverage_gaps
 from tools.pp import pp_scan_environments, pp_scan_apps
+from tools.ssk import (
+    ssk_import_catalog, ssk_list_controls, ssk_get_control,
+    ssk_status, ssk_status_all, ssk_gaps,
+)
 
 mcp = FastMCP(
     "mcna-amc",
@@ -35,6 +39,14 @@ mcp.tool()(ca_scan_coverage_gaps)
 # PP tools
 mcp.tool()(pp_scan_environments)
 mcp.tool()(pp_scan_apps)
+
+# Secure SketCH tools (Phase 2a)
+mcp.tool()(ssk_import_catalog)
+mcp.tool()(ssk_list_controls)
+mcp.tool()(ssk_get_control)
+mcp.tool()(ssk_status)
+mcp.tool()(ssk_status_all)
+mcp.tool()(ssk_gaps)
 
 if __name__ == "__main__":
     init_db()
