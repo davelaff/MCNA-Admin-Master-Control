@@ -2,7 +2,9 @@ import json
 from pathlib import Path
 from docx import Document
 from tools.ssk import ssk_import_catalog, ssk_list_controls, ssk_get_control, ssk_status, ssk_status_all, ssk_gaps
-
+from tools.ssk_evidence import ssk_link_evidence, ssk_list_evidence
+from tools.ssk_reviews import ssk_record_review, ssk_review_history
+from tools.ssk_binder import ssk_coverage, ssk_export_binder
 
 def _build_minimal_docx(tmp_path):
     path = tmp_path / "minimal.docx"
@@ -163,3 +165,52 @@ def test_ssk_gaps_lists_controls_below_target(db, tmp_path):
     for g in result["gaps"]:
         assert g["current_maturity"] == "not_regularly_reviewed"
         assert "title" in g
+
+
+def test_phase2b_flow_import_link_review_and_export(db, tmp_path):
+    """Integration: import → link evidence → record review → export binder → coverage."""
+    _seed_two_controls(db, tmp_path)
+
+    # Link evidence to 04-1
+    ev = json.loads(ssk_link_evidence(
+        control_id="04-1",
+        source_pointer="file://test/hr_policy.pdf",
+        source_kind="local_file",
+        evidence_type="policy_link",
+        title="HR policy doc",
+    ))
+    assert ev["evidence_id"] is not None
+    ev_id = ev["evidence_id"]
+
+    # Confirm evidence listed
+    listed = json.loads(ssk_list_evidence("04-1"))
+    assert len(listed) == 1
+    assert listed[0]["source_pointer"] == "file://test/hr_policy.pdf"
+
+    # Record a review on 04-1
+    rev = json.loads(ssk_record_review(
+        control_id="04-1",
+        outcome="ok",
+        reviewer="dlafferty",
+        findings_summary="Looks good.",
+    ))
+    assert rev["review_id"] is not None
+    assert rev["outcome"] == "ok"
+
+    # Confirm review history
+    hist = json.loads(ssk_review_history("04-1"))
+    assert len(hist) == 1
+    assert hist[0]["outcome"] == "ok"
+
+    # Export binder for 04-1 only
+    binder = json.loads(ssk_export_binder(scope="04-1", output_dir=str(tmp_path / "binder")))
+    assert binder["controls_exported"] == 1
+    out = Path(binder["output_dir"])
+    assert (out / "04_1.md").exists()
+    assert (out / "index.md").exists()
+    assert (out / "manifest.json").exists()
+
+    # Coverage reflects 2 controls in DB
+    cov = json.loads(ssk_coverage())
+    assert cov["total_count"] == 2
+    assert isinstance(cov["uncovered"], list)
