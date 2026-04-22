@@ -1,10 +1,17 @@
 import json
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+import requests
 from tools.pim import pim_scan_role_assignments, pim_scan_role_definitions
 from tools.kb import kb_get_findings
 
 FAKE_TOKEN = "fake"
+
+
+def _http400():
+    resp = MagicMock()
+    resp.status_code = 400
+    return requests.exceptions.HTTPError(response=resp)
 
 
 def _role_def(rid: str, name: str, built_in: bool = True) -> dict:
@@ -179,3 +186,48 @@ def test_builtin_role_not_flagged_as_unused(db):
         pim_scan_role_definitions()
     findings = json.loads(kb_get_findings(domain="pim"))
     assert not any(f["finding_type"] == "unused_custom_role" for f in findings)
+
+
+# ---------------------------------------------------------------- P2 fallback
+
+
+def _graph_dispatch_no_p2(defs=None, basic_assignments=None):
+    """Simulate a P1-only tenant: schedule endpoints 400, /roleAssignments works."""
+    defs = defs or []
+    basic_assignments = basic_assignments or []
+
+    def side_effect(path, token, params=None):
+        if "roleDefinitions" in path:
+            return defs
+        if "roleAssignmentSchedules" in path or "roleEligibilitySchedules" in path:
+            raise _http400()
+        if "/roleAssignments" in path:
+            return basic_assignments
+        return []
+
+    return side_effect
+
+
+def test_no_p2_emits_pim_not_licensed_finding(db):
+    defs = [_role_def("ga", "Global Administrator")]
+    with patch("tools.pim.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.pim.graph_get_all", side_effect=_graph_dispatch_no_p2(defs, [])):
+        result = json.loads(pim_scan_role_assignments())
+    assert result["pim_available"] is False
+    findings = json.loads(kb_get_findings(domain="pim"))
+    assert any(
+        f["finding_type"] == "pim_not_licensed" and f["severity"] == "High"
+        for f in findings
+    )
+
+
+def test_no_p2_flags_every_privileged_assignment_as_permanent(db):
+    defs = [_role_def("ga", "Global Administrator")]
+    basic = [_schedule("u1", "ga", upn="nof-dlafferty@mcna.com")]
+    # strip assignmentType to simulate /roleAssignments response
+    basic[0].pop("assignmentType", None)
+    with patch("tools.pim.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.pim.graph_get_all", side_effect=_graph_dispatch_no_p2(defs, basic)):
+        pim_scan_role_assignments()
+    findings = json.loads(kb_get_findings(domain="pim"))
+    assert any(f["finding_type"] == "permanent_privileged_assignment" for f in findings)

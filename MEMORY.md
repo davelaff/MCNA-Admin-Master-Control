@@ -158,11 +158,24 @@ tool wires CONTRIBUTES_TO to specific Secure SketCH controls.
 
 Built:
 - `tools/pim.py` — `pim_scan_role_assignments`, `pim_scan_role_definitions`.
-  Detects permanent privileged assignments (bypassing PIM), privileged roles
-  on non-admin UPNs (no `nof-` prefix), long-standing eligible assignments
-  (>90d), and unused custom roles. Uses `RoleManagement.Read.Directory`
-  (already consented — no new scope required). Wired to 08-3 (access privilege)
-  and 08-6 (privileged account process). 11 new tests, 131/131 total.
+  Detects permanent privileged assignments, privileged roles on non-admin UPNs
+  (no `nof-` prefix), long-standing eligible assignments (>90d), unused custom
+  roles, and the P2-licensing gap itself. Graceful fallback to
+  `/roleAssignments` when `roleAssignmentSchedules` returns 400 (no P2).
+  Uses `RoleManagement.Read.Directory` (already consented). Wired to 08-3
+  (access privilege) and 08-6 (privileged account process). 13 tests, 133/133
+  total.
+
+**Confirmed tenant reality (2026-04-22 live scan):**
+- No Azure AD Premium P2. P1 via SPB (Business Premium) only.
+- PIM not available. All 45 active role assignments are permanent.
+- 22 permanent assignments on privileged roles (High).
+- 9 privileged roles held by non-`nof-` accounts: `admin@`, `cloudadmin@`,
+  `MIS@`, `DIS Computers`, plus enterprise apps (Power BI Service,
+  PowerBI-Usage-Reader). admin@ and cloudadmin@ still pending owner
+  confirmation (see CA/Entra open items).
+- 0 custom role definitions in tenant. The `blynn@` open item was a false
+  alarm — resolved above.
 
 Next candidates (in priority order): `license`, `exo`, `sharing`, `intune`,
 `purview`, `copilot`, `mail`.
@@ -271,9 +284,10 @@ The `.env` and cert files live outside the synced repo intentionally.
 - Identify owner of admin@nofmetalcoatings.us before touching it
 - Confirm cloudadmin@nofmetalcoatings.us ownership
 - Decision: when to disable Security Defaults and enable CA policies
-- blynn@nofmetalcoatings.us: holds custom role GUID
-  d24aef57-1500-4070-84db-2666f29cf966. Unknown identity and purpose.
-  Needs investigation before touching.
+- RESOLVED 2026-04-22: blynn@nofmetalcoatings.us is Barry Lynn (regular user).
+  Role GUID d24aef57-1500-4070-84db-2666f29cf966 is the built-in "Modern
+  Commerce User" role (isBuiltIn=true), not a custom role. Benign — commerce
+  billing role. Confirmed via pim_scan_role_definitions on 2026-04-22.
 
 ### Entra role remediation (session 5 — mostly complete)
 - DONE: dlafferty@ daily driver cleaned — roles moved to nof-dlafferty@

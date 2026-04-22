@@ -12,5 +12,6 @@
   "PIM-PERM-01": "08-6",
   "PIM-NON-ADMIN-01": "08-6",
   "PIM-STALE-01": "08-3",
-  "PIM-CUSTOM-01": "08-3"
+  "PIM-CUSTOM-01": "08-3",
+  "PIM-LIC-01": "08-6"
 }

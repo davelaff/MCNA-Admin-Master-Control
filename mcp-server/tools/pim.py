@@ -1,6 +1,7 @@
 import json
 import uuid
 from datetime import datetime, timezone, timedelta
+import requests
 from auth import get_token
 from graph import graph_get_all
 from db import get_connection
@@ -14,11 +15,13 @@ CONTRIBUTES_TO = {
         canonical_control_id("PIM-NON-ADMIN-01"),
         canonical_control_id("PIM-STALE-01"),
         canonical_control_id("PIM-CUSTOM-01"),
+        canonical_control_id("PIM-LIC-01"),
     ],
     "permanent_privileged_assignment":      [canonical_control_id("PIM-PERM-01")],
     "privileged_role_on_non_admin_account": [canonical_control_id("PIM-NON-ADMIN-01")],
     "long_standing_eligible_assignment":    [canonical_control_id("PIM-STALE-01")],
     "unused_custom_role":                   [canonical_control_id("PIM-CUSTOM-01")],
+    "pim_not_licensed":                     [canonical_control_id("PIM-LIC-01")],
 }
 
 # Roles that grant tenant-impacting authority. Permanent assignments to any of
@@ -84,25 +87,43 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
     return finding_id
 
 
-def _principal_is_user(principal: dict) -> bool:
+def _is_user_principal(principal: dict) -> bool:
     odata = (principal or {}).get("@odata.type", "")
-    return "user" in odata.lower() or bool((principal or {}).get("userPrincipalName"))
+    return "user" in odata.lower() and "servicePrincipal" not in odata
+
+
+def _try_pim_schedules(path: str, token: str) -> tuple[list, bool]:
+    """Call a PIM schedule endpoint. Returns (results, pim_available).
+    A 400 response indicates the tenant lacks Azure AD Premium P2."""
+    try:
+        return graph_get_all(path, token), True
+    except requests.exceptions.HTTPError as e:
+        if e.response is not None and e.response.status_code == 400:
+            return [], False
+        raise
 
 
 def pim_scan_role_assignments() -> str:
-    """Scan directory role assignments for permanent privileged access, non-admin
-    UPNs holding privileged roles, and stale eligible assignments."""
+    """Scan directory role assignments. Uses PIM schedule endpoints when P2 is
+    licensed; otherwise falls back to /roleAssignments (every assignment is
+    permanent by construction) and records the licensing gap as a finding."""
     token = get_token()
 
     role_defs = graph_get_all("/roleManagement/directory/roleDefinitions", token)
     role_name = {r["id"]: r.get("displayName", r["id"]) for r in role_defs}
 
-    active = graph_get_all(
-        "/roleManagement/directory/roleAssignmentSchedules?$expand=principal", token
+    active, pim_available = _try_pim_schedules(
+        "/roleManagement/directory/roleAssignmentSchedules?$expand=principal", token,
     )
-    eligible = graph_get_all(
-        "/roleManagement/directory/roleEligibilitySchedules?$expand=principal", token
-    )
+    eligible: list = []
+    if pim_available:
+        eligible, _ = _try_pim_schedules(
+            "/roleManagement/directory/roleEligibilitySchedules?$expand=principal", token,
+        )
+    else:
+        active = graph_get_all(
+            "/roleManagement/directory/roleAssignments?$expand=principal", token,
+        )
 
     now = datetime.now(timezone.utc)
     stale_cutoff = now - timedelta(days=90)
@@ -111,39 +132,52 @@ def pim_scan_role_assignments() -> str:
     privileged_active_count = 0
 
     with get_connection() as conn:
+        if not pim_available:
+            _upsert_finding(
+                conn, "tenant", "pim_licensing", "Tenant PIM licensing",
+                "pim_not_licensed", "High",
+                "PIM schedule endpoints returned 400 — tenant lacks Azure AD Premium P2. "
+                "All role assignments are permanent. Compensating controls required for 08-6.",
+                securesketch_control="PIM-LIC-01",
+            )
+            findings_count += 1
+
         for sched in active:
             sid = sched["id"]
             principal = sched.get("principal") or {}
-            pid = sched["principalId"]
+            pid = sched.get("principalId") or principal.get("id", "")
             rid = sched["roleDefinitionId"]
             rname = role_name.get(rid, rid)
             display = principal.get("displayName") or pid
             upn = principal.get("userPrincipalName")
             owner = upn or display
+            # roleAssignmentSchedules carries assignmentType; basic roleAssignments does not.
+            # When falling back to /roleAssignments every row is permanent by construction.
             assignment_type = sched.get("assignmentType", "Assigned")
             entity_name = f"{display} → {rname}"
+            entity_type = "role_assignment_active" if pim_available else "role_assignment"
 
-            _upsert_snapshot(conn, "role_assignment_active", sid, entity_name, sched)
+            _upsert_snapshot(conn, entity_type, sid, entity_name, sched)
 
             is_priv = rname in PRIVILEGED_ROLES
             if is_priv:
                 privileged_active_count += 1
 
-            # permanent privileged: assignmentType "Assigned" on a privileged role
             if is_priv and assignment_type == "Assigned":
                 _upsert_finding(
-                    conn, "role_assignment_active", sid, entity_name,
+                    conn, entity_type, sid, entity_name,
                     "permanent_privileged_assignment", "High",
-                    f"Permanent assignment of '{rname}' to {display}. Convert to PIM-eligible.",
+                    f"Permanent assignment of '{rname}' to {display}. "
+                    + ("Convert to PIM-eligible." if pim_available
+                       else "No PIM available — verify compensating controls."),
                     owner=owner, securesketch_control="PIM-PERM-01",
                 )
                 findings_count += 1
 
-            # privileged role on a non-admin user account
-            if is_priv and _principal_is_user(principal) and upn:
+            if is_priv and _is_user_principal(principal) and upn:
                 if not upn.lower().startswith(ADMIN_UPN_PREFIX):
                     _upsert_finding(
-                        conn, "role_assignment_active", sid, entity_name,
+                        conn, entity_type, sid, entity_name,
                         "privileged_role_on_non_admin_account", "High",
                         f"'{rname}' held by {upn}. Move privileged role to a dedicated admin account.",
                         owner=owner, securesketch_control="PIM-NON-ADMIN-01",
@@ -153,7 +187,7 @@ def pim_scan_role_assignments() -> str:
         for sched in eligible:
             sid = sched["id"]
             principal = sched.get("principal") or {}
-            pid = sched["principalId"]
+            pid = sched.get("principalId") or principal.get("id", "")
             rid = sched["roleDefinitionId"]
             rname = role_name.get(rid, rid)
             display = principal.get("displayName") or pid
@@ -177,6 +211,7 @@ def pim_scan_role_assignments() -> str:
                 findings_count += 1
 
     return json.dumps({
+        "pim_available": pim_available,
         "active_assignments": len(active),
         "eligible_assignments": len(eligible),
         "privileged_active": privileged_active_count,
@@ -189,12 +224,19 @@ def pim_scan_role_definitions() -> str:
     token = get_token()
 
     defs = graph_get_all("/roleManagement/directory/roleDefinitions", token)
-    active = graph_get_all(
-        "/roleManagement/directory/roleAssignmentSchedules?$expand=principal", token
+
+    active, pim_available = _try_pim_schedules(
+        "/roleManagement/directory/roleAssignmentSchedules?$expand=principal", token,
     )
-    eligible = graph_get_all(
-        "/roleManagement/directory/roleEligibilitySchedules?$expand=principal", token
-    )
+    eligible: list = []
+    if pim_available:
+        eligible, _ = _try_pim_schedules(
+            "/roleManagement/directory/roleEligibilitySchedules?$expand=principal", token,
+        )
+    else:
+        active = graph_get_all(
+            "/roleManagement/directory/roleAssignments?$expand=principal", token,
+        )
 
     assigned_ids: set[str] = set()
     for sched in active:
@@ -231,4 +273,5 @@ def pim_scan_role_definitions() -> str:
         "scanned": len(defs),
         "custom_roles": custom_count,
         "findings": findings_count,
+        "pim_available": pim_available,
     })
