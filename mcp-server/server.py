@@ -8,6 +8,7 @@ from tools.entra import entra_scan_app_regs, entra_scan_guests
 from tools.ca import ca_scan_policies, ca_scan_coverage_gaps
 from tools.pp import pp_scan_environments, pp_scan_apps
 from tools.pim import pim_scan_role_assignments, pim_scan_role_definitions
+from tools.license import license_scan_skus, license_scan_users
 from tools.ssk import (
     ssk_import_catalog, ssk_list_controls, ssk_get_control,
     ssk_status, ssk_status_all, ssk_gaps,
@@ -51,6 +52,10 @@ mcp.tool()(pp_scan_apps)
 # PIM tools
 mcp.tool()(pim_scan_role_assignments)
 mcp.tool()(pim_scan_role_definitions)
+
+# License tools
+mcp.tool()(license_scan_skus)
+mcp.tool()(license_scan_users)
 
 # Secure SketCH tools (Phase 2a)
 mcp.tool()(ssk_import_catalog)

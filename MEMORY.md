@@ -177,8 +177,14 @@ Built:
 - 0 custom role definitions in tenant. The `blynn@` open item was a false
   alarm — resolved above.
 
-Next candidates (in priority order): `license`, `exo`, `sharing`, `intune`,
-`purview`, `copilot`, `mail`.
+- `tools/license.py` — `license_scan_skus`, `license_scan_users`.
+  Flags over-consumed SKUs (High→06-3), unused prepaid SKUs (Low→06-3),
+  productivity-SKU stacking (Medium→06-3), licensed-but-disabled accounts
+  (Medium→08-1). Uses existing Directory.Read.All. 10 new tests, 143/143
+  total. Live findings: ATA (unused), 6 stacking, 3 disabled-with-licenses.
+
+Next candidates (in priority order): `exo`, `sharing`, `intune`, `purview`,
+`copilot`, `mail`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 

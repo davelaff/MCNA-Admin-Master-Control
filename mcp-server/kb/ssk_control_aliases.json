@@ -13,5 +13,9 @@
   "PIM-NON-ADMIN-01": "08-6",
   "PIM-STALE-01": "08-3",
   "PIM-CUSTOM-01": "08-3",
-  "PIM-LIC-01": "08-6"
+  "PIM-LIC-01": "08-6",
+  "LIC-SKU-OVER-01": "06-3",
+  "LIC-SKU-UNUSED-01": "06-3",
+  "LIC-STACK-01": "06-3",
+  "LIC-DISABLED-01": "08-1"
 }
