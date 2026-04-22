@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from docx import Document
-from tools.ssk import ssk_import_catalog, ssk_list_controls, ssk_get_control, ssk_status, ssk_status_all
+from tools.ssk import ssk_import_catalog, ssk_list_controls, ssk_get_control, ssk_status, ssk_status_all, ssk_gaps
 
 
 def _build_minimal_docx(tmp_path):
@@ -149,3 +149,17 @@ def test_ssk_status_all_below_target_filter(db, tmp_path):
     # All controls start below target after import — filter should return both
     result = json.loads(ssk_status_all(below_target=True))
     assert len(result) == 2
+
+
+def test_ssk_gaps_lists_controls_below_target(db, tmp_path):
+    _seed_two_controls(db, tmp_path)
+    result = json.loads(ssk_gaps())
+    assert result["total_controls"] == 2
+    assert result["at_target"] == 0
+    assert result["below_target"] == 2
+    assert len(result["gaps"]) == 2
+    gap_ids = {g["control_id"] for g in result["gaps"]}
+    assert gap_ids == {"04-1", "06-3"}
+    for g in result["gaps"]:
+        assert g["current_maturity"] == "not_regularly_reviewed"
+        assert "title" in g

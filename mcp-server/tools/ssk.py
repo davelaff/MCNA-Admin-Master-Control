@@ -98,6 +98,31 @@ def ssk_status_all(below_target: bool = False, due_before: str | None = None) ->
     return json.dumps([dict(r) for r in rows], indent=2)
 
 
+def ssk_gaps() -> str:
+    with get_connection() as conn:
+        total = conn.execute("SELECT COUNT(*) AS c FROM ssk_control_status").fetchone()["c"]
+        at_target = conn.execute(
+            "SELECT COUNT(*) AS c FROM ssk_control_status "
+            "WHERE current_maturity = 'regularly_reviewed'"
+        ).fetchone()["c"]
+        gap_rows = conn.execute(
+            "SELECT s.control_id, s.current_maturity, s.target_maturity, "
+            " s.last_reviewed_at, s.next_review_due, s.gap_summary, "
+            " c.title, c.category, c.category_name "
+            "FROM ssk_control_status s "
+            "JOIN ssk_controls c ON c.control_id = s.control_id "
+            "WHERE s.current_maturity != 'regularly_reviewed' "
+            "ORDER BY c.control_id"
+        ).fetchall()
+
+    return json.dumps({
+        "total_controls": total,
+        "at_target": at_target,
+        "below_target": total - at_target,
+        "gaps": [dict(r) for r in gap_rows],
+    }, indent=2)
+
+
 def ssk_get_control(control_id: str) -> str:
     with get_connection() as conn:
         control = conn.execute(
