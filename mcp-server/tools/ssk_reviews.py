@@ -138,10 +138,10 @@ def _validate_evidence_scope(
         )
 
 
-def _is_expired(expires_at: str | None, reviewed_at: str) -> bool:
+def _is_expired(expires_at: str | None, effective_at: str) -> bool:
     if not expires_at:
         return False
-    return datetime.fromisoformat(expires_at) < datetime.fromisoformat(reviewed_at)
+    return datetime.fromisoformat(expires_at) < datetime.fromisoformat(effective_at)
 
 
 def _quality_flag(
@@ -149,13 +149,13 @@ def _quality_flag(
     control_family: str | None,
     evidence_ids: list[str],
     evidence_rows,
-    reviewed_at: str,
+    effective_at: str,
 ) -> str:
     if evidence_ids == []:
         return QUALITY_NO_EVIDENCE
     if any(
         row["verification_status"] == "unresolvable"
-        or _is_expired(row["expires_at"], reviewed_at)
+        or _is_expired(row["expires_at"], effective_at)
         for row in evidence_rows
     ):
         return QUALITY_STALE
@@ -228,7 +228,7 @@ def _review_rows_for_refresh(conn, control_ids: list[str]):
     ).fetchall()
 
 
-def _recompute_review_quality(conn, review_row) -> None:
+def _recompute_review_quality(conn, review_row, effective_at: str) -> None:
     evidence_ids = json.loads(review_row["evidence_ids"]) if review_row["evidence_ids"] else []
     evidence_rows = _fetch_evidence_rows(conn, evidence_ids)
     quality_flag = _quality_flag(
@@ -236,7 +236,7 @@ def _recompute_review_quality(conn, review_row) -> None:
         review_row["control_family"],
         evidence_ids,
         evidence_rows,
-        review_row["reviewed_at"],
+        effective_at,
     )
     conn.execute(
         "UPDATE ssk_reviews SET quality_flag = ? WHERE review_id = ?",
@@ -292,7 +292,7 @@ def refresh_review_state_for_controls(conn, control_ids: list[str], updated_at: 
         return
     families = {_control_family_for(control_id) for control_id in unique_control_ids}
     for review_row in _review_rows_for_refresh(conn, unique_control_ids):
-        _recompute_review_quality(conn, review_row)
+        _recompute_review_quality(conn, review_row, updated_at)
     affected_control_ids = sorted(
         set(unique_control_ids) | set(_controls_for_families(conn, families))
     )
