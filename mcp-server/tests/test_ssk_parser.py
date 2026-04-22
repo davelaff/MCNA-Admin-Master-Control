@@ -40,3 +40,18 @@ def test_parser_identifies_two_controls(tmp_path):
     assert len(result["controls"]) == 2
     ids = [c["control_id"] for c in result["controls"]]
     assert ids == ["04-1", "06-3"]
+
+
+def test_parser_extracts_all_sections(tmp_path):
+    path = _build_minimal_docx(tmp_path)
+    result = parse_catalog(path, source_version="test-1")
+    c041 = next(c for c in result["controls"] if c["control_id"] == "04-1")
+    assert c041["title"] == "Sample human resources control"
+    assert c041["overview"] == "Overview text for 04-1."
+    assert c041["status_description"] == "Status text for 04-1."
+    assert c041["recommended_actions"] == ["Action one for 04-1.", "Action two for 04-1."]
+    assert c041["insufficient_measures_risks"] == "Risk text for 04-1."
+
+    c063 = next(c for c in result["controls"] if c["control_id"] == "06-3")
+    assert c063["overview"] == "Overview text for 06-3."
+    assert c063["recommended_actions"] == ["Action one for 06-3."]

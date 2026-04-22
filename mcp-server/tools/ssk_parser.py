@@ -3,6 +3,27 @@ from pathlib import Path
 from docx import Document
 
 CONTROL_ID_RE = re.compile(r"^(\d{2}-\d+)\s+(.+)$")
+SECTION_HEADERS = {
+    "Overview": "overview",
+    "Regularly Reviewed status": "status_description",
+    "Recommended Actions": "recommended_actions",
+    "Insufficient Measures Risks": "insufficient_measures_risks",
+}
+
+
+def _empty_control(control_id: str, title: str, source_version: str, category_name: str | None) -> dict:
+    return {
+        "control_id": control_id,
+        "source_version": source_version,
+        "category": control_id.split("-")[0],
+        "category_name": category_name,
+        "title": title,
+        "overview": "",
+        "status_description": "",
+        "recommended_actions": [],
+        "insufficient_measures_risks": "",
+        "_current_section": None,
+    }
 
 
 def parse_catalog(docx_path: Path, source_version: str) -> dict:
@@ -18,6 +39,7 @@ def parse_catalog(docx_path: Path, source_version: str) -> dict:
         text = para.text.strip()
         if not text:
             continue
+
         m = CONTROL_ID_RE.match(text)
         if m:
             if current is not None:
@@ -25,18 +47,25 @@ def parse_catalog(docx_path: Path, source_version: str) -> dict:
             control_id = m.group(1)
             title = m.group(2).strip()
             category = control_id.split("-")[0]
-            current = {
-                "control_id": control_id,
-                "source_version": source_version,
-                "category": category,
-                "category_name": categories.get(category),
-                "title": title,
-                "overview": "",
-                "status_description": "",
-                "recommended_actions": [],
-                "insufficient_measures_risks": "",
-                "_current_section": None,
-            }
+            current = _empty_control(control_id, title, source_version, categories.get(category))
+            continue
+
+        if current is None:
+            continue
+
+        if text in SECTION_HEADERS:
+            current["_current_section"] = SECTION_HEADERS[text]
+            continue
+
+        section = current["_current_section"]
+        if section == "overview":
+            current["overview"] = (current["overview"] + " " + text).strip()
+        elif section == "status_description":
+            current["status_description"] = (current["status_description"] + " " + text).strip()
+        elif section == "recommended_actions":
+            current["recommended_actions"].append(text)
+        elif section == "insufficient_measures_risks":
+            current["insufficient_measures_risks"] = (current["insufficient_measures_risks"] + " " + text).strip()
 
     if current is not None:
         controls.append(current)
