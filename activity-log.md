@@ -40,3 +40,7 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-22 00:00 — Task 8: Power Platform Tools (TDD) — 5/5 tests passed, 45/45 total, committed dfd74a8 — mcp-server/tools/pp.py, mcp-server/tests/test_pp.py
 2026-04-22 00:00 — Task 10: Claude Code MCP Configuration — DONE, committed 8d07819 — .claude/settings.json
 2026-04-22 00:00 — Phase 2a Task 1: Secure SketCH Catalog Import — ssk_* tables + closure_evidence_id added to KB schema, 47/47 tests pass — mcp-server/db.py, mcp-server/requirements.txt, mcp-server/tests/test_db.py
+2026-04-22 00:00 — Task 2: ssk_parser boundaries (TDD) — 48/48 passing — mcp-server/tools/ssk_parser.py
+2026-04-22 00:00 — Task 3: ssk_parser section extraction (TDD) — 49/49 passing — mcp-server/tools/ssk_parser.py
+2026-04-22 00:00 — Task 4: ssk_parser category headings (TDD) — 50/50 passing — mcp-server/tools/ssk_parser.py
+2026-04-22 00:00 — Task 5: ssk_parser error handling (TDD) — 52/52 passing — mcp-server/tools/ssk_parser.py

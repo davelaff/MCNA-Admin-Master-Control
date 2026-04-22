@@ -91,3 +91,29 @@ def test_parser_extracts_categories_from_headings(tmp_path):
     assert c041["category_name"] == "Human Resources"
     c063 = next(c for c in result["controls"] if c["control_id"] == "06-3")
     assert c063["category_name"] == "Asset Management"
+
+
+def test_parser_reports_missing_sections(tmp_path):
+    path = tmp_path / "with_gaps.docx"
+    doc = Document()
+    # Control with no Overview section (missing required section)
+    doc.add_paragraph("07-1 Malformed control")
+    doc.add_paragraph("Recommended Actions")
+    doc.add_paragraph("Only action.")
+    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_paragraph("Risk text.")
+    doc.save(path)
+
+    result = parse_catalog(path, source_version="test-gaps")
+    assert len(result["parse_failures"]) == 1
+    assert result["parse_failures"][0]["control_id"] == "07-1"
+    assert "overview" in result["parse_failures"][0]["reason"].lower()
+    # Malformed controls are still returned in the list so DB loader can decide
+    assert len(result["controls"]) == 1
+
+
+def test_parser_handles_source_file_missing(tmp_path):
+    from tools.ssk_parser import CatalogSourceError
+    missing = tmp_path / "does-not-exist.docx"
+    with pytest.raises(CatalogSourceError):
+        parse_catalog(missing, source_version="test-missing")
