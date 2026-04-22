@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v12 | Updated: 2026-04-22
+Version: v13 | Updated: 2026-04-22
 
 ## Purpose of this file
 
@@ -65,14 +65,16 @@ Core docs:
 - `README.md` — 5-line orientation
 - `activity-log.md` — append-only task log
 - `Secure_SketCH_Guidelines_2026-01-01.docx` — compliance target (binary, not git-tracked)
+- `.mcp.json` — Claude Code MCP server configuration (tracked in git)
+- `.claude/settings.json` — Claude Code workspace settings (tracked in git)
 
 Auth and docs:
 - `docs/auth/app-registrations.md` — app reg record (moved from `auth/`)
 - `docs/superpowers/specs/` — design specs
 - `docs/superpowers/plans/` — implementation plans
 
-Build artifact (not yet built):
-- `mcp-server/` — MCNA-AMC MCP Server
+Build artifact:
+- `mcp-server/` — MCNA-AMC MCP Server (Phase 1+2 complete, 120 tests passing)
 
 Reports (historical scan outputs, still valid reference):
 - `reports/app-reg-governance/` — 2026-04-17, 2026-04-20
@@ -147,9 +149,9 @@ Built and functional:
 - `tools/entra.py`, `ca.py`, `pp.py` — CONTRIBUTES_TO dicts wired to ssk_binder
 - `server.py` — all 16 Phase 2b tools registered with FastMCP
 - `tests/test_ssk.py` — end-to-end integration test (import → link → review → export)
-- 120 tests passing (commit eee9e12, branch phase2b-task0-control-map)
+- 120 tests passing, on main (branch phase2b-task0-control-map deleted)
 
-**Next:** Merge branch to main. Then Phase 3 (live Graph evidence ingestion).
+**Next:** Phase 3 — live Graph evidence ingestion.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
@@ -174,8 +176,8 @@ Thirteen domains planned for v1:
 | `copilot_*` | Copilot readiness and governance | /reports, /sites (label coverage) |
 | `purview_*` | Sensitivity labels, DLP, audit | /security/informationProtection, /auditLogs |
 | `kb_*` | Knowledge base (SQLite) | local only |
-| `ssk_*` | Secure SketCH tracking (Phase 2, pending) | local only |
-| `registry_*` | Generic human-authored record registries (Phase 2, pending) | local only |
+| `ssk_*` | Secure SketCH tracking | local only |
+| `registry_*` | Generic human-authored record registries | local only |
 
 ---
 
@@ -189,7 +191,7 @@ Existing (Phase 1, built) — five tables in `mcp-server/kb/mcna_amc.db`:
 - **`dismissed`** — accepted-risk items with reason and date
 - **`activity_log`** — every tool invocation: timestamp, tool, entity, outcome
 
-Planned (Phase 2, designed) — 6 new tables + 1 new column:
+Built (Phase 2, complete) — 7 new tables + 1 new column:
 
 - **`ssk_controls`** — the Secure SketCH catalog (73 controls after import)
 - **`ssk_controls_history`** — superseded control rows after re-import
@@ -291,10 +293,13 @@ The `.env` and cert files live outside the synced repo intentionally.
 ---
 
 ## Change log
+- 2026-04-22 — v13 — Git hygiene complete. Branch phase2b-task0-control-map deleted,
+  stale worktrees pruned. .mcp.json and .claude/settings.json committed and pushed.
+  Repo contents, build status, domain tool table, and KB schema sections updated.
 - 2026-04-22 — v12 — Phase 2b complete. Evidence, reviews, actions, registries, and
   audit binder tools built, tested (120/120), and registered in server.py.
   CONTRIBUTES_TO wired across entra/ca/pp scan tools. Branch phase2b-task0-control-map
-  ready to merge.
+  merged to main and deleted.
 - 2026-04-22 — v11 — Phase 2 Secure SketCH tracking layer designed (Approach A).
   Spec committed. ROADMAP v3.0 reframed around audit evidence as primary product.
   Phase 1 status corrected to reflect partial completion (scan tools working

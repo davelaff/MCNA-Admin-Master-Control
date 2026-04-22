@@ -121,17 +121,33 @@ MCNA-Admin-Master-Control/
 ├── activity-log.md              # Append-only task run log
 ├── Secure_SketCH_Guidelines_2026-01-01.docx  # Compliance target (binary, not tracked)
 │
+├── .mcp.json                    # Claude Code MCP server configuration
+├── .claude/
+│   └── settings.json            # Claude Code workspace settings
+│
 ├── mcp-server/                  # MCNA-AMC MCP Server (primary build artifact)
 │   ├── server.py
 │   ├── auth.py
+│   ├── db.py
 │   ├── graph.py
+│   ├── requirements.txt
 │   ├── tools/                   # One module per domain
-│   │   ├── pp.py, entra.py, ca.py, exo.py, license.py
-│   │   ├── pim.py, sharing.py, compliance.py, mail.py
-│   │   ├── intune.py, copilot.py, purview.py, kb.py
-│   ├── kb/
-│   │   └── mcna_amc.db          # SQLite knowledge base (OneDrive-synced)
-│   └── requirements.txt
+│   │   ├── __init__.py
+│   │   ├── entra.py, ca.py, pp.py, kb.py
+│   │   ├── ssk.py, ssk_common.py, ssk_parser.py, ssk_loader.py
+│   │   ├── ssk_control_map.py, ssk_evidence.py, ssk_reviews.py
+│   │   ├── ssk_actions.py, ssk_registry.py, ssk_binder.py
+│   │   └── (planned: exo.py, license.py, pim.py, sharing.py,
+│   │       compliance.py, mail.py, intune.py, copilot.py, purview.py)
+│   ├── tests/                   # 120 tests (all passing)
+│   │   ├── __init__.py, conftest.py
+│   │   └── test_auth.py, test_ca.py, test_db.py, test_entra.py,
+│   │       test_graph.py, test_kb.py, test_pp.py, test_ssk*.py
+│   └── kb/
+│       ├── mcna_amc.db          # SQLite knowledge base (OneDrive-synced)
+│       ├── ssk_control_aliases.json
+│       └── catalog-imports/     # Versioned catalog import snapshots
+│           └── 2026-01-01.json
 │
 ├── reports/                     # Scan outputs and governance artifacts
 │   ├── app-reg-governance/
@@ -164,3 +180,5 @@ MCNA-Admin-Master-Control/
   Old Play scripts, task specs, session artifacts, and AGENTS.md moved to archive/.
   auth/ moved to docs/auth/. DIS daily summary task spec removed from this file.
   Folder structure updated to reflect mcp-server/ as primary build artifact.
+- 2026-04-22 — v2.1 — Folder structure updated: db.py, tests/, ssk_* tools, kb aliases
+  and catalog-imports added. .mcp.json and .claude/settings.json added to root.

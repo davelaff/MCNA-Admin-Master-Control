@@ -52,30 +52,35 @@ Master Control runs as Claude Code augmented by two MCP server layers.
 mcp-server/
 ├── server.py          # MCP server entry point
 ├── auth.py            # MSAL token management
+├── db.py              # KB schema and migrations
 ├── graph.py           # Shared Graph HTTP client
+├── requirements.txt
 ├── tools/             # One module per domain
-│   ├── pp.py
-│   ├── entra.py
-│   ├── ca.py
-│   ├── exo.py
-│   ├── license.py
-│   ├── pim.py
-│   ├── sharing.py
-│   ├── compliance.py
-│   ├── mail.py
-│   ├── intune.py
-│   ├── copilot.py
-│   ├── purview.py
-│   └── kb.py
+│   ├── __init__.py
+│   ├── entra.py, ca.py, pp.py, kb.py   # Phase 1 (built)
+│   ├── ssk.py, ssk_common.py, ssk_parser.py, ssk_loader.py
+│   ├── ssk_control_map.py, ssk_evidence.py, ssk_reviews.py
+│   ├── ssk_actions.py, ssk_registry.py, ssk_binder.py  # Phase 2 (built)
+│   └── (planned: exo, license, pim, sharing, compliance,
+│       mail, intune, copilot, purview)             # Phase 3+
+├── tests/             # 120 tests (all passing)
 └── kb/
-    └── mcna_amc.db    # SQLite knowledge base
+    ├── mcna_amc.db              # SQLite knowledge base (OneDrive-synced)
+    ├── ssk_control_aliases.json # Alias map for control lookup
+    └── catalog-imports/         # Versioned catalog import snapshots
+        └── 2026-01-01.json
 ```
 
 ### Knowledge base schema
 
-Five tables: `tenant_snapshot`, `findings`, `baselines`, `dismissed`,
-`activity_log`. KB tools: `kb_get_findings`, `kb_update_finding`,
+Phase 1 (built) — five tables: `tenant_snapshot`, `findings`, `baselines`,
+`dismissed`, `activity_log`. KB tools: `kb_get_findings`, `kb_update_finding`,
 `kb_dismiss`, `kb_get_snapshot`, `kb_diff_snapshot`.
+
+Phase 2 (built) — seven ssk_* tables + one new column: `ssk_controls`,
+`ssk_controls_history`, `ssk_categories`, `ssk_recommended_actions`,
+`ssk_control_status`, `ssk_evidence`, `ssk_reviews`, `ssk_registries`;
+`findings.closure_evidence_id` links resolved findings to closure evidence.
 
 ---
 

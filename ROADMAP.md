@@ -175,7 +175,7 @@ layer mapped to the Secure SketCH catalog.
 **Status (2026-04-22): COMPLETE.** All deliverables built across Phase 2a
 (catalog import, ssk_* tables, ssk.py tools) and Phase 2b (evidence, reviews,
 actions, registries, binder, server registration). 120 tests passing.
-Branch phase2b-task0-control-map ready to merge to main.
+All code on main. Branch phase2b-task0-control-map deleted.
 
 **Why this is Phase 2:** Without the SSK layer, AMC is a hygiene-scanning
 tool. With it, AMC is the governance intelligence layer described in
@@ -262,6 +262,8 @@ contribution manifest is read by `ssk_status` to compute coverage.
   architecture and domain agent build phases. MCP server approach adopted.
 - 2026-04-22 — v3.1 — Phase 2 marked COMPLETE. Phase 1 CONTRIBUTES_TO note
   added. Phase 3 is next.
+- 2026-04-22 — v3.2 — Phase 2 branch merge noted. Git hygiene complete.
+  .mcp.json and .claude/settings.json committed and pushed to main.
 - 2026-04-22 — v3.0 — Project thesis rewritten around Secure SketCH audit
   evidence as the primary product. Phase 2 recast as the Secure SketCH
   alignment layer with the `ssk_*` data model (Approach A). Phase 5 added for
