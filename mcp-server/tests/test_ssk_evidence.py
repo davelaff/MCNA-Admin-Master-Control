@@ -37,12 +37,11 @@ def test_ssk_link_evidence_persists_row_and_computes_expiry(db, monkeypatch):
     result = json.loads(
         ssk_link_evidence(
             control_id="06-3",
-            evidence_type="policy",
-            title="Documented review cadence",
+            evidence_type="policy_link",
             source_kind="local_file",
             source_pointer="C:/evidence/review-cadence.docx",
             validity_window_days=30,
-            recorded_by="pytest",
+            title="Documented review cadence",
             notes="Seeded from test",
         )
     )
@@ -77,10 +76,10 @@ def test_ssk_link_evidence_rejects_unknown_control(db):
     result = json.loads(
         ssk_link_evidence(
             control_id="99-9",
-            evidence_type="policy",
-            title="Missing control evidence",
+            evidence_type="policy_link",
             source_kind="local_file",
             source_pointer="C:/evidence/missing.docx",
+            title="Missing control evidence",
         )
     )
 
@@ -93,11 +92,10 @@ def test_ssk_verify_pointers_marks_missing_local_file_unresolvable(db):
     link_result = json.loads(
         ssk_link_evidence(
             control_id="06-3",
-            evidence_type="policy",
-            title="Broken local file",
+            evidence_type="policy_link",
             source_kind="local_file",
             source_pointer="C:/definitely/not/here.docx",
-            recorded_by="pytest",
+            title="Broken local file",
             notes="Should fail verification",
         )
     )

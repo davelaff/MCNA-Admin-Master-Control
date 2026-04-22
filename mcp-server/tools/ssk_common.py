@@ -6,14 +6,14 @@ from db import get_connection
 
 
 EVIDENCE_TYPES = {
-    "policy",
-    "procedure",
-    "configuration",
-    "report",
-    "screenshot",
+    "scan_snapshot",
+    "review_minutes",
+    "signed_document",
     "attestation",
-    "ticket",
-    "other",
+    "policy_link",
+    "registry_entry",
+    "external_link",
+    "finding_closure",
 }
 
 SOURCE_KINDS = {

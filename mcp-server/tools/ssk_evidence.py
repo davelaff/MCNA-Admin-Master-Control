@@ -61,12 +61,11 @@ def _validate_link_inputs(evidence_type: str, source_kind: str) -> None:
 def ssk_link_evidence(
     control_id: str,
     evidence_type: str,
-    title: str | None,
     source_kind: str,
     source_pointer: str,
     source_metadata: dict | None = None,
     validity_window_days: int | None = None,
-    recorded_by: str | None = None,
+    title: str | None = None,
     notes: str | None = None,
 ) -> str:
     normalized_control_id = _normalize_control_id(control_id)
@@ -81,9 +80,8 @@ def ssk_link_evidence(
                 """
                 INSERT INTO ssk_evidence
                     (evidence_id, control_id, evidence_type, title, source_kind, source_pointer,
-                     source_metadata, produced_at, validity_window_days, expires_at,
-                     verification_status, recorded_by, notes)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+                     source_metadata, produced_at, validity_window_days, expires_at, verification_status, notes)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
                 """,
                 (
                     evidence_id,
@@ -97,7 +95,6 @@ def ssk_link_evidence(
                     validity_window_days,
                     expires_at,
                     "unverified",
-                    recorded_by,
                     notes,
                 ),
             )
