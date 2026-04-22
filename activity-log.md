@@ -48,3 +48,7 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-22 00:00 — Task 6: ssk_loader (TDD) — 55/55 passing — mcp-server/tools/ssk_loader.py
 2026-04-22 00:00 — Task 7: ssk_import_catalog tool (TDD) — 57/57 passing — mcp-server/tools/ssk.py
 2026-04-22 00:00 — Task 9: ssk_status + ssk_status_all (TDD) — 65/65 — mcp-server/tools/ssk.py
+
+2026-04-22 18:13 — Task 10: ssk_gaps (TDD) — 66/66 passing — mcp-server/tools/ssk.py
+2026-04-22 18:14 — Task 11: register ssk tools in server.py — 66/66 passing — mcp-server/server.py
+2026-04-22 18:15 — Task 12: real Secure SketCH import — 73 controls and 704 actions imported from 2026-01-01 catalog; verified with ssk_list_controls, ssk_status_all, and ssk_gaps — mcp-server/kb/mcna_amc.db, mcp-server/kb/catalog-imports/2026-01-01.json

@@ -165,7 +165,7 @@ Existing (Phase 1, built) — five tables in `mcp-server/kb/mcna_amc.db`:
 
 Planned (Phase 2, designed) — 6 new tables + 1 new column:
 
-- **`ssk_controls`** — the Secure SketCH catalog (76 controls after import)
+- **`ssk_controls`** — the Secure SketCH catalog (73 controls after import)
 - **`ssk_controls_history`** — superseded control rows after re-import
 - **`ssk_categories`** — small lookup (category → name, ~10-20 rows)
 - **`ssk_recommended_actions`** — per-action checklist rows (flat, ~600 rows)

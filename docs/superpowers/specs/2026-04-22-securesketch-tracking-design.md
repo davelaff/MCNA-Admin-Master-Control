@@ -11,7 +11,7 @@
 ## Goal
 
 Turn AMC from a tenant-hygiene scanning tool into an **audit-ready evidence
-production layer** mapped to the Secure SketCH 2026-01-01 catalog (76 controls).
+production layer** mapped to the Secure SketCH 2026-01-01 catalog (73 controls).
 
 MCNA's Secure SketCH score is currently high because policies are written —
 the implicit maturity of "Implemented." The score cannot be defended to an
@@ -328,7 +328,7 @@ reports/audit-binders/YYYY-MM-DD/
 
 - Catalog version, controls total, controls at target, controls below target,
   reviews overdue, broken pointers, exported by.
-- Maturity matrix across all 76 (binary pass/fail view per MCNA's bar).
+- Maturity matrix across all 73 (binary pass/fail view per MCNA's bar).
 - Table of controls below target.
 - Table of overdue reviews.
 - Table of broken evidence pointers (if any).

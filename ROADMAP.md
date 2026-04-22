@@ -12,7 +12,7 @@ CLAUDE.md is operational. CONTEXT.md is architectural. This file is directional.
 ## Project thesis
 
 Dave is overhauling MCNA's information systems governance and security
-framework for 2026. The Secure SketCH guidelines (76 controls) are the
+framework for 2026. The Secure SketCH guidelines (73 controls) are the
 measuring stick. MCNA's Secure SketCH score is currently high because the
 standards and policies are written — maturity level "Implemented." The score
 cannot be defended in an audit because there is no evidence or artifact
@@ -117,7 +117,7 @@ before.
 Decided 2026-04-22. Design spec:
 `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md` (pending).
 
-- `ssk_controls` — the catalog (76 rows after import)
+- `ssk_controls` — the catalog (73 rows after import)
 - `ssk_recommended_actions` — per-action line items under each control
 - `ssk_control_status` — current maturity, target maturity, review cadence
 - `ssk_evidence` — any record supporting a control (scan output, SharePoint
