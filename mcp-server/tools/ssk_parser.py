@@ -3,6 +3,8 @@ from pathlib import Path
 from docx import Document
 
 CONTROL_ID_RE = re.compile(r"^(\d{2}-\d+)\s+(.+)$")
+CATEGORY_HEADING_RE = re.compile(r"^(\d{2})\s+(.+)$")
+IGNORED_HEADINGS = {"Introduction", "Secure SketCH Guidelines"}
 SECTION_HEADERS = {
     "Overview": "overview",
     "Regularly Reviewed status": "status_description",
@@ -39,6 +41,13 @@ def parse_catalog(docx_path: Path, source_version: str) -> dict:
         text = para.text.strip()
         if not text:
             continue
+
+        style_name = (para.style.name if para.style else "") or ""
+        if "Heading" in style_name and text not in IGNORED_HEADINGS:
+            cat_m = CATEGORY_HEADING_RE.match(text)
+            if cat_m:
+                categories[cat_m.group(1)] = cat_m.group(2).strip()
+                continue
 
         m = CONTROL_ID_RE.match(text)
         if m:
