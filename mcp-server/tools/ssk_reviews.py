@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from db import get_connection
 from tools import ssk_common
+from tools.ssk_control_map import canonical_control_id
 from tools.ssk_common import (
     ReviewScopeError,
     UnknownControlError,
@@ -29,6 +30,15 @@ def _control_family_for(control_id: str) -> str:
     return control_id.split("-", 1)[0]
 
 
+def _normalize_control_id(control_id: str | None) -> str | None:
+    if not isinstance(control_id, str):
+        return None
+    normalized = control_id.strip()
+    if not normalized:
+        return None
+    return canonical_control_id(normalized) or normalized
+
+
 def _serialize_evidence_ids(evidence_ids: list[str]) -> str:
     return json.dumps(evidence_ids, separators=(",", ":"))
 
@@ -43,7 +53,7 @@ def _row_to_payload(row) -> dict:
 
 
 def _normalize_scope(control_id: str | None, control_family: str | None) -> tuple[str | None, str | None]:
-    normalized_control_id = control_id.strip() if isinstance(control_id, str) else None
+    normalized_control_id = _normalize_control_id(control_id)
     normalized_family = control_family.strip() if isinstance(control_family, str) else None
     if bool(normalized_control_id) == bool(normalized_family):
         raise ReviewScopeError("exactly one of control_id or control_family must be provided")
@@ -199,6 +209,52 @@ def _latest_applicable_review(conn, control_id: str):
     ).fetchone()
 
 
+def _review_rows_for_refresh(conn, control_ids: list[str]):
+    unique_control_ids = sorted(set(control_ids))
+    if not unique_control_ids:
+        return []
+    families = sorted({_control_family_for(control_id) for control_id in unique_control_ids})
+    control_placeholders = ",".join("?" for _ in unique_control_ids)
+    family_placeholders = ",".join("?" for _ in families)
+    return conn.execute(
+        f"""
+        SELECT *
+        FROM ssk_reviews
+        WHERE control_id IN ({control_placeholders})
+           OR control_family IN ({family_placeholders})
+        ORDER BY reviewed_at DESC, review_id DESC
+        """,
+        [*unique_control_ids, *families],
+    ).fetchall()
+
+
+def _recompute_review_quality(conn, review_row) -> None:
+    evidence_ids = json.loads(review_row["evidence_ids"]) if review_row["evidence_ids"] else []
+    evidence_rows = _fetch_evidence_rows(conn, evidence_ids)
+    quality_flag = _quality_flag(
+        review_row["control_id"],
+        review_row["control_family"],
+        evidence_ids,
+        evidence_rows,
+        review_row["reviewed_at"],
+    )
+    conn.execute(
+        "UPDATE ssk_reviews SET quality_flag = ? WHERE review_id = ?",
+        (quality_flag, review_row["review_id"]),
+    )
+
+
+def _controls_for_families(conn, families: set[str]) -> list[str]:
+    if not families:
+        return []
+    clauses = " OR ".join("control_id LIKE ?" for _ in families)
+    rows = conn.execute(
+        f"SELECT control_id FROM ssk_controls WHERE {clauses} ORDER BY control_id",
+        [f"{family}-%" for family in sorted(families)],
+    ).fetchall()
+    return [row["control_id"] for row in rows]
+
+
 def _recompute_control_status(conn, control_id: str, updated_at: str) -> None:
     latest = _latest_applicable_review(conn, control_id)
     current_maturity = (
@@ -228,6 +284,20 @@ def _recompute_control_status(conn, control_id: str, updated_at: str) -> None:
             control_id,
         ),
     )
+
+
+def refresh_review_state_for_controls(conn, control_ids: list[str], updated_at: str) -> None:
+    unique_control_ids = sorted(set(control_ids))
+    if not unique_control_ids:
+        return
+    families = {_control_family_for(control_id) for control_id in unique_control_ids}
+    for review_row in _review_rows_for_refresh(conn, unique_control_ids):
+        _recompute_review_quality(conn, review_row)
+    affected_control_ids = sorted(
+        set(unique_control_ids) | set(_controls_for_families(conn, families))
+    )
+    for control_id in affected_control_ids:
+        _recompute_control_status(conn, control_id, updated_at)
 
 
 def ssk_record_review(
@@ -291,8 +361,7 @@ def ssk_record_review(
                 "SELECT * FROM ssk_reviews WHERE review_id = ?",
                 (review_id,),
             ).fetchone()
-            for affected_control_id in control_ids:
-                _recompute_control_status(conn, affected_control_id, reviewed_at)
+            refresh_review_state_for_controls(conn, control_ids, reviewed_at)
 
         append_activity(
             "ssk_record_review",
@@ -337,7 +406,7 @@ def ssk_record_review(
 
 
 def ssk_review_history(control_id: str, limit: int = 10) -> str:
-    normalized_control_id = control_id.strip()
+    normalized_control_id = _normalize_control_id(control_id)
     if limit <= 0:
         return json_error("limit must be greater than zero", "ValidationError")
     try:

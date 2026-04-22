@@ -4,8 +4,8 @@ from docx import Document
 
 from tools import ssk_common
 from tools.ssk import ssk_import_catalog, ssk_status
-from tools.ssk_evidence import ssk_link_evidence
-from tools.ssk_reviews import ssk_record_review
+from tools.ssk_evidence import ssk_link_evidence, ssk_verify_pointers
+from tools.ssk_reviews import ssk_alerts, ssk_record_review, ssk_review_history
 
 
 def _seed_control_via_import(tmp_path, control_id: str = "06-3") -> None:
@@ -112,3 +112,88 @@ def test_ssk_record_review_with_current_evidence_updates_status_to_regularly_rev
     assert review["quality_flag"] == "ok"
     assert status["current_maturity"] == "regularly_reviewed"
     assert status["last_reviewed_at"] == reviewed_at
+
+
+def test_ssk_verify_pointers_invalidates_review_status_and_alerts(db, tmp_path, monkeypatch):
+    _seed_control_via_import(tmp_path, control_id="06-3")
+    evidence_path_one = tmp_path / "review-minutes.docx"
+    evidence_path_two = tmp_path / "review-policy.docx"
+    evidence_path_one.write_text("minutes", encoding="utf-8")
+    evidence_path_two.write_text("policy", encoding="utf-8")
+
+    produced_at = "2026-04-10T12:00:00+00:00"
+    reviewed_at = "2026-04-22T12:00:00+00:00"
+    invalidated_at = "2026-04-23T09:00:00+00:00"
+
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: produced_at)
+    evidence_one = json.loads(
+        ssk_link_evidence(
+            control_id="06-3",
+            evidence_type="review_minutes",
+            source_kind="local_file",
+            source_pointer=str(evidence_path_one),
+            validity_window_days=30,
+            title="Review minutes",
+        )
+    )
+    evidence_two = json.loads(
+        ssk_link_evidence(
+            control_id="06-3",
+            evidence_type="policy_link",
+            source_kind="local_file",
+            source_pointer=str(evidence_path_two),
+            validity_window_days=30,
+            title="Review policy",
+        )
+    )
+
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: reviewed_at)
+    review = json.loads(
+        ssk_record_review(
+            control_id="06-3",
+            reviewer="tester@example.com",
+            evidence_ids=[evidence_one["evidence_id"], evidence_two["evidence_id"]],
+            scope_summary="Quarterly review",
+            outcome="ok",
+            findings_summary="Evidence current and validated for review.",
+        )
+    )
+    assert review["quality_flag"] == "ok"
+    assert json.loads(ssk_alerts()) == []
+    assert json.loads(ssk_status("06-3"))["current_maturity"] == "regularly_reviewed"
+
+    evidence_path_one.unlink()
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: invalidated_at)
+    verify_result = json.loads(ssk_verify_pointers(control_id="06-3"))
+    status = json.loads(ssk_status("06-3"))
+    alerts = json.loads(ssk_alerts())
+    history = json.loads(ssk_review_history("06-3"))
+
+    assert verify_result["broken"] == 1
+    assert status["current_maturity"] == "not_regularly_reviewed"
+    assert alerts[0]["review_id"] == review["review_id"]
+    assert alerts[0]["quality_flag"] == "stale_evidence"
+    assert history[0]["review_id"] == review["review_id"]
+    assert history[0]["quality_flag"] == "stale_evidence"
+
+
+def test_ssk_review_tools_canonicalize_control_aliases(db, tmp_path, monkeypatch):
+    _seed_control_via_import(tmp_path, control_id="08-1")
+    reviewed_at = "2026-04-22T12:00:00+00:00"
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: reviewed_at)
+
+    review = json.loads(
+        ssk_record_review(
+            control_id="CA-COV-01",
+            reviewer="tester@example.com",
+            evidence_ids=[],
+            scope_summary="Alias-based review",
+            outcome="ok",
+            findings_summary="Alias should resolve to canonical control.",
+        )
+    )
+    history = json.loads(ssk_review_history("CA-COV-01"))
+
+    assert review["control_id"] == "08-1"
+    assert history[0]["control_id"] == "08-1"
+    assert history[0]["review_id"] == review["review_id"]

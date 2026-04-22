@@ -21,6 +21,7 @@ from tools.ssk_common import (
     require_control,
 )
 from tools.ssk_control_map import canonical_control_id
+from tools.ssk_reviews import refresh_review_state_for_controls
 
 
 _IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -340,6 +341,7 @@ def ssk_verify_pointers(control_id: str | None = None) -> str:
     checked = 0
     resolved = 0
     broken = 0
+    affected_control_ids: set[str] = set()
 
     try:
         with get_connection() as conn:
@@ -363,6 +365,7 @@ def ssk_verify_pointers(control_id: str | None = None) -> str:
                         "error_type": type(exc).__name__,
                     }
                 checked += 1
+                affected_control_ids.add(row["control_id"])
                 if is_valid:
                     conn.execute(
                         """
@@ -388,6 +391,7 @@ def ssk_verify_pointers(control_id: str | None = None) -> str:
                 )
                 _upsert_pointer_broken_finding(conn, row, checked_at, detail)
                 broken += 1
+            refresh_review_state_for_controls(conn, sorted(affected_control_ids), checked_at)
     except UnknownControlError as exc:
         append_activity(
             "ssk_verify_pointers",
