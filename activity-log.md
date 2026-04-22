@@ -44,3 +44,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-22 00:00 — Task 3: ssk_parser section extraction (TDD) — 49/49 passing — mcp-server/tools/ssk_parser.py
 2026-04-22 00:00 — Task 4: ssk_parser category headings (TDD) — 50/50 passing — mcp-server/tools/ssk_parser.py
 2026-04-22 00:00 — Task 5: ssk_parser error handling (TDD) — 52/52 passing — mcp-server/tools/ssk_parser.py
+2026-04-22 00:00 — Task 6: ssk_loader (TDD) — 55/55 passing — mcp-server/tools/ssk_loader.py
