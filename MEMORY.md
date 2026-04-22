@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v13 | Updated: 2026-04-22
+Version: v14 | Updated: 2026-04-22
 
 ## Purpose of this file
 
@@ -151,7 +151,21 @@ Built and functional:
 - `tests/test_ssk.py` — end-to-end integration test (import → link → review → export)
 - 120 tests passing, on main (branch phase2b-task0-control-map deleted)
 
-**Next:** Phase 3 — live Graph evidence ingestion.
+### Phase 3 — in progress (2026-04-22)
+
+Goal: broad domain coverage feeding the SSK evidence layer. Every new domain
+tool wires CONTRIBUTES_TO to specific Secure SketCH controls.
+
+Built:
+- `tools/pim.py` — `pim_scan_role_assignments`, `pim_scan_role_definitions`.
+  Detects permanent privileged assignments (bypassing PIM), privileged roles
+  on non-admin UPNs (no `nof-` prefix), long-standing eligible assignments
+  (>90d), and unused custom roles. Uses `RoleManagement.Read.Directory`
+  (already consented — no new scope required). Wired to 08-3 (access privilege)
+  and 08-6 (privileged account process). 11 new tests, 131/131 total.
+
+Next candidates (in priority order): `license`, `exo`, `sharing`, `intune`,
+`purview`, `copilot`, `mail`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
@@ -293,6 +307,9 @@ The `.env` and cert files live outside the synced repo intentionally.
 ---
 
 ## Change log
+- 2026-04-22 — v14 — Phase 3 begun. tools/pim.py built with two scan tools,
+  CONTRIBUTES_TO wired to 08-3/08-6, 11 new tests (131/131 passing).
+  No new scope required — RoleManagement.Read.Directory already consented.
 - 2026-04-22 — v13 — Git hygiene complete. Branch phase2b-task0-control-map deleted,
   stale worktrees pruned. .mcp.json and .claude/settings.json committed and pushed.
   Repo contents, build status, domain tool table, and KB schema sections updated.

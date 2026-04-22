@@ -61,9 +61,10 @@ mcp-server/
 │   ├── ssk.py, ssk_common.py, ssk_parser.py, ssk_loader.py
 │   ├── ssk_control_map.py, ssk_evidence.py, ssk_reviews.py
 │   ├── ssk_actions.py, ssk_registry.py, ssk_binder.py  # Phase 2 (built)
-│   └── (planned: exo, license, pim, sharing, compliance,
-│       mail, intune, copilot, purview)             # Phase 3+
-├── tests/             # 120 tests (all passing)
+│   ├── pim.py                                          # Phase 3 (built)
+│   └── (planned: exo, license, sharing, compliance,
+│       mail, intune, copilot, purview)                 # Phase 3
+├── tests/             # 131 tests (all passing)
 └── kb/
     ├── mcna_amc.db              # SQLite knowledge base (OneDrive-synced)
     ├── ssk_control_aliases.json # Alias map for control lookup

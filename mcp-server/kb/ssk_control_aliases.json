@@ -8,5 +8,9 @@
   "IAM-GUEST-01": "08-1",
   "IAM-GUEST-02": "08-1",
   "PP-APP-01": "15-4",
-  "PP-ENV-01": "15-3"
+  "PP-ENV-01": "15-3",
+  "PIM-PERM-01": "08-6",
+  "PIM-NON-ADMIN-01": "08-6",
+  "PIM-STALE-01": "08-3",
+  "PIM-CUSTOM-01": "08-3"
 }

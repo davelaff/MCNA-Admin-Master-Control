@@ -183,15 +183,18 @@ CONTEXT.md and ARCHITECTURE.md.
 
 ---
 
-### Phase 3 — Broad domain coverage feeding the evidence layer
+### Phase 3 — Broad domain coverage feeding the evidence layer (in progress)
 **Goal:** Cover the remaining Microsoft domains, with every new tool
 registering itself as an evidence contributor to specific Secure SketCH
 controls.
 
+**Status (2026-04-22):** `tools/pim.py` built and tested (131/131 tests).
+Remaining domains below.
+
 **Deliverables:**
 - `tools/license.py` — unassigned licenses, duplicate stacking, service plan
   conflicts → evidence for software asset management controls
-- `tools/pim.py` — privileged role review, permanent vs. eligible
+- `tools/pim.py` — privileged role review, permanent vs. eligible **(BUILT)**
 - `tools/sharing.py` — external sharing posture across SharePoint, OneDrive,
   Teams
 - `tools/exo.py` — Exchange hygiene: forwarding rules, shared mailboxes,

@@ -55,3 +55,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-22 18:13 — Task 10: ssk_gaps (TDD) — 66/66 passing — mcp-server/tools/ssk.py
 2026-04-22 18:14 — Task 11: register ssk tools in server.py — 66/66 passing — mcp-server/server.py
 2026-04-22 18:15 — Task 12: real Secure SketCH import — 73 controls and 704 actions imported from 2026-01-01 catalog; verified with ssk_list_controls, ssk_status_all, and ssk_gaps — mcp-server/kb/mcna_amc.db, mcp-server/kb/catalog-imports/2026-01-01.json
+2026-04-22 — Phase 3 Task 1: tools/pim.py — pim_scan_role_assignments + pim_scan_role_definitions built (TDD), CONTRIBUTES_TO wired to 08-3/08-6. 131/131 tests passing. Registered in server.py. — mcp-server/tools/pim.py, mcp-server/tests/test_pim.py, mcp-server/server.py
