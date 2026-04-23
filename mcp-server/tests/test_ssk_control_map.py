@@ -16,7 +16,7 @@ def _emitted_legacy_codes() -> set[str]:
     tools_dir = Path(__file__).resolve().parent.parent / "tools"
     pattern = re.compile(r'securesketch_control="([^"]+)"')
     emitted: set[str] = set()
-    for name in ("entra.py", "ca.py", "pp.py", "pim.py", "license.py", "sharing.py", "intune.py", "purview.py"):
+    for name in ("entra.py", "ca.py", "pp.py", "pim.py", "license.py", "sharing.py", "intune.py", "purview.py", "exo.py"):
         emitted.update(pattern.findall((tools_dir / name).read_text(encoding="utf-8")))
     return emitted
 
