@@ -66,8 +66,10 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
 
 def _try_intune(path: str, token: str) -> tuple[list, bool]:
     """Call an Intune deviceManagement endpoint. Returns (results, available).
-    GraphError 403 = scope DeviceManagementManagedDevices.Read.All not consented
-    or Intune not licensed. 400 = tenant not provisioned for that endpoint.
+    GraphError 403 = required scope not consented or Intune not licensed.
+    /managedDevices needs DeviceManagementManagedDevices.Read.All.
+    /deviceCompliancePolicies needs DeviceManagementConfiguration.Read.All.
+    400 = tenant not provisioned for that endpoint.
     Both treated as 'not available' — emit a finding and return cleanly."""
     try:
         return graph_get_all(path, token), True
@@ -217,7 +219,7 @@ def intune_scan_compliance_policies() -> str:
     """Check whether device compliance policies are defined in Intune. A tenant
     with Intune enrolled but no compliance policies has no automated compliance
     baseline — any device will self-certify as compliant by default.
-    Requires DeviceManagementManagedDevices.Read.All consent."""
+    Requires DeviceManagementConfiguration.Read.All consent."""
     token = get_token()
     policies, available = _try_intune("/deviceManagement/deviceCompliancePolicies", token)
 
@@ -233,7 +235,7 @@ def intune_scan_compliance_policies() -> str:
                 finding_type="intune_not_available",
                 severity="Medium",
                 recommended_action=(
-                    "Grant DeviceManagementManagedDevices.Read.All consent to the "
+                    "Grant DeviceManagementConfiguration.Read.All consent to the "
                     "MCNA-TenantIntel-ReadOnly app registration, then re-run this scan."
                 ),
                 securesketch_control="INTUNE-SCOPE-01",

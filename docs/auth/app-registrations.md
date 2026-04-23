@@ -35,6 +35,8 @@ on the local workstation and are never stored here.
 | Reports.Read.All | Delegated | Granted | `compliance_*`, `copilot_*`, `license_*` |
 | RoleManagement.Read.Directory | Delegated | Granted | `pim_*` |
 | Sites.Read.All | Delegated | Granted | `sharing_*`, `copilot_*` |
+| DeviceManagementManagedDevices.Read.All | Delegated | Granted | `intune_*` |
+| DeviceManagementConfiguration.Read.All | Delegated | Granted | `intune_*` |
 | Tasks.Read.All | Application | Granted | `entra_*` (Planner orphan detection) |
 | Dynamics CRM: user_impersonation | Delegated | Granted | `pp_*` (Dataverse Web API) |
 | Power Apps Service: User | Delegated | Granted | `pp_*` (BAP/PowerApps/Flow) |
@@ -59,7 +61,7 @@ on the local workstation and are never stored here.
 | `compliance_*` | Secure Score, SecureSketCH mapping | Scopes ready, tools not yet built |
 | `copilot_*` | Copilot readiness, label coverage | Scopes ready, tools not yet built |
 | `mail_*` | Send summary emails | Scopes ready, tools not yet built |
-| `intune_*` | Device compliance, BitLocker | Needs DeviceManagementConfiguration.Read.All |
+| `intune_*` | Device compliance, BitLocker | Scopes granted — tools functional |
 | `exo_*` | Exchange hygiene, forwarding rules | Needs additional scopes TBD |
 | `purview_*` | Sensitivity labels, DLP, audit | Partial — AuditLog.Read.All granted |
 | `kb_*` | Knowledge base (SQLite) | No scopes required — local only |
@@ -96,3 +98,6 @@ on the local workstation and are never stored here.
 - 2026-04-21 — v1.4 — File moved from auth/ to docs/auth/. Permissions table
   updated to reflect AMC domain mapping instead of Play references. Tasks table
   replaced with AMC domains table. File renamed to reflect AMC project name.
+- 2026-04-23 — v1.5 — Added DeviceManagementManagedDevices.Read.All and
+  DeviceManagementConfiguration.Read.All (both delegated). Admin consent granted.
+  Enables intune_scan_devices and intune_scan_compliance_policies.
