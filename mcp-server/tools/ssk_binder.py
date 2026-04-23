@@ -23,6 +23,9 @@ _AUTOMATED_MODULES = [
     "tools.entra",
     "tools.ca",
     "tools.pp",
+    "tools.pim",
+    "tools.license",
+    "tools.sharing",
 ]
 
 

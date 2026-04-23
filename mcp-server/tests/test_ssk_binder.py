@@ -73,10 +73,10 @@ def test_ssk_coverage_identifies_automated_controls(db, tmp_path):
 
 
 def test_ssk_coverage_uncovered_control_listed(db, tmp_path):
-    # 06-3 has no CONTRIBUTES_TO entries in any automated module
-    _seed_controls(db, tmp_path, [("06-3", "Asset control")])
+    # 10-1 has no CONTRIBUTES_TO entries in any automated module
+    _seed_controls(db, tmp_path, [("10-1", "Uncovered control")])
     result = json.loads(ssk_coverage())
-    assert "06-3" in result["uncovered"]
+    assert "10-1" in result["uncovered"]
     assert result["covered_count"] == 0
 
 
