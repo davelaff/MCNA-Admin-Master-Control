@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v21 | Updated: 2026-04-23
+Version: v22 | Updated: 2026-04-23
 
 ## Purpose of this file
 
@@ -20,8 +20,8 @@ After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavi
 
 Read first. Everything below is reference; this is what to do next.
 
-**Where we left off (2026-04-23 session, continued):**
-SSK evidence backfilled for six controls. Binders regenerated. Binder export merge bug fixed and verified. EXO still next best live-scan candidate.
+**Where we left off (2026-04-23 session, auth/graph hardening):**
+Auth and Graph client hardened. `refresh_auth.py` created as standalone re-auth script. `auth.py` now raises RuntimeError instead of blocking on device code flow inline — MCP tools no longer hang waiting for device code input. `graph_batch()` added to graph.py. EXO still best next live-scan candidate.
 
 **EXO domain (2026-04-23 built):**
 - `exo_scan_mailboxes`: detects shared mailboxes with interactive sign-in enabled (High → 08-1). Uses `userPurpose` from `/users/{id}/mailboxSettings`.
@@ -57,6 +57,7 @@ SSK evidence backfilled for six controls. Binders regenerated. Binder export mer
 - `.rtk/` and `CLAUDE.md` (rtk-section edit) intentionally uncommitted. Leave unless adding to .gitignore.
 - Binder output dirs from 2026-04-23: `reports/audit-binders/2026-04-23/` (08-6), `2026-04-23-142332/` (06-3), `2026-04-23-142541/` (08-1), `2026-04-23-204903/` (06-3, 08-1, 08-2, 08-6, 15-3, 15-4). Keep for reference.
 - MCP server restart required when new tools are added to server.py.
+- Token cache expired → run `python mcp-server/refresh_auth.py` (standalone, does device code flow). Do NOT edit auth.py to put device code flow back inline.
 
 ---
 
@@ -206,6 +207,11 @@ Built:
 - `tools/purview.py` — `purview_scan_labels`, `purview_scan_audit`. Label coverage (High→PURVIEW-LABEL-01→06-1), audit log activity check (High→PURVIEW-AUDIT-01→16-1), scope gap (Medium→PURVIEW-SCOPE-01→06-1). Needs `InformationProtectionPolicy.Read.All` for label scan (not yet consented). Audit scan uses existing `AuditLog.Read.All`. 13 tests, 182/182 total.
 
 - `tools/exo.py` — `exo_scan_mailboxes`, `exo_scan_forwarding`. Shared mailbox interactive login (High→EXO-SHARED-ENABLED-01→08-1), external forwarding/redirect rules (High→EXO-FORWARD-01→06-1), scope-gap detection (Medium→EXO-SCOPE-01→08-1 when permission is missing). Scope: `MailboxSettings.Read` delegated, consented 2026-04-23. 19 tests, 201/201 total. Not yet live-scanned.
+
+**Auth/graph hardening (2026-04-23):**
+- `mcp-server/auth.py` — `get_token()` no longer blocks on device code flow inline. Raises RuntimeError with instructions to run `refresh_auth.py`. Prevents MCP server from hanging on expired cache.
+- `mcp-server/graph.py` — `graph_batch()` added. Auto-chunks up to 20 requests per `/$batch` call, returns `{request_id: {status, body}}`. 401/403 still raises GraphError.
+- `mcp-server/refresh_auth.py` — new standalone script. Runs device code flow, writes updated token cache. Run from repo root: `python mcp-server/refresh_auth.py`.
 
 **Binder smell-test — PASSED (2026-04-23):**
 - `ssk_coverage`: 7/73 automated, 66 uncovered.
@@ -357,6 +363,7 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-23 — v22 — Auth/graph hardening. `auth.py` raises RuntimeError on expired cache instead of blocking on inline device code flow. `graph_batch()` added to graph.py. `refresh_auth.py` created as standalone re-auth script. Claude memory dir MEMORY.md rebuilt.
 - 2026-04-23 — v21 — Evidence/binder session. Backfilled `ssk_evidence` for six controls, regenerated binders in `reports/audit-binders/2026-04-23-204903/`, added `docs/how-to-use-reports.md`, and fixed `ssk_export_binder` so repeated single-control exports no longer clobber `index.md` and `manifest.json`.
 - 2026-04-23 — v20 — MEMORY cleanup pass. Removed stray tool artifact, reconciled EXO status/scope text, updated repo snapshot date and test count, clarified governance paper-trail status, and clarified domain-count wording.
 - 2026-04-23 — v19 — EXO domain built (exo_scan_mailboxes, exo_scan_forwarding). MailboxSettings.Read consented. 19 tests, 201/201. Purview domain (built in earlier session) noted as stale in MEMORY — corrected. Startup prompt updated.

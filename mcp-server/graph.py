@@ -36,6 +36,29 @@ def graph_get_all(path: str, token: str, params: dict = None) -> list:
         params = None
     return results
 
+def graph_batch(requests_list: list, token: str) -> dict:
+    """Execute Graph requests via /$batch, auto-chunking at 20 per call.
+    Returns {request_id: {"status": int, "body": dict}}."""
+    if not requests_list:
+        return {}
+    results = {}
+    for i in range(0, len(requests_list), 20):
+        chunk = requests_list[i:i + 20]
+        url = f"{BASE_URL}/$batch"
+        resp = requests.post(
+            url,
+            headers={**_headers(token), "Content-Type": "application/json"},
+            json={"requests": chunk},
+            timeout=60,
+        )
+        if resp.status_code in (401, 403):
+            raise GraphError(resp.status_code, url, resp.text[:200])
+        resp.raise_for_status()
+        for r in resp.json()["responses"]:
+            results[r["id"]] = {"status": r["status"], "body": r.get("body") or {}}
+    return results
+
+
 def graph_post(path: str, token: str, body: dict) -> dict:
     url = f"{BASE_URL}{path}"
     resp = requests.post(

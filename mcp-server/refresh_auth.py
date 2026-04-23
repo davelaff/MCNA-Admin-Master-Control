@@ -1,9 +1,17 @@
+"""
+Re-authenticate MSAL token cache for the MCNA-TenantIntel-ReadOnly app.
+Run this from the repo root when MCP tool calls fail with "token cache expired".
+
+    python mcp-server/refresh_auth.py
+"""
 from pathlib import Path
 import msal
 
 ENV_PATH = Path(r"C:\Users\dlafferty.MCNA\mcna-tenantintel.env")
 CACHE_PATH = Path(r"C:\Users\dlafferty.MCNA\.msal_token_cache_admin.json")
 ACCOUNT = "nof-dlafferty@nofmetalcoatings.us"
+SCOPES = ["https://graph.microsoft.com/.default"]
+
 
 def _load_env() -> dict:
     env = {}
@@ -15,7 +23,8 @@ def _load_env() -> dict:
                 env[k.strip()] = v.strip()
     return env
 
-def get_token(resource: str = "https://graph.microsoft.com") -> str:
+
+def main():
     env = _load_env()
     cache = msal.SerializableTokenCache()
     if CACHE_PATH.exists():
@@ -27,26 +36,30 @@ def get_token(resource: str = "https://graph.microsoft.com") -> str:
         token_cache=cache,
     )
 
-    scopes = [f"{resource}/.default"]
     accounts = app.get_accounts(username=ACCOUNT)
-    result = None
-
     if accounts:
-        result = app.acquire_token_silent(scopes, account=accounts[0])
+        result = app.acquire_token_silent(SCOPES, account=accounts[0])
+        if result and "access_token" in result:
+            print(f"Token still valid. No re-auth needed.")
+            return
 
-    if not result:
-        flow = app.initiate_device_flow(scopes=scopes)
-        msg = flow.get("message", "Device flow required but no message returned.")
-        raise RuntimeError(
-            f"MSAL token cache expired or missing for {ACCOUNT}.\n"
-            f"Run  python mcp-server/refresh_auth.py  to re-authenticate, then retry.\n\n"
-            f"Device code prompt:\n{msg}"
-        )
+    print("Silent auth failed — starting device code flow...\n", flush=True)
+    flow = app.initiate_device_flow(scopes=SCOPES)
+    print(flow["message"], flush=True)
+    print(flush=True)
+
+    result = app.acquire_token_by_device_flow(flow)
 
     if "access_token" not in result:
-        raise RuntimeError(f"Auth failed: {result.get('error_description', result)}")
+        print(f"Auth failed: {result.get('error_description', result)}")
+        raise SystemExit(1)
 
     if cache.has_state_changed:
         CACHE_PATH.write_text(cache.serialize())
 
-    return result["access_token"]
+    print(f"\nAuthenticated as {ACCOUNT}. Token cached.")
+    print(f"Cache written to: {CACHE_PATH}")
+
+
+if __name__ == "__main__":
+    main()
