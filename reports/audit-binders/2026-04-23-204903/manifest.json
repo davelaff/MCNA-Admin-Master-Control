@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-04-23T21:10:41.308910+00:00",
+  "scope": "custom-multi-control",
+  "controls": [
+    {
+      "control_id": "06-3",
+      "file": "06_3.md"
+    },
+    {
+      "control_id": "08-1",
+      "file": "08_1.md"
+    },
+    {
+      "control_id": "08-2",
+      "file": "08_2.md"
+    },
+    {
+      "control_id": "08-6",
+      "file": "08_6.md"
+    },
+    {
+      "control_id": "15-3",
+      "file": "15_3.md"
+    },
+    {
+      "control_id": "15-4",
+      "file": "15_4.md"
+    }
+  ],
+  "output_dir": "C:\\Users\\dlafferty.MCNA\\OneDrive - NOF\\DL OneDrive\\OneDrive - NOF\\Management Information Systems - Governance and Security Project 2026\\MCNA-Admin-Master-Control\\reports\\audit-binders\\2026-04-23-204903"
+}

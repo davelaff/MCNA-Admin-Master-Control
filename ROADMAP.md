@@ -177,6 +177,17 @@ layer mapped to the Secure SketCH catalog.
 actions, registries, binder, server registration). 120 tests passing.
 All code on main. Branch phase2b-task0-control-map deleted.
 
+**Operational follow-through (2026-04-23):**
+- `ssk_evidence` was backfilled from existing artifacts for controls `06-3`,
+  `08-1`, `08-2`, `08-6`, `15-3`, and `15-4`.
+- Audit binders were regenerated into `reports/audit-binders/2026-04-23-204903/`
+  so those controls now render evidence tables instead of empty placeholders.
+- `docs/how-to-use-reports.md` was added as the operator guide for report and
+  binder usage.
+- `ssk_export_binder` was patched so repeated single-control exports into the
+  same output directory merge `index.md` and `manifest.json` instead of
+  clobbering them.
+
 **Why this is Phase 2:** Without the SSK layer, AMC is a hygiene-scanning
 tool. With it, AMC is the governance intelligence layer described in
 CONTEXT.md and ARCHITECTURE.md.

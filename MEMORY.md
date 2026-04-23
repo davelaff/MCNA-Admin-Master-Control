@@ -1,9 +1,5 @@
-No filepath provided — compressing inline per skill rules.
-
----
-
 # MEMORY.md — MCNA Admin Master Control
-Version: v19 | Updated: 2026-04-23
+Version: v21 | Updated: 2026-04-23
 
 ## Purpose of this file
 
@@ -25,7 +21,7 @@ After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavi
 Read first. Everything below is reference; this is what to do next.
 
 **Where we left off (2026-04-23 session, continued):**
-EXO domain built. MailboxSettings.Read consented and working. 201/201 tests. Ready for live scan or next domain.
+SSK evidence backfilled for six controls. Binders regenerated. Binder export merge bug fixed and verified. EXO still next best live-scan candidate.
 
 **EXO domain (2026-04-23 built):**
 - `exo_scan_mailboxes`: detects shared mailboxes with interactive sign-in enabled (High → 08-1). Uses `userPurpose` from `/users/{id}/mailboxSettings`.
@@ -40,18 +36,26 @@ EXO domain built. MailboxSettings.Read consented and working. 201/201 tests. Rea
 - Needs `InformationProtectionPolicy.Read.All` for label scan. Not yet consented — will emit `purview_scope_gap` Medium finding if run without it.
 - Audit scan uses `AuditLog.Read.All` (already consented).
 
+**Evidence + binder work completed (2026-04-23 built):**
+- `ssk_evidence` populated with 15 verified `scan_snapshot` rows from existing artifacts.
+- Controls now carrying evidence: `06-3`, `08-1`, `08-2`, `08-6`, `15-3`, `15-4`.
+- Refreshed binder set: `reports/audit-binders/2026-04-23-204903/`.
+- New operator guide: `docs/how-to-use-reports.md`.
+- `ssk_export_binder` fixed so repeated single-control exports into the same `output_dir` merge `index.md` and `manifest.json` instead of clobbering them.
+- Regression coverage added in `mcp-server/tests/test_ssk_binder.py`; binder test file passes `15/15` when run with `--basetemp` outside the blocked default Windows temp path.
+
 **Recommended first move next session — pick one:**
 
 1. **Run EXO live scans** — `exo_scan_mailboxes` + `exo_scan_forwarding`. MCP restart required first.
 2. **Run Purview live scans** — consent `InformationProtectionPolicy.Read.All` first or accept scope gap finding.
-3. **Link evidence to controls** — `ssk_link_evidence` to attach existing scan artifacts. Fills evidence sections in binders. No new code.
+3. **Expand evidence coverage** — add current artifacts for `07-2`, `06-1`, `16-1`, then regenerate their binders.
 4. **Triage high-severity findings** — 22 permanent privileged assignments, 9 non-admin privileged role holders.
 
 **Default if no preference:** run EXO live scans (domain just built, scope consented, ready to go).
 
 **Mechanical reminders:**
 - `.rtk/` and `CLAUDE.md` (rtk-section edit) intentionally uncommitted. Leave unless adding to .gitignore.
-- Binder output dirs from 2026-04-23: `reports/audit-binders/2026-04-23/` (08-6), `2026-04-23-142332/` (06-3), `2026-04-23-142541/` (08-1). Keep for reference.
+- Binder output dirs from 2026-04-23: `reports/audit-binders/2026-04-23/` (08-6), `2026-04-23-142332/` (06-3), `2026-04-23-142541/` (08-1), `2026-04-23-204903/` (06-3, 08-1, 08-2, 08-6, 15-3, 15-4). Keep for reference.
 - MCP server restart required when new tools are added to server.py.
 
 ---
@@ -85,7 +89,7 @@ Spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`.
 
 ---
 
-## Repo contents (as of 2026-04-21)
+## Repo contents (as of 2026-04-23)
 
 Core docs:
 - `CLAUDE.md` — operational brain
@@ -101,14 +105,16 @@ Core docs:
 
 Auth and docs:
 - `docs/auth/app-registrations.md` — app reg record (moved from `auth/`)
+- `docs/how-to-use-reports.md` — operator guide for scan reports and audit binders
 - `docs/superpowers/specs/` — design specs
 - `docs/superpowers/plans/` — implementation plans
 
 Build artifact:
-- `mcp-server/` — MCNA-AMC MCP Server (Phase 1+2 complete, 120 tests passing)
+- `mcp-server/` — MCNA-AMC MCP Server (Phase 1+2 complete, Phase 3 in progress, 201 tests passing)
 
 Reports (historical scan outputs, still valid reference):
 - `reports/app-reg-governance/` — 2026-04-17, 2026-04-20
+- `reports/audit-binders/` — refreshed multi-control binder set at `2026-04-23-204903/`
 - `reports/orphaned-assets/` — 2026-04-17, 2026-04-20
 - `reports/power-platform-hygiene/` — 2026-04-20
 - `reports/secure-score/` — empty
@@ -199,7 +205,7 @@ Built:
 
 - `tools/purview.py` — `purview_scan_labels`, `purview_scan_audit`. Label coverage (High→PURVIEW-LABEL-01→06-1), audit log activity check (High→PURVIEW-AUDIT-01→16-1), scope gap (Medium→PURVIEW-SCOPE-01→06-1). Needs `InformationProtectionPolicy.Read.All` for label scan (not yet consented). Audit scan uses existing `AuditLog.Read.All`. 13 tests, 182/182 total.
 
-- `tools/exo.py` — `exo_scan_mailboxes`, `exo_scan_forwarding`. Shared mailbox interactive login (High→EXO-SHARED-ENABLED-01→08-1), external forwarding/redirect rules (High→EXO-FORWARD-01→06-1), scope gap (Medium→EXO-SCOPE-01→08-1). Scope: `MailboxSettings.Read` delegated, consented 2026-04-23. 19 tests, 201/201 total. Not yet live-scanned.
+- `tools/exo.py` — `exo_scan_mailboxes`, `exo_scan_forwarding`. Shared mailbox interactive login (High→EXO-SHARED-ENABLED-01→08-1), external forwarding/redirect rules (High→EXO-FORWARD-01→06-1), scope-gap detection (Medium→EXO-SCOPE-01→08-1 when permission is missing). Scope: `MailboxSettings.Read` delegated, consented 2026-04-23. 19 tests, 201/201 total. Not yet live-scanned.
 
 **Binder smell-test — PASSED (2026-04-23):**
 - `ssk_coverage`: 7/73 automated, 66 uncovered.
@@ -208,13 +214,19 @@ Built:
 - Same-day collision handling works: timestamped suffix dirs created.
 - No bugs. Pipeline sound.
 
+**Evidence backfill + binder refresh (2026-04-23):**
+- `ssk_evidence` now populated for six controls from existing local artifacts; all 15 pointers resolved cleanly.
+- Refreshed binder set at `reports/audit-binders/2026-04-23-204903/` now shows populated evidence tables for `06-3`, `08-1`, `08-2`, `08-6`, `15-3`, `15-4`.
+- `ssk_export_binder` patched so repeated single-control exports into the same directory merge `index.md` and `manifest.json` instead of overwriting them.
+- Binder regression test added and verified with `python -m pytest mcp-server/tests/test_ssk_binder.py -q --basetemp C:\Users\dlafferty.MCNA\codex-pytest-base` → 15 passed.
+
 **Scope gaps surfaced during Phase 3:**
-- EXO governance (forwarding, shared-mailbox delegation, transport rules) needs `MailboxSettings.Read` or EXO PowerShell. Pivoted away from exo.py.
+- EXO transport-rule/deeper Exchange admin coverage still needs EXO PowerShell or a broader Exchange-specific approach. `exo.py` mailboxSettings-based scans are built and unblocked with `MailboxSettings.Read`.
 - Sharing permission findings (external sharing, guest site access) need `Sites.FullControl.All`. `/sites/{id}/permissions` returns 403 with current Sites.Read.All. Deferred.
 - Intune scopes now consented: `DeviceManagementManagedDevices.Read.All` + `DeviceManagementConfiguration.Read.All` (2026-04-23).
 - Purview needs `InformationProtectionPolicy.Read.All` — not yet in app reg.
 
-Next candidates (priority order): `purview`, `copilot`, `mail`, or add MailboxSettings.Read to unlock `exo`.
+Next candidates (priority order): `purview`, `copilot`, `mail`, or run EXO live scans now that `MailboxSettings.Read` is consented.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
@@ -222,7 +234,7 @@ Next candidates (priority order): `purview`, `copilot`, `mail`, or add MailboxSe
 
 ## MCNA-AMC MCP Server — domain tool surface
 
-Thirteen domains planned for v1:
+Thirteen primary domains planned for v1, plus local support surfaces:
 
 | Prefix | Domain | Primary Graph endpoints |
 |---|---|---|
@@ -293,10 +305,15 @@ ApplicationImpersonation deprecated in EXO 2026 — do not suggest.
 
 ### Governance paper trail outstanding
 
-IT-GOV-ENTRA-v1.0 requires documented request record for scope additions:
-- 2026-04-16: Application.Read.All, AuditLog.Read.All, Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory
-- 2026-04-17: Sites.Read.All (delegated), Tasks.Read.All (application)
-Dave self-approves as IS Director but paper trail not written.
+IT-GOV-ENTRA-v1.0 requires documented request records for scope additions.
+
+Documented in repo:
+- 2026-04-16 initial registration record exists in `docs/governance/scope-additions/2026-04-16-initial-registration.md`
+- 2026-04-20 Power Platform scope record exists in `docs/governance/scope-additions/2026-04-20-power-platform.md`
+
+Still outstanding:
+- Newer 2026-04-22/23 additions and consent outcomes should be written up as dated records
+- `docs/governance/scope-additions/pending-gaps.md` and `docs/auth/app-registrations.md` should be reconciled with current consent state
 
 ---
 
@@ -340,6 +357,8 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-23 — v21 — Evidence/binder session. Backfilled `ssk_evidence` for six controls, regenerated binders in `reports/audit-binders/2026-04-23-204903/`, added `docs/how-to-use-reports.md`, and fixed `ssk_export_binder` so repeated single-control exports no longer clobber `index.md` and `manifest.json`.
+- 2026-04-23 — v20 — MEMORY cleanup pass. Removed stray tool artifact, reconciled EXO status/scope text, updated repo snapshot date and test count, clarified governance paper-trail status, and clarified domain-count wording.
 - 2026-04-23 — v19 — EXO domain built (exo_scan_mailboxes, exo_scan_forwarding). MailboxSettings.Read consented. 19 tests, 201/201. Purview domain (built in earlier session) noted as stale in MEMORY — corrected. Startup prompt updated.
 - 2026-04-23 — v18 — Intune live scan session. Both scopes consented, bug fixed, two High findings (incomplete_enrollment, encryption_not_enabled on JWEDGE-2018), stale scope-gap finding dismissed. Startup prompt updated for purview.py as next task.
 - 2026-04-23 — v15 — End-of-day handoff for 2026-04-22 session. Phase 3 three domains complete on main: pim (133), license (143), sharing (149 tests). 64 governance findings written to KB. Scope gaps documented: MailboxSettings.Read for exo, Sites.FullControl.All for sharing permissions. Startup prompt added.

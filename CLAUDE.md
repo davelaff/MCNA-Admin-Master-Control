@@ -111,8 +111,12 @@ What Dave wants:
 ## Project folder structure
 See ARCHITECTURE.md for full layout. Primary build artifact: `mcp-server/`. Knowledge base: `mcp-server/kb/mcna_amc.db`. Reports: `reports/`. Design docs: `docs/`.
 
+Report usage guide: `docs/how-to-use-reports.md`.
+
+Audit binder note: when reusing the same binder output directory, `ssk_export_binder` now merges `index.md` and `manifest.json` rather than overwriting them with only the last single-control export.
+
 ## Current version
-v2.3 — 2026-04-23
+v2.4 — 2026-04-23
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands

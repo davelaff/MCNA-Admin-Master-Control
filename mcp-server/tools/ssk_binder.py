@@ -70,6 +70,49 @@ def _resolve_export_dir(output_dir: str | None) -> Path:
     return fallback
 
 
+def _load_existing_manifest_entries(export_root: Path) -> list[dict]:
+    manifest_path = export_root / "manifest.json"
+    if manifest_path.exists():
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            controls = manifest.get("controls", [])
+            if isinstance(controls, list):
+                return [
+                    {"control_id": entry["control_id"], "file": entry["file"]}
+                    for entry in controls
+                    if isinstance(entry, dict)
+                    and entry.get("control_id")
+                    and entry.get("file")
+                ]
+        except (json.JSONDecodeError, OSError, KeyError, TypeError):
+            pass
+
+    entries: list[dict] = []
+    for md_file in sorted(export_root.glob("*.md")):
+        if md_file.name == "index.md":
+            continue
+        entries.append(
+            {
+                "control_id": md_file.stem.replace("_", "-"),
+                "file": md_file.name,
+            }
+        )
+    return entries
+
+
+def _merge_manifest_entries(export_root: Path, manifest_entries: list[dict]) -> list[dict]:
+    merged: dict[str, dict] = {
+        entry["control_id"]: {"control_id": entry["control_id"], "file": entry["file"]}
+        for entry in _load_existing_manifest_entries(export_root)
+    }
+    for entry in manifest_entries:
+        merged[entry["control_id"]] = {
+            "control_id": entry["control_id"],
+            "file": entry["file"],
+        }
+    return [merged[cid] for cid in sorted(merged)]
+
+
 def _render_status_descriptions(raw: str | None) -> list[str]:
     """Render status_descriptions JSON into markdown lines."""
     lines: list[str] = []
@@ -328,6 +371,8 @@ def ssk_export_binder(scope: str, output_dir: str | None = None) -> str:
         exported.append(str(out_file))
         manifest_entries.append({"control_id": cid, "file": out_file.name})
 
+    merged_entries = _merge_manifest_entries(export_root, manifest_entries)
+
     # Write index.md
     index_lines = [
         "# Audit Binder",
@@ -337,15 +382,18 @@ def ssk_export_binder(scope: str, output_dir: str | None = None) -> str:
         "## Controls",
         "",
     ]
-    for entry in manifest_entries:
+    for entry in merged_entries:
         index_lines.append(f"- [{entry['control_id']}](./{entry['file']})")
     (export_root / "index.md").write_text("\n".join(index_lines), encoding="utf-8")
 
     # Write manifest.json
+    manifest_scope = scope
+    if len(merged_entries) > len(control_ids):
+        manifest_scope = "custom-multi-control"
     manifest = {
         "generated_at": utc_now(),
-        "scope": scope,
-        "controls": manifest_entries,
+        "scope": manifest_scope,
+        "controls": merged_entries,
         "output_dir": str(export_root),
     }
     (export_root / "manifest.json").write_text(

@@ -173,6 +173,27 @@ def test_ssk_export_binder_all_index_lists_all_controls(db, tmp_path):
     assert "06-3" in text
 
 
+def test_ssk_export_binder_reused_output_dir_merges_index_and_manifest(db, tmp_path):
+    _seed_controls(db, tmp_path, [("06-3", "Asset control"), ("08-1", "Identity control")])
+    out = tmp_path / "binder-merge"
+
+    first = json.loads(ssk_export_binder("06-3", output_dir=str(out)))
+    second = json.loads(ssk_export_binder("08-1", output_dir=str(out)))
+
+    assert first["controls_exported"] == 1
+    assert second["controls_exported"] == 1
+    assert (out / "06_3.md").exists()
+    assert (out / "08_1.md").exists()
+
+    index_text = (out / "index.md").read_text(encoding="utf-8")
+    assert "06-3" in index_text
+    assert "08-1" in index_text
+
+    manifest = json.loads((out / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["scope"] == "custom-multi-control"
+    assert [entry["control_id"] for entry in manifest["controls"]] == ["06-3", "08-1"]
+
+
 # --------------------------------------------------------------------------- #
 # ssk_export_binder — error cases                                               #
 # --------------------------------------------------------------------------- #

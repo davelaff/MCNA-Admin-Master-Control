@@ -135,6 +135,9 @@ change them.
 - `ARCHITECTURE.md`
   Long-form design detail for Master Control.
 
+- `docs/how-to-use-reports.md`
+  Operator guide for interpreting domain scan reports, CSV exports, and audit binders.
+
 ---
 
 ## Relationship to the 2026 Governance Program
