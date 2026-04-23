@@ -3,7 +3,7 @@ No filepath provided — compressing inline per skill rules.
 ---
 
 # MEMORY.md — MCNA Admin Master Control
-Version: v16 | Updated: 2026-04-23
+Version: v17 | Updated: 2026-04-23
 
 ## Purpose of this file
 
@@ -25,37 +25,32 @@ After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavi
 Read first. Everything below is reference; this is what to do next.
 
 **Where we left off (end of 2026-04-23 session):**
-Binder smell-test complete and PASSED. Full evidence pipeline validated end-to-end: pim findings → 08-6 binder, license findings → 06-3 binder, disabled-account findings → 08-1 binder (alias routing works). 149/149 tests green. No new code this session — pure validation.
+Phase 3 domain 4 (intune.py) complete. 169/169 tests green. All brain files updated. MCP server needs restart to expose `intune_scan_devices` and `intune_scan_compliance_policies`.
 
-**Key findings from smell-test:**
+**What was built (intune.py):**
+- `intune_scan_devices`: compliance state, stale device (>30d), encryption gap (Windows/macOS), graceful 403 fallback (DeviceManagementManagedDevices.Read.All not yet consented → scope-gap finding Medium).
+- `intune_scan_compliance_policies`: empty-policy gap (High), graceful 403 fallback.
+- 5 new aliases in `ssk_control_aliases.json`: INTUNE-SCOPE-01, INTUNE-NOPOL-01, INTUNE-NONCOMPLIANT-01, INTUNE-STALE-01, INTUNE-ENCRYPT-01 (all → 07-2 or 06-2).
+- 20 new tests; all pass.
 
-- `ssk_coverage`: 7/73 controls have automated scan coverage.
-  Covered: 06-3 (license), 08-1 (entra+ca+license), 08-2 (entra), 08-3 (pim), 08-6 (pim), 15-3 (pp), 15-4 (pp+sharing).
-  66 controls uncovered — all outside current domain tools.
-
-- Alias routing confirmed: `LIC-DISABLED-01` stored in DB as raw key, `canonical_control_id()` resolves to `08-1` at render time.
-  `licensed_disabled_account` findings (Cameron Heinz, Damian Schultz, Shawn Kemp) appear in 08-1 binder, not 06-3. Correct.
-
-- Binder structure sound: findings table populated, evidence section empty (expected — none linked), reviews section empty (expected), recommended actions all `not_started` (accurate). Same-day collision handling triggered → timestamped suffix dirs.
-
-- Pipeline gap: evidence linking is next meaningful workflow gap. Binders exist but no evidence attached to any control.
+**SSK coverage after intune.py:** 7/73 controls automated. Adding intune findings will extend coverage once `DeviceManagementManagedDevices.Read.All` is consented.
 
 **Recommended first move next session — pick one:**
 
-1. **Build `intune.py` — next Phase 3 domain.** Device compliance, BitLocker posture, enrollment status. Graph: `/deviceManagement/managedDevices`, `/deviceManagement/deviceCompliancePolicies`. Probe `/subscribedSkus` first — Intune licensing gates which endpoints respond. Scope needed: `DeviceManagementManagedDevices.Read.All` (not yet consented). Maps to SSK 16-x (endpoint security).
+1. **Consent `DeviceManagementManagedDevices.Read.All` and run `intune_scan_devices` live.** Quick win — permission add in Entra app reg, then re-run. Will surface real compliance/encryption posture.
 
-2. **Link evidence to controls.** Use `ssk_link_evidence` to attach existing scan artifacts to controls. Starts filling evidence sections in binders. No new code — workflow exercise with existing tools.
+2. **Build `purview.py` — next Phase 3 domain.** Sensitivity label coverage, DLP policy inventory, audit log signals. Graph: `/security/informationProtection/sensitivityLabels`, `/security/informationProtection/policies/dlpPolicies`, `/auditLogs/directoryAudits`. Scope: `InformationProtectionPolicy.Read.All` (check consent status first).
 
-3. **Push overdue scope-add governance paper trail.** Still unwritten: `docs/governance/scope-additions/` records for Apr-16/17 additions plus identified gaps (`MailboxSettings.Read`, `Sites.FullControl.All`, `DeviceManagementManagedDevices.Read.All`).
+3. **Link evidence to controls.** Use `ssk_link_evidence` to attach existing scan artifacts (binder reports, findings) to controls. Fills evidence sections in binders. No new code.
 
-4. **Triage high-severity findings directly.** 22 permanent privileged assignments, 9 non-admin holders of privileged roles (`admin@`, `cloudadmin@`, `MIS@`, `DIS Computers`). Backed by concrete DB data.
+4. **Triage high-severity findings directly.** 22 permanent privileged assignments, 9 non-admin holders of privileged roles. Backed by DB data. Produce a prioritized remediation queue.
 
-**Default if no preference:** option 1 (intune.py) — keeps Phase 3 coverage momentum. Coverage 7/73; most gaps in categories 01-07, 09-14, 16-20 need new domain tools.
+**Default if no preference:** option 1 (consent + live intune scan) — zero build time, immediate signal value.
 
 **Mechanical reminders:**
-- MCP server needs restart to expose new tools (none added today — no restart needed).
+- **Restart MCP server** — intune tools not exposed until restart.
 - `.rtk/` and `CLAUDE.md` (rtk-section edit) intentionally uncommitted. Leave unless adding to .gitignore.
-- Test binder output dirs from today: `reports/audit-binders/2026-04-23/` (08-6, intentional), `2026-04-23-142332/` (06-3, test), `2026-04-23-142541/` (08-1, test). Keep or clean up as appropriate.
+- Binder output dirs from 2026-04-23: `reports/audit-binders/2026-04-23/` (08-6), `2026-04-23-142332/` (06-3), `2026-04-23-142541/` (08-1). Keep for reference.
 
 ---
 
@@ -198,6 +193,8 @@ Built:
 
 - `tools/sharing.py` — `sharing_scan_sites`. Enumerates /sites, flags stale (>365d, Medium) and very-stale (>730d, High). Wired to 15-4. 6 new tests, 149/149 total. Live: 29 sites, 17 very-stale, 5 stale — ~7 active.
 
+- `tools/intune.py` — `intune_scan_devices`, `intune_scan_compliance_policies`. Device compliance (High→INTUNE-NONCOMPLIANT-01→07-2), stale device (Low→INTUNE-STALE-01→06-2), encryption gap (High→INTUNE-ENCRYPT-01→07-2), scope/no-policies findings (Medium/High→INTUNE-SCOPE-01/NOPOL-01→07-2). Graceful 403 fallback (DeviceManagementManagedDevices.Read.All not yet consented). 20 new tests, 169/169 total.
+
 **Binder smell-test — PASSED (2026-04-23):**
 - `ssk_coverage`: 7/73 automated, 66 uncovered.
 - Findings route correctly via alias map: 08-6 (29 High pim findings), 06-3 (7 medium/low license findings), 08-1 (3 disabled-account findings via LIC-DISABLED-01 → 08-1 alias at render time).
@@ -208,9 +205,9 @@ Built:
 **Scope gaps surfaced during Phase 3:**
 - EXO governance (forwarding, shared-mailbox delegation, transport rules) needs `MailboxSettings.Read` or EXO PowerShell. Pivoted away from exo.py.
 - Sharing permission findings (external sharing, guest site access) need `Sites.FullControl.All`. `/sites/{id}/permissions` returns 403 with current Sites.Read.All. Deferred.
-- Intune needs `DeviceManagementManagedDevices.Read.All` — not yet consented.
+- Intune needs `DeviceManagementManagedDevices.Read.All` — not yet consented. **intune.py built and registered; 403 returns scope-gap finding until consent granted.**
 
-Next candidates (priority order): `intune`, `purview`, `copilot`, `mail`, or add MailboxSettings.Read to unlock `exo`.
+Next candidates (priority order): `purview`, `copilot`, `mail`, or add MailboxSettings.Read to unlock `exo`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 

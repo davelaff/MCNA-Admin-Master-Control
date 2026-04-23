@@ -3,6 +3,8 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-23 — Brain file update (post-intune.py) — MEMORY.md v17, ARCHITECTURE.md (169 tests, intune.py built), CLAUDE.md v2.3 — MEMORY.md, ARCHITECTURE.md, CLAUDE.md
+2026-04-23 11:03 — intune.py Phase 3 domain 4 — complete. 2 tools (intune_scan_devices, intune_scan_compliance_policies), 5 aliases, 20 tests. 169/169 total. — mcp-server/tools/intune.py, mcp-server/tests/test_intune.py
 2026-04-23 — Binder smell-test (ssk_coverage + ssk_export_binder) — PASS. Coverage 7/73. 06-3 and 08-1 binders exported and verified. LIC-DISABLED-01 alias routing confirmed correct (resolves to 08-1 at render time). Pipeline sound. — reports/audit-binders/2026-04-23-142332/, reports/audit-binders/2026-04-23-142541/
 2026-04-23 — Brain file update — MEMORY.md v16, activity-log.md updated — MEMORY.md, activity-log.md
 
@@ -63,3 +65,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-22 — Phase 3 Task 2: tools/license.py — license_scan_skus + license_scan_users built (TDD), CONTRIBUTES_TO wired to 06-3/08-1. 143/143 tests. Live findings: 1 unused SKU (ATA), 6 productivity_sku_stacking, 3 licensed_disabled_account. — mcp-server/tools/license.py, mcp-server/tests/test_license.py, mcp-server/server.py
 2026-04-22 — Phase 3 Task 3: tools/sharing.py — sharing_scan_sites built (TDD), CONTRIBUTES_TO wired to 15-4. 149/149 tests. Live: 29 sites, 17 very_stale, 5 stale. Permission-based checks deferred (Sites.FullControl.All not consented). EXO pivot noted — needs MailboxSettings.Read or EXO PowerShell. — mcp-server/tools/sharing.py, mcp-server/tests/test_sharing.py, mcp-server/server.py
 2026-04-23 — End-of-day handoff — MEMORY.md v15 with startup prompt at top, ARCHITECTURE/ROADMAP refreshed for Phase 3 progress (3 domains, 149 tests). Pushing to origin/main. — MEMORY.md, ARCHITECTURE.md, ROADMAP.md
+2026-04-23 — Brain file review + housekeeping — MEMORY.md bumped to v16, activity-log gap patched, CLAUDE.md v2.2, scope-additions governance records created — MEMORY.md, activity-log.md, CLAUDE.md, docs/governance/scope-additions/
