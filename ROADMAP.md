@@ -188,13 +188,17 @@ CONTEXT.md and ARCHITECTURE.md.
 registering itself as an evidence contributor to specific Secure SketCH
 controls.
 
-**Status (2026-04-22):** `tools/pim.py` built and tested (131/131 tests).
-Remaining domains below.
+**Status (2026-04-22):** Three domains built and tested (149/149 tests).
+`tools/pim.py`, `tools/license.py`, `tools/sharing.py` complete and on main.
+Remaining domains below. EXO pivoted away from pending MailboxSettings.Read
+or EXO PowerShell integration.
 
 **Deliverables:**
 - `tools/license.py` — unassigned licenses, duplicate stacking, service plan
-  conflicts → evidence for software asset management controls
+  conflicts → evidence for software asset management controls **(BUILT)**
 - `tools/pim.py` — privileged role review, permanent vs. eligible **(BUILT)**
+- `tools/sharing.py` — site staleness inventory; permission-based external
+  sharing checks deferred (need Sites.FullControl.All) **(PARTIAL)**
 - `tools/sharing.py` — external sharing posture across SharePoint, OneDrive,
   Teams
 - `tools/exo.py` — Exchange hygiene: forwarding rules, shared mailboxes,
@@ -257,6 +261,9 @@ contribution manifest is read by `ssk_status` to compute coverage.
 ---
 
 ## Change log
+- 2026-04-23 — v3.3 — Phase 3 progress noted: pim, license, sharing built
+  (149 tests). EXO pivot recorded. Two scope-add candidates documented:
+  MailboxSettings.Read, Sites.FullControl.All.
 - 2026-04-14 — v1 — Initial roadmap. Eight Plays documented.
 - 2026-04-17 — v1.1 — Play 3 (orphaned assets) built.
 - 2026-04-17 — v1.2 — Play 3 write phase architecture documented.

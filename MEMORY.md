@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v14 | Updated: 2026-04-22
+Version: v15 | Updated: 2026-04-23
 
 ## Purpose of this file
 
@@ -14,6 +14,57 @@ Use it to understand:
 Read this once at project startup.
 After that: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational
 behavior, `ROADMAP.md` is for direction and history.
+
+---
+
+## ▶ Next session startup prompt
+
+Read this section first. Everything below is reference; this is what to do next.
+
+**Where we left off (end of 2026-04-22 session):**
+Phase 3 broad-domain coverage well underway. Three new tools built and on
+main today: `pim.py`, `license.py`, `sharing.py`. 149/149 tests green.
+64 new governance findings written to KB across the three domains, all
+SSK-mapped. 4 commits pushed to origin/main (verify with `rtk git status`).
+
+**Recommended first move this session — pick one:**
+
+1. **Triage today's findings before adding more.** Run `ssk_coverage` and
+   `ssk_export_binder` against a representative control (e.g. 08-6 for the
+   PIM findings or 06-3 for the license findings). See how the binder
+   actually reads with real data. This is a smell-test of the full
+   evidence pipeline — first end-to-end exercise of Phase 2's output with
+   Phase 3's input. **Highest learning value, no new code.**
+
+2. **Build `intune.py` — next Phase 3 domain.** Device compliance,
+   BitLocker posture, enrollment status. Well-supported in Graph
+   (`/deviceManagement/managedDevices`, `/deviceManagement/deviceCompliancePolicies`).
+   Likely no new scope (DeviceManagementManagedDevices.Read.All — verify
+   via /subscribedSkus probe first since Intune licensing affects which
+   endpoints respond). Maps to SSK 16-x (endpoint security category).
+
+3. **Push the overdue scope-add governance paper trail.** Currently overdue:
+   the original Apr-16/17 scope additions plus today's identified gaps —
+   `MailboxSettings.Read` (unlocks exo.py) and `Sites.FullControl.All`
+   (unlocks sharing permissions findings). One markdown record per addition
+   in a new docs/governance/scope-additions/ directory. Then add the two
+   new scopes via Entra portal.
+
+4. **Triage the high-severity findings directly.** 22 permanent privileged
+   assignments, 9 non-admin holders of privileged roles (`admin@`,
+   `cloudadmin@`, `MIS@`, `DIS Computers`). Some are pre-existing open
+   items now backed by concrete data — this is the time to action them.
+
+**Default if no preference:** option 1 (binder smell-test) — proves the
+full pipeline works end-to-end before piling on more domain coverage. If
+the binder output is sound, then option 2.
+
+**Mechanical reminders:**
+- Restart Claude Code if you want the new MCP tools (`pim_*`, `license_*`,
+  `sharing_*`) exposed to the tool list. Direct Python invocation works
+  without restart.
+- `.rtk/` and `CLAUDE.md` (rtk-section edit) are intentionally uncommitted.
+  Leave them alone unless adding to .gitignore.
 
 ---
 
@@ -340,6 +391,11 @@ The `.env` and cert files live outside the synced repo intentionally.
 ---
 
 ## Change log
+- 2026-04-23 — v15 — End-of-day handoff for 2026-04-22 session. Phase 3
+  three domains complete on main: pim (133), license (143), sharing (149
+  tests). 64 governance findings written to KB. Scope gaps documented:
+  MailboxSettings.Read for exo, Sites.FullControl.All for sharing
+  permissions. Startup prompt added at top of file.
 - 2026-04-22 — v14 — Phase 3 begun. tools/pim.py built with two scan tools,
   CONTRIBUTES_TO wired to 08-3/08-6, 11 new tests (131/131 passing).
   No new scope required — RoleManagement.Read.Directory already consented.
