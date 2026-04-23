@@ -11,6 +11,7 @@ from tools.pim import pim_scan_role_assignments, pim_scan_role_definitions
 from tools.license import license_scan_skus, license_scan_users
 from tools.sharing import sharing_scan_sites
 from tools.intune import intune_scan_devices, intune_scan_compliance_policies
+from tools.purview import purview_scan_labels, purview_scan_audit
 from tools.ssk import (
     ssk_import_catalog, ssk_list_controls, ssk_get_control,
     ssk_status, ssk_status_all, ssk_gaps,
@@ -65,6 +66,10 @@ mcp.tool()(sharing_scan_sites)
 # Intune tools
 mcp.tool()(intune_scan_devices)
 mcp.tool()(intune_scan_compliance_policies)
+
+# Purview tools
+mcp.tool()(purview_scan_labels)
+mcp.tool()(purview_scan_audit)
 
 # Secure SketCH tools (Phase 2a)
 mcp.tool()(ssk_import_catalog)

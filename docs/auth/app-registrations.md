@@ -63,7 +63,7 @@ on the local workstation and are never stored here.
 | `mail_*` | Send summary emails | Scopes ready, tools not yet built |
 | `intune_*` | Device compliance, BitLocker | Scopes granted — tools functional |
 | `exo_*` | Exchange hygiene, forwarding rules | Needs additional scopes TBD |
-| `purview_*` | Sensitivity labels, DLP, audit | Partial — AuditLog.Read.All granted |
+| `purview_*` | Sensitivity labels, DLP, audit | Partial — AuditLog.Read.All granted; InformationProtectionPolicy.Read.All needed for purview_scan_labels |
 | `kb_*` | Knowledge base (SQLite) | No scopes required — local only |
 
 ### Notes
