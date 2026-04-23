@@ -3,7 +3,7 @@ No filepath provided — compressing inline per skill rules.
 ---
 
 # MEMORY.md — MCNA Admin Master Control
-Version: v18 | Updated: 2026-04-23
+Version: v19 | Updated: 2026-04-23
 
 ## Purpose of this file
 
@@ -25,25 +25,29 @@ After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavi
 Read first. Everything below is reference; this is what to do next.
 
 **Where we left off (2026-04-23 session, continued):**
-Intune live scans completed. Both scopes consented. Two open High findings in KB. Ready for next Phase 3 domain.
+EXO domain built. MailboxSettings.Read consented and working. 201/201 tests. Ready for live scan or next domain.
 
-**Intune scan reality (2026-04-23 live):**
-- 1 device enrolled: JWEDGE-2018 (Windows). Enrollment is early-stage — full endpoint population not yet onboarded.
-- JWEDGE-2018 not encrypted → High finding (`encryption_not_enabled`, INTUNE-ENCRYPT-01 → 07-2).
-- `incomplete_enrollment` finding manually inserted → High, 07-2. Will persist until enrollment expands.
-- 1 compliance policy defined. Device shows compliant (policy may not enforce encryption yet).
-- Two Intune scopes added to app reg and consented: `DeviceManagementManagedDevices.Read.All` + `DeviceManagementConfiguration.Read.All`.
-- intune.py scope bug fixed: compliance policies endpoint needs `DeviceManagementConfiguration.Read.All`, not `DeviceManagementManagedDevices.Read.All`.
+**EXO domain (2026-04-23 built):**
+- `exo_scan_mailboxes`: detects shared mailboxes with interactive sign-in enabled (High → 08-1). Uses `userPurpose` from `/users/{id}/mailboxSettings`.
+- `exo_scan_forwarding`: scans inbox message rules for external forwarding/redirect (High → 06-1). Detects both `forwardTo` and `redirectTo` actions.
+- Scope: `MailboxSettings.Read` delegated. Consented 2026-04-23.
+- INTERNAL_DOMAINS: `nofmetalcoatings.us`, `nofmetalcoatings.onmicrosoft.com`.
+- Graceful 404 (no mailbox, skip) vs 403 (scope gap, emit finding once) handling.
+- 19 tests, 201/201 total.
+
+**Purview domain (built in prior session — MEMORY was stale):**
+- `purview_scan_labels` + `purview_scan_audit` built, tested, committed. 13 tests.
+- Needs `InformationProtectionPolicy.Read.All` for label scan. Not yet consented — will emit `purview_scope_gap` Medium finding if run without it.
+- Audit scan uses `AuditLog.Read.All` (already consented).
 
 **Recommended first move next session — pick one:**
 
-1. **Build `purview.py` — next Phase 3 domain.** Sensitivity label coverage, DLP policy inventory, audit log signals. Graph: `/security/informationProtection/sensitivityLabels`, `/security/informationProtection/policies/dlpPolicies`, `/auditLogs/directoryAudits`. Scope: `InformationProtectionPolicy.Read.All` (check consent status first — not yet in app reg).
+1. **Run EXO live scans** — `exo_scan_mailboxes` + `exo_scan_forwarding`. MCP restart required first.
+2. **Run Purview live scans** — consent `InformationProtectionPolicy.Read.All` first or accept scope gap finding.
+3. **Link evidence to controls** — `ssk_link_evidence` to attach existing scan artifacts. Fills evidence sections in binders. No new code.
+4. **Triage high-severity findings** — 22 permanent privileged assignments, 9 non-admin privileged role holders.
 
-2. **Link evidence to controls.** Use `ssk_link_evidence` to attach existing scan artifacts to controls. Fills evidence sections in binders. No new code.
-
-3. **Triage high-severity findings.** 22 permanent privileged assignments, 9 non-admin privileged role holders. Produce prioritized remediation queue.
-
-**Default if no preference:** option 1 (purview.py) — next logical Phase 3 domain.
+**Default if no preference:** run EXO live scans (domain just built, scope consented, ready to go).
 
 **Mechanical reminders:**
 - `.rtk/` and `CLAUDE.md` (rtk-section edit) intentionally uncommitted. Leave unless adding to .gitignore.
@@ -193,6 +197,10 @@ Built:
 
 - `tools/intune.py` — `intune_scan_devices`, `intune_scan_compliance_policies`. Device compliance (High→INTUNE-NONCOMPLIANT-01→07-2), stale device (Low→INTUNE-STALE-01→06-2), encryption gap (High→INTUNE-ENCRYPT-01→07-2), scope/no-policies findings (Medium/High→INTUNE-SCOPE-01/NOPOL-01→07-2). Both scopes consented 2026-04-23. Live: 1 device (JWEDGE-2018, not encrypted), 1 compliance policy. 20 new tests, 169/169 total.
 
+- `tools/purview.py` — `purview_scan_labels`, `purview_scan_audit`. Label coverage (High→PURVIEW-LABEL-01→06-1), audit log activity check (High→PURVIEW-AUDIT-01→16-1), scope gap (Medium→PURVIEW-SCOPE-01→06-1). Needs `InformationProtectionPolicy.Read.All` for label scan (not yet consented). Audit scan uses existing `AuditLog.Read.All`. 13 tests, 182/182 total.
+
+- `tools/exo.py` — `exo_scan_mailboxes`, `exo_scan_forwarding`. Shared mailbox interactive login (High→EXO-SHARED-ENABLED-01→08-1), external forwarding/redirect rules (High→EXO-FORWARD-01→06-1), scope gap (Medium→EXO-SCOPE-01→08-1). Scope: `MailboxSettings.Read` delegated, consented 2026-04-23. 19 tests, 201/201 total. Not yet live-scanned.
+
 **Binder smell-test — PASSED (2026-04-23):**
 - `ssk_coverage`: 7/73 automated, 66 uncovered.
 - Findings route correctly via alias map: 08-6 (29 High pim findings), 06-3 (7 medium/low license findings), 08-1 (3 disabled-account findings via LIC-DISABLED-01 → 08-1 alias at render time).
@@ -332,6 +340,7 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-23 — v19 — EXO domain built (exo_scan_mailboxes, exo_scan_forwarding). MailboxSettings.Read consented. 19 tests, 201/201. Purview domain (built in earlier session) noted as stale in MEMORY — corrected. Startup prompt updated.
 - 2026-04-23 — v18 — Intune live scan session. Both scopes consented, bug fixed, two High findings (incomplete_enrollment, encryption_not_enabled on JWEDGE-2018), stale scope-gap finding dismissed. Startup prompt updated for purview.py as next task.
 - 2026-04-23 — v15 — End-of-day handoff for 2026-04-22 session. Phase 3 three domains complete on main: pim (133), license (143), sharing (149 tests). 64 governance findings written to KB. Scope gaps documented: MailboxSettings.Read for exo, Sites.FullControl.All for sharing permissions. Startup prompt added.
 - 2026-04-22 — v14 — Phase 3 begun. tools/pim.py built, CONTRIBUTES_TO wired to 08-3/08-6, 11 new tests (131/131 passing). No new scope required.
