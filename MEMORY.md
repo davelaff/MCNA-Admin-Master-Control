@@ -3,7 +3,7 @@ No filepath provided — compressing inline per skill rules.
 ---
 
 # MEMORY.md — MCNA Admin Master Control
-Version: v17 | Updated: 2026-04-23
+Version: v18 | Updated: 2026-04-23
 
 ## Purpose of this file
 
@@ -24,33 +24,31 @@ After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavi
 
 Read first. Everything below is reference; this is what to do next.
 
-**Where we left off (end of 2026-04-23 session):**
-Phase 3 domain 4 (intune.py) complete. 169/169 tests green. All brain files updated. MCP server needs restart to expose `intune_scan_devices` and `intune_scan_compliance_policies`.
+**Where we left off (2026-04-23 session, continued):**
+Intune live scans completed. Both scopes consented. Two open High findings in KB. Ready for next Phase 3 domain.
 
-**What was built (intune.py):**
-- `intune_scan_devices`: compliance state, stale device (>30d), encryption gap (Windows/macOS), graceful 403 fallback (DeviceManagementManagedDevices.Read.All not yet consented → scope-gap finding Medium).
-- `intune_scan_compliance_policies`: empty-policy gap (High), graceful 403 fallback.
-- 5 new aliases in `ssk_control_aliases.json`: INTUNE-SCOPE-01, INTUNE-NOPOL-01, INTUNE-NONCOMPLIANT-01, INTUNE-STALE-01, INTUNE-ENCRYPT-01 (all → 07-2 or 06-2).
-- 20 new tests; all pass.
-
-**SSK coverage after intune.py:** 7/73 controls automated. Adding intune findings will extend coverage once `DeviceManagementManagedDevices.Read.All` is consented.
+**Intune scan reality (2026-04-23 live):**
+- 1 device enrolled: JWEDGE-2018 (Windows). Enrollment is early-stage — full endpoint population not yet onboarded.
+- JWEDGE-2018 not encrypted → High finding (`encryption_not_enabled`, INTUNE-ENCRYPT-01 → 07-2).
+- `incomplete_enrollment` finding manually inserted → High, 07-2. Will persist until enrollment expands.
+- 1 compliance policy defined. Device shows compliant (policy may not enforce encryption yet).
+- Two Intune scopes added to app reg and consented: `DeviceManagementManagedDevices.Read.All` + `DeviceManagementConfiguration.Read.All`.
+- intune.py scope bug fixed: compliance policies endpoint needs `DeviceManagementConfiguration.Read.All`, not `DeviceManagementManagedDevices.Read.All`.
 
 **Recommended first move next session — pick one:**
 
-1. **Consent `DeviceManagementManagedDevices.Read.All` and run `intune_scan_devices` live.** Quick win — permission add in Entra app reg, then re-run. Will surface real compliance/encryption posture.
+1. **Build `purview.py` — next Phase 3 domain.** Sensitivity label coverage, DLP policy inventory, audit log signals. Graph: `/security/informationProtection/sensitivityLabels`, `/security/informationProtection/policies/dlpPolicies`, `/auditLogs/directoryAudits`. Scope: `InformationProtectionPolicy.Read.All` (check consent status first — not yet in app reg).
 
-2. **Build `purview.py` — next Phase 3 domain.** Sensitivity label coverage, DLP policy inventory, audit log signals. Graph: `/security/informationProtection/sensitivityLabels`, `/security/informationProtection/policies/dlpPolicies`, `/auditLogs/directoryAudits`. Scope: `InformationProtectionPolicy.Read.All` (check consent status first).
+2. **Link evidence to controls.** Use `ssk_link_evidence` to attach existing scan artifacts to controls. Fills evidence sections in binders. No new code.
 
-3. **Link evidence to controls.** Use `ssk_link_evidence` to attach existing scan artifacts (binder reports, findings) to controls. Fills evidence sections in binders. No new code.
+3. **Triage high-severity findings.** 22 permanent privileged assignments, 9 non-admin privileged role holders. Produce prioritized remediation queue.
 
-4. **Triage high-severity findings directly.** 22 permanent privileged assignments, 9 non-admin holders of privileged roles. Backed by DB data. Produce a prioritized remediation queue.
-
-**Default if no preference:** option 1 (consent + live intune scan) — zero build time, immediate signal value.
+**Default if no preference:** option 1 (purview.py) — next logical Phase 3 domain.
 
 **Mechanical reminders:**
-- **Restart MCP server** — intune tools not exposed until restart.
 - `.rtk/` and `CLAUDE.md` (rtk-section edit) intentionally uncommitted. Leave unless adding to .gitignore.
 - Binder output dirs from 2026-04-23: `reports/audit-binders/2026-04-23/` (08-6), `2026-04-23-142332/` (06-3), `2026-04-23-142541/` (08-1). Keep for reference.
+- MCP server restart required when new tools are added to server.py.
 
 ---
 
@@ -193,7 +191,7 @@ Built:
 
 - `tools/sharing.py` — `sharing_scan_sites`. Enumerates /sites, flags stale (>365d, Medium) and very-stale (>730d, High). Wired to 15-4. 6 new tests, 149/149 total. Live: 29 sites, 17 very-stale, 5 stale — ~7 active.
 
-- `tools/intune.py` — `intune_scan_devices`, `intune_scan_compliance_policies`. Device compliance (High→INTUNE-NONCOMPLIANT-01→07-2), stale device (Low→INTUNE-STALE-01→06-2), encryption gap (High→INTUNE-ENCRYPT-01→07-2), scope/no-policies findings (Medium/High→INTUNE-SCOPE-01/NOPOL-01→07-2). Graceful 403 fallback (DeviceManagementManagedDevices.Read.All not yet consented). 20 new tests, 169/169 total.
+- `tools/intune.py` — `intune_scan_devices`, `intune_scan_compliance_policies`. Device compliance (High→INTUNE-NONCOMPLIANT-01→07-2), stale device (Low→INTUNE-STALE-01→06-2), encryption gap (High→INTUNE-ENCRYPT-01→07-2), scope/no-policies findings (Medium/High→INTUNE-SCOPE-01/NOPOL-01→07-2). Both scopes consented 2026-04-23. Live: 1 device (JWEDGE-2018, not encrypted), 1 compliance policy. 20 new tests, 169/169 total.
 
 **Binder smell-test — PASSED (2026-04-23):**
 - `ssk_coverage`: 7/73 automated, 66 uncovered.
@@ -205,7 +203,8 @@ Built:
 **Scope gaps surfaced during Phase 3:**
 - EXO governance (forwarding, shared-mailbox delegation, transport rules) needs `MailboxSettings.Read` or EXO PowerShell. Pivoted away from exo.py.
 - Sharing permission findings (external sharing, guest site access) need `Sites.FullControl.All`. `/sites/{id}/permissions` returns 403 with current Sites.Read.All. Deferred.
-- Intune needs `DeviceManagementManagedDevices.Read.All` — not yet consented. **intune.py built and registered; 403 returns scope-gap finding until consent granted.**
+- Intune scopes now consented: `DeviceManagementManagedDevices.Read.All` + `DeviceManagementConfiguration.Read.All` (2026-04-23).
+- Purview needs `InformationProtectionPolicy.Read.All` — not yet in app reg.
 
 Next candidates (priority order): `purview`, `copilot`, `mail`, or add MailboxSettings.Read to unlock `exo`.
 
@@ -333,6 +332,7 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-23 — v18 — Intune live scan session. Both scopes consented, bug fixed, two High findings (incomplete_enrollment, encryption_not_enabled on JWEDGE-2018), stale scope-gap finding dismissed. Startup prompt updated for purview.py as next task.
 - 2026-04-23 — v15 — End-of-day handoff for 2026-04-22 session. Phase 3 three domains complete on main: pim (133), license (143), sharing (149 tests). 64 governance findings written to KB. Scope gaps documented: MailboxSettings.Read for exo, Sites.FullControl.All for sharing permissions. Startup prompt added.
 - 2026-04-22 — v14 — Phase 3 begun. tools/pim.py built, CONTRIBUTES_TO wired to 08-3/08-6, 11 new tests (131/131 passing). No new scope required.
 - 2026-04-22 — v13 — Git hygiene complete. Branch phase2b-task0-control-map deleted, stale worktrees pruned. .mcp.json and .claude/settings.json committed and pushed.
