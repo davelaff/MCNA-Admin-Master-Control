@@ -3,6 +3,9 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-23 — Binder smell-test (ssk_coverage + ssk_export_binder) — PASS. Coverage 7/73. 06-3 and 08-1 binders exported and verified. LIC-DISABLED-01 alias routing confirmed correct (resolves to 08-1 at render time). Pipeline sound. — reports/audit-binders/2026-04-23-142332/, reports/audit-binders/2026-04-23-142541/
+2026-04-23 — Brain file update — MEMORY.md v16, activity-log.md updated — MEMORY.md, activity-log.md
+
 2026-04-22 15:45 — entra_scan_app_regs — 40 apps scanned, 49 findings (8 Critical expired creds, 1 expiring, 40 missing owner) — mcp-server/kb/mcna_amc.db
 2026-04-22 16:30 — Secure SketCH tracking layer design — Spec approved (Approach A, 7 tables, ~17 tools, audit binder format defined) — docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md
 2026-04-22 16:30 — ROADMAP.md v3.0 — Rewritten around Secure SketCH audit evidence as primary product. Phase 2 recast as SSK alignment layer. — ROADMAP.md

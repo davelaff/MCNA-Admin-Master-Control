@@ -1,106 +1,89 @@
+No filepath provided — compressing inline per skill rules.
+
+---
+
 # MEMORY.md — MCNA Admin Master Control
-Version: v15 | Updated: 2026-04-23
+Version: v16 | Updated: 2026-04-23
 
 ## Purpose of this file
 
-Living handoff and project-state file.
+Living handoff + project-state file.
 
-Use it to understand:
-- what architectural decisions have been made and why
-- what the repo currently contains
-- what is true right now about auth, scope, and open items
-- what a fresh session should not have to rediscover
+Use to understand:
+- architectural decisions made and why
+- what repo contains
+- truth about auth, scope, open items
+- what fresh session shouldn't rediscover
 
-Read this once at project startup.
-After that: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational
-behavior, `ROADMAP.md` is for direction and history.
+Read once at project startup.
+After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavior, `ROADMAP.md` for direction and history.
 
 ---
 
 ## ▶ Next session startup prompt
 
-Read this section first. Everything below is reference; this is what to do next.
+Read first. Everything below is reference; this is what to do next.
 
-**Where we left off (end of 2026-04-22 session):**
-Phase 3 broad-domain coverage well underway. Three new tools built and on
-main today: `pim.py`, `license.py`, `sharing.py`. 149/149 tests green.
-64 new governance findings written to KB across the three domains, all
-SSK-mapped. 4 commits pushed to origin/main (verify with `rtk git status`).
+**Where we left off (end of 2026-04-23 session):**
+Binder smell-test complete and PASSED. Full evidence pipeline validated end-to-end: pim findings → 08-6 binder, license findings → 06-3 binder, disabled-account findings → 08-1 binder (alias routing works). 149/149 tests green. No new code this session — pure validation.
 
-**Recommended first move this session — pick one:**
+**Key findings from smell-test:**
 
-1. **Triage today's findings before adding more.** Run `ssk_coverage` and
-   `ssk_export_binder` against a representative control (e.g. 08-6 for the
-   PIM findings or 06-3 for the license findings). See how the binder
-   actually reads with real data. This is a smell-test of the full
-   evidence pipeline — first end-to-end exercise of Phase 2's output with
-   Phase 3's input. **Highest learning value, no new code.**
+- `ssk_coverage`: 7/73 controls have automated scan coverage.
+  Covered: 06-3 (license), 08-1 (entra+ca+license), 08-2 (entra), 08-3 (pim), 08-6 (pim), 15-3 (pp), 15-4 (pp+sharing).
+  66 controls uncovered — all outside current domain tools.
 
-2. **Build `intune.py` — next Phase 3 domain.** Device compliance,
-   BitLocker posture, enrollment status. Well-supported in Graph
-   (`/deviceManagement/managedDevices`, `/deviceManagement/deviceCompliancePolicies`).
-   Likely no new scope (DeviceManagementManagedDevices.Read.All — verify
-   via /subscribedSkus probe first since Intune licensing affects which
-   endpoints respond). Maps to SSK 16-x (endpoint security category).
+- Alias routing confirmed: `LIC-DISABLED-01` stored in DB as raw key, `canonical_control_id()` resolves to `08-1` at render time.
+  `licensed_disabled_account` findings (Cameron Heinz, Damian Schultz, Shawn Kemp) appear in 08-1 binder, not 06-3. Correct.
 
-3. **Push the overdue scope-add governance paper trail.** Currently overdue:
-   the original Apr-16/17 scope additions plus today's identified gaps —
-   `MailboxSettings.Read` (unlocks exo.py) and `Sites.FullControl.All`
-   (unlocks sharing permissions findings). One markdown record per addition
-   in a new docs/governance/scope-additions/ directory. Then add the two
-   new scopes via Entra portal.
+- Binder structure sound: findings table populated, evidence section empty (expected — none linked), reviews section empty (expected), recommended actions all `not_started` (accurate). Same-day collision handling triggered → timestamped suffix dirs.
 
-4. **Triage the high-severity findings directly.** 22 permanent privileged
-   assignments, 9 non-admin holders of privileged roles (`admin@`,
-   `cloudadmin@`, `MIS@`, `DIS Computers`). Some are pre-existing open
-   items now backed by concrete data — this is the time to action them.
+- Pipeline gap: evidence linking is next meaningful workflow gap. Binders exist but no evidence attached to any control.
 
-**Default if no preference:** option 1 (binder smell-test) — proves the
-full pipeline works end-to-end before piling on more domain coverage. If
-the binder output is sound, then option 2.
+**Recommended first move next session — pick one:**
+
+1. **Build `intune.py` — next Phase 3 domain.** Device compliance, BitLocker posture, enrollment status. Graph: `/deviceManagement/managedDevices`, `/deviceManagement/deviceCompliancePolicies`. Probe `/subscribedSkus` first — Intune licensing gates which endpoints respond. Scope needed: `DeviceManagementManagedDevices.Read.All` (not yet consented). Maps to SSK 16-x (endpoint security).
+
+2. **Link evidence to controls.** Use `ssk_link_evidence` to attach existing scan artifacts to controls. Starts filling evidence sections in binders. No new code — workflow exercise with existing tools.
+
+3. **Push overdue scope-add governance paper trail.** Still unwritten: `docs/governance/scope-additions/` records for Apr-16/17 additions plus identified gaps (`MailboxSettings.Read`, `Sites.FullControl.All`, `DeviceManagementManagedDevices.Read.All`).
+
+4. **Triage high-severity findings directly.** 22 permanent privileged assignments, 9 non-admin holders of privileged roles (`admin@`, `cloudadmin@`, `MIS@`, `DIS Computers`). Backed by concrete DB data.
+
+**Default if no preference:** option 1 (intune.py) — keeps Phase 3 coverage momentum. Coverage 7/73; most gaps in categories 01-07, 09-14, 16-20 need new domain tools.
 
 **Mechanical reminders:**
-- Restart Claude Code if you want the new MCP tools (`pim_*`, `license_*`,
-  `sharing_*`) exposed to the tool list. Direct Python invocation works
-  without restart.
-- `.rtk/` and `CLAUDE.md` (rtk-section edit) are intentionally uncommitted.
-  Leave them alone unless adding to .gitignore.
+- MCP server needs restart to expose new tools (none added today — no restart needed).
+- `.rtk/` and `CLAUDE.md` (rtk-section edit) intentionally uncommitted. Leave unless adding to .gitignore.
+- Test binder output dirs from today: `reports/audit-binders/2026-04-23/` (08-6, intentional), `2026-04-23-142332/` (06-3, test), `2026-04-23-142541/` (08-1, test). Keep or clean up as appropriate.
 
 ---
 
 ## Current architectural position
 
-Master Control is a Microsoft estate orchestration and governance platform.
-Its agents are domain authorities, not single-purpose scanners.
+Master Control: Microsoft estate orchestration and governance platform. Agents are domain authorities, not single-purpose scanners.
 
-**Platform decision (2026-04-21):** Claude Code IS Master Control. Domain agent
-capabilities are delivered via two MCP server layers:
+**Platform decision (2026-04-21):** Claude Code IS Master Control. Domain agent capabilities via two MCP server layers:
 
 1. **Microsoft MCP Server for Enterprise** (hosted, Microsoft-managed, public preview)
    - Remote MCP server: `https://mcp.svc.cloud.microsoft/enterprise`
    - Entra ID read-only: users, groups, apps, devices, directory, admin reporting
-   - Authenticates via Dave's Entra admin account through Claude Code's OAuth flow
+   - Authenticates via Dave's Entra admin account through Claude Code OAuth flow
    - No code to write. Configure in Claude Code MCP settings.
    - App ID for Graph activity log filtering: `e8c77dc2-69b3-43f4-bc51-3213c9d915b4`
 
 2. **MCNA-AMC MCP Server** (local Python, `mcp-server/`)
-   - All domains not covered by Microsoft's server + local knowledge base
-   - Auth: MSAL device code flow with cached tokens (existing pattern)
+   - All domains not covered by Microsoft's server + local KB
+   - Auth: MSAL device code flow with cached tokens
    - App reg: MCNA-TenantIntel-ReadOnly (see docs/auth/app-registrations.md)
    - KB: SQLite at `mcp-server/kb/mcna_amc.db` (OneDrive-synced)
-   - **PARTIALLY BUILT** — FastMCP scaffold, auth, graph client, KB schema,
-     and first domain scan tools are functional. See Build status below.
+   - **PARTIALLY BUILT** — FastMCP scaffold, auth, graph client, KB schema, first domain scan tools functional. See Build status below.
 
-The old "Play" model is retired. Existing Play scripts are in `archive/`.
+Old "Play" model retired. Existing Play scripts in `archive/`.
 
-**Project purpose decision (2026-04-22):** AMC's primary product is
-**audit-ready Secure SketCH evidence**, not tenant hygiene. MCNA's score
-is high because policies are written (maturity "Implemented") but has no
-evidence trail. AMC exists to close that gap. See ROADMAP.md v3.0 thesis.
+**Project purpose decision (2026-04-22):** AMC's primary product is **audit-ready Secure SketCH evidence**, not tenant hygiene. MCNA score is high (policies written, maturity "Implemented") but no evidence trail. AMC closes that gap. See ROADMAP.md v3.0 thesis.
 
-**SSK tracking layer design (2026-04-22):** Approach A chosen — SQLite-first,
-conversational-only, migration-ready. 7 new tables in `ssk_*` namespace,
-~17 MCP tools, audit binder exports as markdown files per control.
+**SSK tracking layer design (2026-04-22):** Approach A chosen — SQLite-first, conversational-only, migration-ready. 7 new tables in `ssk_*` namespace, ~17 MCP tools, audit binder exports as markdown per control.
 Spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`.
 
 ---
@@ -116,7 +99,7 @@ Core docs:
 - `README.md` — 5-line orientation
 - `activity-log.md` — append-only task log
 - `Secure_SketCH_Guidelines_2026-01-01.docx` — compliance target (binary, not git-tracked)
-- `.mcp.json` — Claude Code MCP server configuration (tracked in git)
+- `.mcp.json` — Claude Code MCP server config (tracked in git)
 - `.claude/settings.json` — Claude Code workspace settings (tracked in git)
 
 Auth and docs:
@@ -155,16 +138,13 @@ Built and functional:
 - `mcp-server/db.py` KB schema (Task 2)
 - `mcp-server/auth.py` MSAL auth (Task 3)
 - `mcp-server/graph.py` HTTP client (Task 4)
-- `tools/entra.py` — `entra_scan_app_regs`, `entra_scan_guests` verified
-  working against live tenant (2026-04-22 run: 40 apps, 49 findings)
+- `tools/entra.py` — `entra_scan_app_regs`, `entra_scan_guests` verified working against live tenant (2026-04-22: 40 apps, 49 findings)
 - `tools/ca.py` — `ca_scan_policies`, `ca_scan_coverage_gaps`
 - `tools/pp.py` — `pp_scan_environments`, `pp_scan_apps`
-- `tools/kb.py` — `kb_get_findings`, `kb_get_snapshot`, `kb_diff_snapshot`,
-  `kb_update_finding`, `kb_dismiss`
+- `tools/kb.py` — `kb_get_findings`, `kb_get_snapshot`, `kb_diff_snapshot`, `kb_update_finding`, `kb_dismiss`
 - MCP server registered in Claude Code (commit 8d07819)
 
-Outstanding Phase 1 work: validation that all tool outputs are schema-conformant,
-snapshot/diff end-to-end testing.
+Outstanding Phase 1 work: validation all tool outputs are schema-conformant, snapshot/diff end-to-end testing.
 
 ### Phase 2a — COMPLETE (2026-04-22)
 
@@ -172,83 +152,65 @@ Design spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`
 Implementation plan: `docs/superpowers/plans/2026-04-22-amc-phase2a-catalog-import.md`
 
 Built and functional:
-- DB schema: 7 `ssk_*` tables (controls, history, categories, recommended_actions,
-  control_status, evidence, reviews) + actions + registries
+- DB schema: 7 `ssk_*` tables (controls, history, categories, recommended_actions, control_status, evidence, reviews) + actions + registries
 - `tools/ssk_control_map.py` — alias normalization (canonical_control_id)
 - `tools/ssk_parser.py` — docx catalog parser
 - `tools/ssk_loader.py` — catalog import with idempotent upsert
-- `tools/ssk.py` — ssk_import_catalog, ssk_get_control, ssk_list_controls,
-  ssk_family_summary, ssk_search_controls
+- `tools/ssk.py` — ssk_import_catalog, ssk_get_control, ssk_list_controls, ssk_family_summary, ssk_search_controls
 - `kb/ssk_control_aliases.json` — alias map
 - `kb/catalog-imports/2026-01-01.json` — first import snapshot
 - 105 tests passing (commit 32e2427)
 
 ### Phase 2b — COMPLETE (2026-04-22)
 
-Scope: Evidence, reviews, action tracking, registries, audit binder, and tool
-registration. All tools registered in server.py and verified 120/120 tests.
+Scope: Evidence, reviews, action tracking, registries, audit binder, tool registration. All tools registered in server.py, 120/120 tests verified.
 
 Built and functional:
 - `tools/ssk_common.py` — json_ok, json_error, utc_now, shared helpers
-- `tools/ssk_evidence.py` — ssk_link_evidence, ssk_list_evidence,
-  ssk_evidence_expiring, ssk_verify_pointers
+- `tools/ssk_evidence.py` — ssk_link_evidence, ssk_list_evidence, ssk_evidence_expiring, ssk_verify_pointers
 - `tools/ssk_reviews.py` — ssk_record_review, ssk_review_history, ssk_alerts, ssk_due
 - `tools/ssk_actions.py` — ssk_mark_action, ssk_action_queue
 - `tools/ssk_registry.py` — registry_add, registry_list, registry_get, registry_retire
-- `tools/ssk_binder.py` — ssk_coverage, ssk_export_binder (markdown per-control,
-  index.md, manifest.json)
+- `tools/ssk_binder.py` — ssk_coverage, ssk_export_binder (markdown per-control, index.md, manifest.json)
 - `tools/entra.py`, `ca.py`, `pp.py` — CONTRIBUTES_TO dicts wired to ssk_binder
 - `server.py` — all 16 Phase 2b tools registered with FastMCP
 - `tests/test_ssk.py` — end-to-end integration test (import → link → review → export)
 - 120 tests passing, on main (branch phase2b-task0-control-map deleted)
 
-### Phase 3 — in progress (2026-04-22)
+### Phase 3 — in progress (2026-04-22/23)
 
-Goal: broad domain coverage feeding the SSK evidence layer. Every new domain
-tool wires CONTRIBUTES_TO to specific Secure SketCH controls.
+Goal: broad domain coverage feeding SSK evidence layer. Every new domain tool wires CONTRIBUTES_TO to specific Secure SketCH controls.
 
 Built:
 - `tools/pim.py` — `pim_scan_role_assignments`, `pim_scan_role_definitions`.
-  Detects permanent privileged assignments, privileged roles on non-admin UPNs
-  (no `nof-` prefix), long-standing eligible assignments (>90d), unused custom
-  roles, and the P2-licensing gap itself. Graceful fallback to
-  `/roleAssignments` when `roleAssignmentSchedules` returns 400 (no P2).
-  Uses `RoleManagement.Read.Directory` (already consented). Wired to 08-3
-  (access privilege) and 08-6 (privileged account process). 13 tests, 133/133
-  total.
+  Detects permanent privileged assignments, privileged roles on non-admin UPNs (no `nof-` prefix), long-standing eligible assignments (>90d), unused custom roles, P2-licensing gap. Graceful fallback to `/roleAssignments` when `roleAssignmentSchedules` returns 400 (no P2).
+  Uses `RoleManagement.Read.Directory` (already consented). Wired to 08-3 (access privilege) and 08-6 (privileged account process). 13 tests, 133/133 total.
 
 **Confirmed tenant reality (2026-04-22 live scan):**
 - No Azure AD Premium P2. P1 via SPB (Business Premium) only.
-- PIM not available. All 45 active role assignments are permanent.
+- PIM unavailable. All 45 active role assignments permanent.
 - 22 permanent assignments on privileged roles (High).
-- 9 privileged roles held by non-`nof-` accounts: `admin@`, `cloudadmin@`,
-  `MIS@`, `DIS Computers`, plus enterprise apps (Power BI Service,
-  PowerBI-Usage-Reader). admin@ and cloudadmin@ still pending owner
-  confirmation (see CA/Entra open items).
-- 0 custom role definitions in tenant. The `blynn@` open item was a false
-  alarm — resolved above.
+- 9 privileged roles on non-`nof-` accounts: `admin@`, `cloudadmin@`, `MIS@`, `DIS Computers`, plus enterprise apps (Power BI Service, PowerBI-Usage-Reader). admin@ and cloudadmin@ pending owner confirmation.
+- 0 custom role definitions. `blynn@` open item was false alarm — resolved.
 
 - `tools/license.py` — `license_scan_skus`, `license_scan_users`.
-  Flags over-consumed SKUs (High→06-3), unused prepaid SKUs (Low→06-3),
-  productivity-SKU stacking (Medium→06-3), licensed-but-disabled accounts
-  (Medium→08-1). Uses existing Directory.Read.All. 10 new tests, 143/143
-  total. Live findings: ATA (unused), 6 stacking, 3 disabled-with-licenses.
+  Flags over-consumed SKUs (High→06-3), unused prepaid SKUs (Low→06-3), productivity-SKU stacking (Medium→06-3), licensed-but-disabled accounts (Medium→08-1). Uses existing Directory.Read.All. 10 new tests, 143/143 total. Live findings: ATA (unused), 6 stacking, 3 disabled-with-licenses.
 
-- `tools/sharing.py` — `sharing_scan_sites`. Enumerates /sites, flags stale
-  (>365d, Medium) and very-stale (>730d, High). Wired to 15-4 (visualization
-  and control of cloud services usage). 6 new tests, 149/149 total. Live:
-  29 sites, 17 very-stale, 5 stale — only ~7 active.
+- `tools/sharing.py` — `sharing_scan_sites`. Enumerates /sites, flags stale (>365d, Medium) and very-stale (>730d, High). Wired to 15-4. 6 new tests, 149/149 total. Live: 29 sites, 17 very-stale, 5 stale — ~7 active.
+
+**Binder smell-test — PASSED (2026-04-23):**
+- `ssk_coverage`: 7/73 automated, 66 uncovered.
+- Findings route correctly via alias map: 08-6 (29 High pim findings), 06-3 (7 medium/low license findings), 08-1 (3 disabled-account findings via LIC-DISABLED-01 → 08-1 alias at render time).
+- Evidence/reviews sections empty (expected). Actions all not_started (accurate).
+- Same-day collision handling works: timestamped suffix dirs created.
+- No bugs. Pipeline sound.
 
 **Scope gaps surfaced during Phase 3:**
-- EXO governance (forwarding, shared-mailbox delegation, transport rules) needs
-  `MailboxSettings.Read` or EXO PowerShell integration. Pivoted away from exo.py
-  for now.
-- Sharing permission-based findings (external sharing, guest site access) need
-  `Sites.FullControl.All` or admin-consent variant. /sites/{id}/permissions
-  returns 403 with current Sites.Read.All. Deferred.
+- EXO governance (forwarding, shared-mailbox delegation, transport rules) needs `MailboxSettings.Read` or EXO PowerShell. Pivoted away from exo.py.
+- Sharing permission findings (external sharing, guest site access) need `Sites.FullControl.All`. `/sites/{id}/permissions` returns 403 with current Sites.Read.All. Deferred.
+- Intune needs `DeviceManagementManagedDevices.Read.All` — not yet consented.
 
-Next candidates (in priority order): `intune`, `purview`, `copilot`, `mail`,
-or add MailboxSettings.Read to unlock `exo`.
+Next candidates (priority order): `intune`, `purview`, `copilot`, `mail`, or add MailboxSettings.Read to unlock `exo`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
@@ -280,7 +242,7 @@ Thirteen domains planned for v1:
 
 ## Knowledge base schema
 
-Existing (Phase 1, built) — five tables in `mcp-server/kb/mcna_amc.db`:
+Existing (Phase 1) — five tables in `mcp-server/kb/mcna_amc.db`:
 
 - **`tenant_snapshot`** — one row per entity, JSON properties blob, `last_scanned` timestamp
 - **`findings`** — flagged items: entity type/ID, SecureSketCH control, severity, status (open/acknowledged/resolved), first/last seen
@@ -288,20 +250,17 @@ Existing (Phase 1, built) — five tables in `mcp-server/kb/mcna_amc.db`:
 - **`dismissed`** — accepted-risk items with reason and date
 - **`activity_log`** — every tool invocation: timestamp, tool, entity, outcome
 
-Built (Phase 2, complete) — 7 new tables + 1 new column:
+Built (Phase 2) — 7 new tables + 1 new column:
 
-- **`ssk_controls`** — the Secure SketCH catalog (73 controls after import)
+- **`ssk_controls`** — Secure SketCH catalog (73 controls after import)
 - **`ssk_controls_history`** — superseded control rows after re-import
 - **`ssk_categories`** — small lookup (category → name, ~10-20 rows)
 - **`ssk_recommended_actions`** — per-action checklist rows (flat, ~600 rows)
 - **`ssk_control_status`** — MCNA's current position per control
-- **`ssk_evidence`** — any record supporting a control (scan outputs,
-  SharePoint pointers, reviews, attestations, policy links, registry entries)
+- **`ssk_evidence`** — any record supporting control (scan outputs, SharePoint pointers, reviews, attestations, policy links, registry entries)
 - **`ssk_reviews`** — append-only attestation ledger
-- **`ssk_registries`** — generic human-authored records (approved_software,
-  exceptions, vendor_support, policies, nda_ledger, approved_browsers, ...)
-- **`findings.closure_evidence_id`** — new column linking resolved findings
-  to the evidence row that proves closure
+- **`ssk_registries`** — generic human-authored records (approved_software, exceptions, vendor_support, policies, nda_ledger, approved_browsers, ...)
+- **`findings.closure_evidence_id`** — new column linking resolved findings to evidence row proving closure
 
 ---
 
@@ -317,7 +276,7 @@ Built (Phase 2, complete) — 7 new tables + 1 new column:
   Cache: `C:/Users/dlafferty.MCNA/.msal_token_cache_primary.json`
   Used for: primary mailbox read, Power Platform queries
 
-ApplicationImpersonation is deprecated in EXO 2026 — do not suggest it.
+ApplicationImpersonation deprecated in EXO 2026 — do not suggest.
 
 ### App registration
 
@@ -325,105 +284,70 @@ ApplicationImpersonation is deprecated in EXO 2026 — do not suggest it.
 - Certificate: MCNA-TenantIntel-Planner, expires 2028-04-16
   PFX at `C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.pfx`
 - .env: `C:\Users\dlafferty.MCNA\mcna-tenantintel.env`
-- Current scopes documented in `docs/auth/app-registrations.md`
+- Current scopes in `docs/auth/app-registrations.md`
 - `MCNA-TenantIntel-Writer` (write-capable reg): designed, not yet created
 
 ### Governance paper trail outstanding
 
-IT-GOV-ENTRA-v1.0 requires a documented request record for scope additions:
-- 2026-04-16: Application.Read.All, AuditLog.Read.All, Directory.Read.All,
-  Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory
+IT-GOV-ENTRA-v1.0 requires documented request record for scope additions:
+- 2026-04-16: Application.Read.All, AuditLog.Read.All, Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory
 - 2026-04-17: Sites.Read.All (delegated), Tasks.Read.All (application)
-Dave self-approves as IS Director but the paper trail has not been written.
+Dave self-approves as IS Director but paper trail not written.
 
 ---
 
 ## OneDrive / SharePoint sync reality
 
-This repo syncs to the M365 Security and Governance library in the MIS SharePoint
-site. Outputs become organizational content with version history and retention.
-The `.env` and cert files live outside the synced repo intentionally.
+Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outputs become organizational content with version history and retention. `.env` and cert files live outside synced repo intentionally.
 
 ---
 
 ## Open items
 
-### CA policy and Entra identity (from sessions 4-5, 2026-04-17)
-- Awaiting Tony response on 4 CA policy gaps (legacy auth, admin policy,
-  service accounts, MCNA break-glass)
-- Identify owner of admin@nofmetalcoatings.us before touching it
+### CA policy and Entra identity (sessions 4-5, 2026-04-17)
+- Awaiting Tony response on 4 CA policy gaps (legacy auth, admin policy, service accounts, MCNA break-glass)
+- Identify owner of admin@nofmetalcoatings.us before touching
 - Confirm cloudadmin@nofmetalcoatings.us ownership
 - Decision: when to disable Security Defaults and enable CA policies
-- RESOLVED 2026-04-22: blynn@nofmetalcoatings.us is Barry Lynn (regular user).
-  Role GUID d24aef57-1500-4070-84db-2666f29cf966 is the built-in "Modern
-  Commerce User" role (isBuiltIn=true), not a custom role. Benign — commerce
-  billing role. Confirmed via pim_scan_role_definitions on 2026-04-22.
+- RESOLVED 2026-04-22: blynn@nofmetalcoatings.us is Barry Lynn (regular user). Role GUID d24aef57-1500-4070-84db-2666f29cf966 is built-in "Modern Commerce User" role (isBuiltIn=true), not custom. Benign — commerce billing role. Confirmed via pim_scan_role_definitions.
 
 ### Entra role remediation (session 5 — mostly complete)
 - DONE: dlafferty@ daily driver cleaned — roles moved to nof-dlafferty@
 - DONE: nof-scala@ — removed Fabric Administrator, Power Platform Administrator
-- DONE: MIS@ — role count reduced from 24 per governance review
-- IN PROGRESS: nof-dkochever@ — User Admin and Teams Admin removed.
-  Exchange Administrator on hold. Key question: is Diana actively managing
-  shared mailboxes or DLs? If no ongoing use case, remove Exchange Administrator.
+- DONE: MIS@ — role count reduced per governance review
+- IN PROGRESS: nof-dkochever@ — User Admin and Teams Admin removed. Exchange Administrator on hold. Key question: is Diana actively managing shared mailboxes or DLs? If no, remove Exchange Administrator.
 
 ### Infrastructure
 - Governance paper trail for scope additions (see above)
-- MCNA-TenantIntel-Writer app reg: architecture designed, not yet created
-- activity-log.md line 4 has encoding corruption (em-dashes as â€"). Historical,
-  low priority. All future writes via MCP FileSystem tool, not PowerShell.
+- MCNA-TenantIntel-Writer app reg: designed, not yet created
+- activity-log.md line 4 has encoding corruption (em-dashes as â€"). Historical, low priority. All future writes via MCP FileSystem tool, not PowerShell.
 
 ### VS Code tooling
-- Windows MCP Server (sbroenne.windows-mcp) requires .NET 10 Windows Desktop
-  Runtime. Fixed 2026-04-17. If it breaks after an extension update, check the
-  runtime version requirement first.
+- Windows MCP Server (sbroenne.windows-mcp) requires .NET 10 Windows Desktop Runtime. Fixed 2026-04-17. If it breaks after extension update, check runtime version first.
 
 ---
 
 ## Things NOT to assume
-- Dave does not use Obsidian.
-- Dave is already technical and already a global admin. Do not explain basic
-  Graph, Entra, or M365 concepts unless he asks.
-- ApplicationImpersonation cannot be used — deprecated. Do not suggest it.
-- This project is Dave's personal workbench, not a template for MCNA-wide
-  deployment without a formal governance review.
+- Dave doesn't use Obsidian.
+- Dave is technical and global admin. Don't explain Graph, Entra, M365 basics unless asked.
+- ApplicationImpersonation can't be used — deprecated. Don't suggest.
+- Project is Dave's personal workbench, not MCNA-wide deployment template without formal governance review.
 
 ---
 
 ## Change log
-- 2026-04-23 — v15 — End-of-day handoff for 2026-04-22 session. Phase 3
-  three domains complete on main: pim (133), license (143), sharing (149
-  tests). 64 governance findings written to KB. Scope gaps documented:
-  MailboxSettings.Read for exo, Sites.FullControl.All for sharing
-  permissions. Startup prompt added at top of file.
-- 2026-04-22 — v14 — Phase 3 begun. tools/pim.py built with two scan tools,
-  CONTRIBUTES_TO wired to 08-3/08-6, 11 new tests (131/131 passing).
-  No new scope required — RoleManagement.Read.Directory already consented.
-- 2026-04-22 — v13 — Git hygiene complete. Branch phase2b-task0-control-map deleted,
-  stale worktrees pruned. .mcp.json and .claude/settings.json committed and pushed.
-  Repo contents, build status, domain tool table, and KB schema sections updated.
-- 2026-04-22 — v12 — Phase 2b complete. Evidence, reviews, actions, registries, and
-  audit binder tools built, tested (120/120), and registered in server.py.
-  CONTRIBUTES_TO wired across entra/ca/pp scan tools. Branch phase2b-task0-control-map
-  merged to main and deleted.
-- 2026-04-22 — v11 — Phase 2 Secure SketCH tracking layer designed (Approach A).
-  Spec committed. ROADMAP v3.0 reframed around audit evidence as primary product.
-  Phase 1 status corrected to reflect partial completion (scan tools working
-  against live tenant). Domain tool surface extended with `ssk_*` and
-  `registry_*` namespaces. KB schema extended with 7 new tables.
+- 2026-04-23 — v15 — End-of-day handoff for 2026-04-22 session. Phase 3 three domains complete on main: pim (133), license (143), sharing (149 tests). 64 governance findings written to KB. Scope gaps documented: MailboxSettings.Read for exo, Sites.FullControl.All for sharing permissions. Startup prompt added.
+- 2026-04-22 — v14 — Phase 3 begun. tools/pim.py built, CONTRIBUTES_TO wired to 08-3/08-6, 11 new tests (131/131 passing). No new scope required.
+- 2026-04-22 — v13 — Git hygiene complete. Branch phase2b-task0-control-map deleted, stale worktrees pruned. .mcp.json and .claude/settings.json committed and pushed.
+- 2026-04-22 — v12 — Phase 2b complete. Evidence, reviews, actions, registries, binder tools built, tested (120/120), registered in server.py. CONTRIBUTES_TO wired across entra/ca/pp tools.
+- 2026-04-22 — v11 — Phase 2 SSK tracking layer designed (Approach A). Spec committed. ROADMAP v3.0 reframed around audit evidence as primary product.
 - 2026-04-14 — v1 — Initial handoff.
 - 2026-04-16 — v2 — Full rebuild after build session.
 - 2026-04-17 — v3 — Session 2 and 3 summaries. Auth/scope additions.
 - 2026-04-17 — v4 — CA policy and Entra role audit session notes.
 - 2026-04-17 — v5 — Windows MCP Server .NET dependency note.
 - 2026-04-17 — v6 — app_reg_scanner.py built. Entra role remediation status.
-- 2026-04-17 — v7 — Play 3 built. Sites.Read.All, Tasks.Read.All added.
-  Cert replaced. QMS site remediated. Write phase deferred.
-- 2026-04-20 — v8 — ARCHITECTURE.md and CONTEXT.md added. Play 5 built.
-  Power Platform scopes granted. AMC direction established.
-- 2026-04-21 — v10 — Build status section added. Phase 1 plan ready for execution.
-- 2026-04-21 — v9 — Platform decision: Claude Code as AMC + MCP server layers.
-  Play model retired. Repo cleaned: Play scripts, task specs, session handoffs,
-  AGENTS.md, dis-log, queries moved to archive/. auth/ moved to docs/auth/.
-  MCNA-AMC MCP Server defined (not yet built). Domain tool surface and KB
-  schema documented.
+- 2026-04-17 — v7 — Play 3 built. Sites.Read.All, Tasks.Read.All added. Cert replaced. QMS site remediated. Write phase deferred.
+- 2026-04-20 — v8 — ARCHITECTURE.md and CONTEXT.md added. Play 5 built. Power Platform scopes granted. AMC direction established.
+- 2026-04-21 — v10 — Build status section added. Phase 1 plan ready.
+- 2026-04-21 — v9 — Platform decision: Claude Code as AMC + MCP server layers. Play model retired. Repo cleaned. MCNA-AMC MCP Server defined (not yet built).
