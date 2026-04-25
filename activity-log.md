@@ -3,6 +3,7 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-25 — Brain file sync — MEMORY.md v25, ROADMAP.md v3.6, ARCHITECTURE.md updated (exo+purview built, 202 tests), 02-3/02-4 catalog gap noted — MEMORY.md, ROADMAP.md, ARCHITECTURE.md, activity-log.md
 2026-04-25 — exo_scan_mailboxes (first live run) — 187 users, 30 High findings (shared_mailbox_interactive) — mcp-server/kb/mcna_amc.db
 2026-04-25 — exo_scan_forwarding (first live run) — 441 rules, 1 High (bstraka external SMS fwd), 1 false positive (wstark X.500 DN) — mcp-server/kb/mcna_amc.db
 2026-04-25 — Brain file update (EXO live scan session) — MEMORY.md v23, ROADMAP.md v3.4, activity-log.md updated, docs/governance/scope-additions/2026-04-24-exo-application-scope.md created — multiple
@@ -77,3 +78,5 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-23 17:47 — Binder export merge fix — `ssk_export_binder` now merges `index.md` and `manifest.json` when reusing an output directory; verified with `mcp-server/tests/test_ssk_binder.py` (15 passed using `--basetemp`) — mcp-server/tools/ssk_binder.py, mcp-server/tests/test_ssk_binder.py
 2026-04-23 17:47 — Brain file update — MEMORY.md v21, activity-log.md, CLAUDE.md, CONTEXT.md, ROADMAP.md refreshed for evidence/binder state — MEMORY.md, activity-log.md, CLAUDE.md, CONTEXT.md, ROADMAP.md
 2026-04-25 — EXO false-positive fix — `_is_external()` patched to skip addresses without `@`; X.500 legacy Exchange DNs now classified non-external. 19/19 tests pass. Walt Stark finding (ce25ed77) and stale exo_scope_gap finding (d4038cd6) dismissed from KB — mcp-server/tools/exo.py, mcp-server/kb/mcna_amc.db
+
+2026-04-25 — Copilot domain agent — copilot_scan_licenses + copilot_scan_settings built (TDD), 12 tests + kb.py dismissed-finding fix (211/214 passing); live: 25 Copilot users across 187 scanned, 0 license findings; settings scope gap recorded (Microsoft365CopilotSettings.Read.All not yet consented); HTTPError fix applied for beta endpoint 400 — mcp-server/tools/copilot.py, mcp-server/tests/test_copilot.py, mcp-server/tools/kb.py
