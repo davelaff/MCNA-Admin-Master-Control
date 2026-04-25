@@ -64,6 +64,9 @@ def _email_domain(address: str) -> str:
 
 
 def _is_external(address: str) -> bool:
+    # X.500/legacy Exchange DNs (no @) are internal routing artifacts, not external addresses
+    if "@" not in address:
+        return False
     return _email_domain(address) not in INTERNAL_DOMAINS
 
 
