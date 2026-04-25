@@ -63,7 +63,7 @@ def test_dismissed_finding_not_recreated(db):
     with patch("tools.entra.get_token", return_value=FAKE_TOKEN), \
          patch("tools.entra.graph_get_all", return_value=apps):
         entra_scan_app_regs()
-    open_findings = json.loads(__import__("tools.kb", fromlist=["kb_get_findings"]).kb_get_findings(domain="entra"))
+    open_findings = json.loads(__import__("tools.kb", fromlist=["kb_get_findings"]).kb_get_findings(domain="entra", status="open"))
     assert not any(f["finding_id"] == fid for f in open_findings)
 
 def _guest(gid="g1", name="Guest User", created="2026-01-01T00:00:00Z", last_sign_in=None):

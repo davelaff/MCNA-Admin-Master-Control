@@ -6,19 +6,26 @@ from db import get_connection
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-def kb_get_findings(domain: str = None, severity: str = None, status: str = "open") -> str:
-    clauses = ["status = ?"]
-    params: list = [status]
+def kb_get_findings(domain: str = None, severity: str = None, status: str = None) -> str:
+    # Default: return open + dismissed (active work items).
+    # Pass status="open" to exclude dismissed, or status="resolved" to see resolved.
+    clauses = []
+    params: list = []
+    if status is not None:
+        clauses.append("status = ?")
+        params.append(status)
+    else:
+        clauses.append("status != 'resolved'")
     if domain:
         clauses.append("domain = ?")
         params.append(domain)
     if severity:
         clauses.append("severity = ?")
         params.append(severity)
-    where = " AND ".join(clauses)
+    where_sql = ("WHERE " + " AND ".join(clauses)) if clauses else ""
     with get_connection() as conn:
         rows = conn.execute(
-            f"SELECT * FROM findings WHERE {where} ORDER BY severity, domain", params
+            f"SELECT * FROM findings {where_sql} ORDER BY severity, domain", params
         ).fetchall()
     return json.dumps([dict(r) for r in rows], indent=2)
 
