@@ -37,6 +37,8 @@ on the local workstation and are never stored here.
 | Sites.Read.All | Delegated | Granted | `sharing_*`, `copilot_*` |
 | DeviceManagementManagedDevices.Read.All | Delegated | Granted | `intune_*` |
 | DeviceManagementConfiguration.Read.All | Delegated | Granted | `intune_*` |
+| MailboxSettings.Read | Delegated | Granted | `exo_*` |
+| MailboxSettings.Read | Application | Granted | `exo_*` |
 | Tasks.Read.All | Application | Granted | `entra_*` (Planner orphan detection) |
 | Dynamics CRM: user_impersonation | Delegated | Granted | `pp_*` (Dataverse Web API) |
 | Power Apps Service: User | Delegated | Granted | `pp_*` (BAP/PowerApps/Flow) |
@@ -62,7 +64,7 @@ on the local workstation and are never stored here.
 | `copilot_*` | Copilot readiness, label coverage | Scopes ready, tools not yet built |
 | `mail_*` | Send summary emails | Scopes ready, tools not yet built |
 | `intune_*` | Device compliance, BitLocker | Scopes granted — tools functional |
-| `exo_*` | Exchange hygiene, forwarding rules | Needs additional scopes TBD |
+| `exo_*` | Exchange hygiene, forwarding rules | MailboxSettings.Read delegated + application granted — tools functional |
 | `purview_*` | Sensitivity labels, DLP, audit | Partial — AuditLog.Read.All granted; InformationProtectionPolicy.Read.All needed for purview_scan_labels |
 | `kb_*` | Knowledge base (SQLite) | No scopes required — local only |
 
@@ -101,3 +103,6 @@ on the local workstation and are never stored here.
 - 2026-04-23 — v1.5 — Added DeviceManagementManagedDevices.Read.All and
   DeviceManagementConfiguration.Read.All (both delegated). Admin consent granted.
   Enables intune_scan_devices and intune_scan_compliance_policies.
+- 2026-04-24 — v1.6 — Added MailboxSettings.Read delegated (consented 2026-04-23) and
+  MailboxSettings.Read application (consented 2026-04-24). Application permission enables
+  full cross-user EXO scans via cert-based client credentials flow.

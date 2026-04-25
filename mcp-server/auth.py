@@ -1,8 +1,11 @@
 from pathlib import Path
+import hashlib
 import msal
+from cryptography.hazmat.primitives.serialization import pkcs12, Encoding, PrivateFormat, NoEncryption
 
 ENV_PATH = Path(r"C:\Users\dlafferty.MCNA\mcna-tenantintel.env")
 CACHE_PATH = Path(r"C:\Users\dlafferty.MCNA\.msal_token_cache_admin.json")
+PFX_PATH = Path(r"C:\Users\dlafferty.MCNA\mcna-tenantintel-planner.pfx")
 ACCOUNT = "nof-dlafferty@nofmetalcoatings.us"
 
 def _load_env() -> dict:
@@ -49,4 +52,22 @@ def get_token(resource: str = "https://graph.microsoft.com") -> str:
     if cache.has_state_changed:
         CACHE_PATH.write_text(cache.serialize())
 
+    return result["access_token"]
+
+
+def get_app_token(resource: str = "https://graph.microsoft.com") -> str:
+    env = _load_env()
+    pfx_bytes = PFX_PATH.read_bytes()
+    private_key, certificate, _ = pkcs12.load_key_and_certificates(pfx_bytes, password=None)
+    private_key_pem = private_key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+    thumbprint = hashlib.sha1(certificate.public_bytes(Encoding.DER)).hexdigest().upper()
+
+    app = msal.ConfidentialClientApplication(
+        client_id=env["CLIENT_ID"],
+        authority=f"https://login.microsoftonline.com/{env['TENANT_ID']}",
+        client_credential={"thumbprint": thumbprint, "private_key": private_key_pem},
+    )
+    result = app.acquire_token_for_client(scopes=[f"{resource}/.default"])
+    if not result or "access_token" not in result:
+        raise RuntimeError(f"App token acquisition failed: {result.get('error_description', result)}")
     return result["access_token"]

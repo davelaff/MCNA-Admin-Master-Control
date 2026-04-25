@@ -2,7 +2,7 @@ import json
 import uuid
 import requests
 from datetime import datetime, timezone
-from auth import get_token
+from auth import get_token, get_app_token
 from graph import graph_get, graph_get_all, GraphError
 from db import get_connection
 from tools.ssk_control_map import canonical_control_id
@@ -114,9 +114,10 @@ def exo_scan_mailboxes() -> str:
     """Enumerate Exchange Online mailboxes by inspecting mailboxSettings.userPurpose
     for each enabled user. Detects shared mailboxes where the underlying Entra
     user account is enabled for interactive sign-in — a lateral movement risk.
-    Requires MailboxSettings.Read (delegated) consent on MCNA-TenantIntel-ReadOnly.
-    Also uses Directory.Read.All (already consented) to enumerate users."""
+    Uses Directory.Read.All (delegated) to enumerate users and MailboxSettings.Read
+    (application) to read per-user mailbox settings."""
     token = get_token()
+    app_token = get_app_token()
     users = graph_get_all(
         "/users",
         token,
@@ -138,7 +139,7 @@ def exo_scan_mailboxes() -> str:
             name = user.get("displayName") or upn
             enabled = user.get("accountEnabled", False)
 
-            settings, accessible = _get_mailbox_settings(uid, token)
+            settings, accessible = _get_mailbox_settings(uid, app_token)
 
             if settings is None:
                 if not accessible and not scope_gap_emitted:
@@ -208,8 +209,10 @@ def exo_scan_forwarding() -> str:
     """Scan all user inbox message rules for external mail forwarding and
     redirect actions. External forwarding from a corporate mailbox is a
     data-exfiltration vector and a common indicator of account compromise.
-    Requires MailboxSettings.Read (delegated) and Directory.Read.All."""
+    Uses Directory.Read.All (delegated) to enumerate users and MailboxSettings.Read
+    (application) to read per-user inbox rules."""
     token = get_token()
+    app_token = get_app_token()
     users = graph_get_all(
         "/users",
         token,
@@ -229,7 +232,7 @@ def exo_scan_forwarding() -> str:
             upn = user.get("userPrincipalName", "")
             name = user.get("displayName") or upn
 
-            rules, accessible = _get_inbox_rules(uid, token)
+            rules, accessible = _get_inbox_rules(uid, app_token)
 
             if not accessible:
                 if not scope_gap_emitted:

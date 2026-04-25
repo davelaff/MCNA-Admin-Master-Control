@@ -206,12 +206,22 @@ Built:
 
 - `tools/purview.py` — `purview_scan_labels`, `purview_scan_audit`. Label coverage (High→PURVIEW-LABEL-01→06-1), audit log activity check (High→PURVIEW-AUDIT-01→16-1), scope gap (Medium→PURVIEW-SCOPE-01→06-1). Needs `InformationProtectionPolicy.Read.All` for label scan (not yet consented). Audit scan uses existing `AuditLog.Read.All`. 13 tests, 182/182 total.
 
-- `tools/exo.py` — `exo_scan_mailboxes`, `exo_scan_forwarding`. Shared mailbox interactive login (High→EXO-SHARED-ENABLED-01→08-1), external forwarding/redirect rules (High→EXO-FORWARD-01→06-1), scope-gap detection (Medium→EXO-SCOPE-01→08-1 when permission is missing). Scope: `MailboxSettings.Read` delegated, consented 2026-04-23. 19 tests, 201/201 total. Not yet live-scanned.
+- `tools/exo.py` — `exo_scan_mailboxes`, `exo_scan_forwarding`. Shared mailbox interactive login (High→EXO-SHARED-ENABLED-01→08-1), external forwarding/redirect rules (High→EXO-FORWARD-01→06-1), scope-gap detection (Medium→EXO-SCOPE-01→08-1 when permission is missing). Scopes: `MailboxSettings.Read` delegated (consented 2026-04-23) + `MailboxSettings.Read` application (consented 2026-04-24). Application permission enables full cross-user mailbox scans via cert-based client credentials flow (`get_app_token()` in auth.py). 19 tests, 201/201 total.
+
+  **First live scan (2026-04-25):**
+  - `exo_scan_mailboxes`: 187 users, 82 user mailboxes, 68 shared, 8 resource. **30 shared mailboxes with interactive sign-in enabled (High)**. Full list in KB findings.
+  - `exo_scan_forwarding`: 187 users, 441 rules scanned. **2 external forwarding rules flagged**: (1) bstraka@nofmetalcoatings.us → 4402269019@vtext.com (SMS gateway, likely intentional, undocumented); (2) wstark@nofmetalcoatings.us → X.500 legacy Exchange DNs — **false positive**, internal recipients expressed as `/o=ExchangeLabs/...` DNs.
+  - **Known bug:** `_is_external()` returns True for X.500 addresses (no `@` sign → full string returned → not in INTERNAL_DOMAINS). Fix: skip or classify addresses without `@` as non-external. Walt Stark finding should be dismissed after fix.
+  - Stale `exo_scope_gap` finding in KB (from before app token added) — needs `kb_dismiss`.
 
 **Auth/graph hardening (2026-04-23):**
 - `mcp-server/auth.py` — `get_token()` no longer blocks on device code flow inline. Raises RuntimeError with instructions to run `refresh_auth.py`. Prevents MCP server from hanging on expired cache.
 - `mcp-server/graph.py` — `graph_batch()` added. Auto-chunks up to 20 requests per `/$batch` call, returns `{request_id: {status, body}}`. 401/403 still raises GraphError.
 - `mcp-server/refresh_auth.py` — new standalone script. Runs device code flow, writes updated token cache. Run from repo root: `python mcp-server/refresh_auth.py`.
+
+**EXO application token (2026-04-24):**
+- `mcp-server/auth.py` — `get_app_token()` added. Cert-based client credentials flow using `cryptography` (pkcs12) + MSAL `ConfidentialClientApplication`. Loads PFX, computes SHA1 thumbprint, acquires token for client. Used by EXO scans for cross-user mailbox coverage.
+- `MailboxSettings.Read` application permission added to MCNA-TenantIntel-ReadOnly, admin consent granted 2026-04-24. Recorded in `docs/auth/app-registrations.md` v1.6 and `docs/governance/scope-additions/2026-04-24-exo-application-scope.md`.
 
 **Binder smell-test — PASSED (2026-04-23):**
 - `ssk_coverage`: 7/73 automated, 66 uncovered.
@@ -232,7 +242,7 @@ Built:
 - Intune scopes now consented: `DeviceManagementManagedDevices.Read.All` + `DeviceManagementConfiguration.Read.All` (2026-04-23).
 - Purview needs `InformationProtectionPolicy.Read.All` — not yet in app reg.
 
-Next candidates (priority order): `purview`, `copilot`, `mail`, or run EXO live scans now that `MailboxSettings.Read` is consented.
+Next candidates (priority order): fix `_is_external()` X.500 false-positive bug, dismiss stale EXO scope-gap finding, remediate 30 shared mailbox interactive-sign-in findings, then `purview`, `copilot`, `mail`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
@@ -363,6 +373,7 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-25 — v23 — EXO first live scans. `get_app_token()` added to auth.py (cert/client-credentials). MailboxSettings.Read application consented 2026-04-24. exo_scan_mailboxes: 187 users, 30 shared mailboxes interactive (High). exo_scan_forwarding: 441 rules, 1 real external fwd (bstraka→SMS), 1 false positive (wstark X.500 legacy DN). Bug identified: `_is_external()` misclassifies X.500 addresses. Stale scope-gap finding needs dismissal.
 - 2026-04-23 — v22 — Auth/graph hardening. `auth.py` raises RuntimeError on expired cache instead of blocking on inline device code flow. `graph_batch()` added to graph.py. `refresh_auth.py` created as standalone re-auth script. Claude memory dir MEMORY.md rebuilt.
 - 2026-04-23 — v21 — Evidence/binder session. Backfilled `ssk_evidence` for six controls, regenerated binders in `reports/audit-binders/2026-04-23-204903/`, added `docs/how-to-use-reports.md`, and fixed `ssk_export_binder` so repeated single-control exports no longer clobber `index.md` and `manifest.json`.
 - 2026-04-23 — v20 — MEMORY cleanup pass. Removed stray tool artifact, reconciled EXO status/scope text, updated repo snapshot date and test count, clarified governance paper-trail status, and clarified domain-count wording.

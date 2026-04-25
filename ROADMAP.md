@@ -213,7 +213,7 @@ or EXO PowerShell integration.
 - `tools/sharing.py` — external sharing posture across SharePoint, OneDrive,
   Teams
 - `tools/exo.py` — Exchange hygiene: forwarding rules, shared mailboxes,
-  transport rules
+  transport rules **(BUILT + LIVE-SCANNED 2026-04-25)** — 30 shared mailbox interactive sign-in findings (High), 1 external forwarding rule (High), 1 false-positive pending bug fix (`_is_external()` X.500 handling)
 - `tools/intune.py` — device compliance, BitLocker, enrollment posture,
   baseline drift. Feeds asset-management and endpoint controls heavily.
 - `tools/purview.py` — sensitivity label coverage, DLP policy inventory,
@@ -272,6 +272,7 @@ contribution manifest is read by `ssk_status` to compute coverage.
 ---
 
 ## Change log
+- 2026-04-25 — v3.4 — Phase 3 EXO live scans complete. `get_app_token()` cert-credentials flow. MailboxSettings.Read application consented. 30 High findings (shared mailbox interactive). False-positive bug in `_is_external()` identified.
 - 2026-04-23 — v3.3 — Phase 3 progress noted: pim, license, sharing built
   (149 tests). EXO pivot recorded. Two scope-add candidates documented:
   MailboxSettings.Read, Sites.FullControl.All.

@@ -3,6 +3,9 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-25 — exo_scan_mailboxes (first live run) — 187 users, 30 High findings (shared_mailbox_interactive) — mcp-server/kb/mcna_amc.db
+2026-04-25 — exo_scan_forwarding (first live run) — 441 rules, 1 High (bstraka external SMS fwd), 1 false positive (wstark X.500 DN) — mcp-server/kb/mcna_amc.db
+2026-04-25 — Brain file update (EXO live scan session) — MEMORY.md v23, ROADMAP.md v3.4, activity-log.md updated, docs/governance/scope-additions/2026-04-24-exo-application-scope.md created — multiple
 2026-04-23 — Brain file update (post-intune.py) — MEMORY.md v17, ARCHITECTURE.md (169 tests, intune.py built), CLAUDE.md v2.3 — MEMORY.md, ARCHITECTURE.md, CLAUDE.md
 2026-04-23 11:03 — intune.py Phase 3 domain 4 — complete. 2 tools (intune_scan_devices, intune_scan_compliance_policies), 5 aliases, 20 tests. 169/169 total. — mcp-server/tools/intune.py, mcp-server/tests/test_intune.py
 2026-04-23 — Binder smell-test (ssk_coverage + ssk_export_binder) — PASS. Coverage 7/73. 06-3 and 08-1 binders exported and verified. LIC-DISABLED-01 alias routing confirmed correct (resolves to 08-1 at render time). Pipeline sound. — reports/audit-binders/2026-04-23-142332/, reports/audit-binders/2026-04-23-142541/
