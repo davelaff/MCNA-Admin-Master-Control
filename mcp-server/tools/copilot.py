@@ -1,6 +1,7 @@
 import json
 import uuid
 from datetime import datetime, timezone
+import requests
 from auth import get_token
 from graph import graph_get, graph_get_all, GraphError
 from db import get_connection
@@ -167,8 +168,11 @@ def copilot_scan_settings() -> str:
     try:
         settings = graph_get(COPILOT_SETTINGS_PATH, token)
         available = True
-    except GraphError as e:
-        if e.status in (400, 403, 404):
+    except (GraphError, requests.exceptions.HTTPError) as e:
+        status = e.status if isinstance(e, GraphError) else (
+            e.response.status_code if e.response is not None else 0
+        )
+        if status in (400, 403, 404):
             with get_connection() as conn:
                 _upsert_finding(
                     conn, "tenant", "copilot-settings", "Copilot Settings",
