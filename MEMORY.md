@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v22 | Updated: 2026-04-23
+Version: v24 | Updated: 2026-04-25
 
 ## Purpose of this file
 
@@ -20,15 +20,20 @@ After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavi
 
 Read first. Everything below is reference; this is what to do next.
 
-**Where we left off (2026-04-23 session, auth/graph hardening):**
-Auth and Graph client hardened. `refresh_auth.py` created as standalone re-auth script. `auth.py` now raises RuntimeError instead of blocking on device code flow inline — MCP tools no longer hang waiting for device code input. `graph_batch()` added to graph.py. EXO still best next live-scan candidate.
+**Where we left off (2026-04-25 session):**
+EXO false-positive bug fixed. `_is_external()` now returns False for any address without `@` — X.500/legacy Exchange DNs are internal routing artifacts. Walt Stark finding (ce25ed77) dismissed as false positive. Stale exo_scope_gap finding (d4038cd6, pre-app-token) dismissed. 19/19 EXO tests passing. Committed as `fix(exo)`.
 
-**EXO domain (2026-04-23 built):**
+**KB state (EXO domain, post-cleanup):**
+- 30 open High findings — `shared_mailbox_interactive` (shared mailboxes with interactive sign-in enabled → 08-1)
+- 1 open High finding — `external_forwarding_rule` on bstraka@nofmetalcoatings.us → 4402269019@vtext.com (SMS gateway, likely intentional, undocumented)
+- 0 false positives remaining in EXO domain
+
+**EXO domain:**
 - `exo_scan_mailboxes`: detects shared mailboxes with interactive sign-in enabled (High → 08-1). Uses `userPurpose` from `/users/{id}/mailboxSettings`.
-- `exo_scan_forwarding`: scans inbox message rules for external forwarding/redirect (High → 06-1). Detects both `forwardTo` and `redirectTo` actions.
-- Scope: `MailboxSettings.Read` delegated. Consented 2026-04-23.
+- `exo_scan_forwarding`: scans inbox message rules for external forwarding/redirect (High → 06-1). Detects `forwardTo`, `forwardAsAttachmentTo`, `redirectTo` actions.
+- `_is_external()`: skips addresses without `@` (X.500 DNs, empty strings). Fixed 2026-04-25.
+- Scopes: `MailboxSettings.Read` delegated (2026-04-23) + application (2026-04-24).
 - INTERNAL_DOMAINS: `nofmetalcoatings.us`, `nofmetalcoatings.onmicrosoft.com`.
-- Graceful 404 (no mailbox, skip) vs 403 (scope gap, emit finding once) handling.
 - 19 tests, 201/201 total.
 
 **Purview domain (built in prior session — MEMORY was stale):**
@@ -42,16 +47,16 @@ Auth and Graph client hardened. `refresh_auth.py` created as standalone re-auth 
 - Refreshed binder set: `reports/audit-binders/2026-04-23-204903/`.
 - New operator guide: `docs/how-to-use-reports.md`.
 - `ssk_export_binder` fixed so repeated single-control exports into the same `output_dir` merge `index.md` and `manifest.json` instead of clobbering them.
-- Regression coverage added in `mcp-server/tests/test_ssk_binder.py`; binder test file passes `15/15` when run with `--basetemp` outside the blocked default Windows temp path.
+- Regression coverage: `mcp-server/tests/test_ssk_binder.py` (15/15 with `--basetemp`).
 
 **Recommended first move next session — pick one:**
 
-1. **Run EXO live scans** — `exo_scan_mailboxes` + `exo_scan_forwarding`. MCP restart required first.
-2. **Run Purview live scans** — consent `InformationProtectionPolicy.Read.All` first or accept scope gap finding.
-3. **Expand evidence coverage** — add current artifacts for `07-2`, `06-1`, `16-1`, then regenerate their binders.
-4. **Triage high-severity findings** — 22 permanent privileged assignments, 9 non-admin privileged role holders.
+1. **Shared mailbox remediation** — 30 High findings open. Decide: bulk disable via DIS, or triage each. Need to confirm which shared mailboxes are still active vs defunct before disabling accounts.
+2. **bstraka SMS forward** — 1 High finding. Confirm with Brian Straka whether intentional. If yes, document as accepted risk in KB. If no, remove the rule.
+3. **Run Purview live scans** — consent `InformationProtectionPolicy.Read.All` first or accept scope gap finding.
+4. **Expand evidence coverage** — add artifacts for `07-2`, `06-1`, `16-1`, then regenerate binders.
 
-**Default if no preference:** run EXO live scans (domain just built, scope consented, ready to go).
+**Default if no preference:** shared mailbox remediation planning (30 High findings, clearest next win).
 
 **Mechanical reminders:**
 - `.rtk/` and `CLAUDE.md` (rtk-section edit) intentionally uncommitted. Leave unless adding to .gitignore.
@@ -242,7 +247,7 @@ Built:
 - Intune scopes now consented: `DeviceManagementManagedDevices.Read.All` + `DeviceManagementConfiguration.Read.All` (2026-04-23).
 - Purview needs `InformationProtectionPolicy.Read.All` — not yet in app reg.
 
-Next candidates (priority order): fix `_is_external()` X.500 false-positive bug, dismiss stale EXO scope-gap finding, remediate 30 shared mailbox interactive-sign-in findings, then `purview`, `copilot`, `mail`.
+Next candidates (priority order): remediate 30 shared mailbox interactive-sign-in findings (confirm active vs defunct before disabling), document or accept bstraka SMS forward, then `purview`, `copilot`, `mail`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
@@ -373,6 +378,7 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-25 — v24 — EXO false-positive fix. `_is_external()` skips addresses without `@`. Walt Stark finding (ce25ed77) and stale exo_scope_gap (d4038cd6) dismissed. KB now clean: 30 real High shared-mailbox findings, 1 real High forwarding finding. 19/19 EXO tests pass.
 - 2026-04-25 — v23 — EXO first live scans. `get_app_token()` added to auth.py (cert/client-credentials). MailboxSettings.Read application consented 2026-04-24. exo_scan_mailboxes: 187 users, 30 shared mailboxes interactive (High). exo_scan_forwarding: 441 rules, 1 real external fwd (bstraka→SMS), 1 false positive (wstark X.500 legacy DN). Bug identified: `_is_external()` misclassifies X.500 addresses. Stale scope-gap finding needs dismissal.
 - 2026-04-23 — v22 — Auth/graph hardening. `auth.py` raises RuntimeError on expired cache instead of blocking on inline device code flow. `graph_batch()` added to graph.py. `refresh_auth.py` created as standalone re-auth script. Claude memory dir MEMORY.md rebuilt.
 - 2026-04-23 — v21 — Evidence/binder session. Backfilled `ssk_evidence` for six controls, regenerated binders in `reports/audit-binders/2026-04-23-204903/`, added `docs/how-to-use-reports.md`, and fixed `ssk_export_binder` so repeated single-control exports no longer clobber `index.md` and `manifest.json`.
