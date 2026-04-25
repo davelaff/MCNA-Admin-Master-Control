@@ -65,12 +65,12 @@ MC exists to unify those surfaces and answer the questions MCNA actually needs:
 
 The architectural unit is the `domain agent`, not the narrow scan.
 
-**Platform:** Claude Code is Master Control. Domain agent capabilities are
+**Platform:** Codex/Claude Code is Master Control. Domain agent capabilities are
 exposed as MCP server tools. Two MCP server layers:
 
 1. **Microsoft MCP Server for Enterprise** (hosted, Microsoft-managed) —
    Entra ID read-only via natural language over Microsoft Graph. Configured
-   as a remote MCP server in Claude Code settings. No auth code required.
+   as a remote MCP server in the local MCP client settings. No auth code required.
 
 2. **MCNA-AMC MCP Server** (local Python) — Power Platform, Intune, Exchange
    hygiene, Purview, Copilot governance, licensing, PIM, sharing posture,
@@ -126,8 +126,11 @@ change them.
 - `MEMORY.md`
   Living handoff, current-state facts, decisions made, and operational reality.
 
+- `AGENTS.md`
+  Codex-facing repo-specific working behavior and task execution guidance.
+
 - `CLAUDE.md`
-  Repo-specific working behavior and task execution guidance.
+  Legacy Claude Code working behavior; should mirror `AGENTS.md` where possible.
 
 - `ROADMAP.md`
   Strategic direction, history, and longer-range thinking.

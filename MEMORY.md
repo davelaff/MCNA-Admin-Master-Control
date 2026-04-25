@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v28 | Updated: 2026-04-25
+Version: v29 | Updated: 2026-04-25
 
 ## Purpose of this file
 
@@ -41,7 +41,7 @@ anything.
 - `ROADMAP.md` for strategic direction and phase history
 - `CLAUDE.md` for legacy Claude Code operational behavior
 
-Current state: Phase 3 is at 8 of 9 planned work items built or partially implemented. Remaining unbuilt domain is `mail.py`. Full test suite was verified 2026-04-25 with `rtk pytest --tb=short -q` from `mcp-server/`: 214 passed. Secure SketCH catalog was repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
+Current state: Phase 3 is at 8 of 9 planned work items built or partially implemented. Remaining unbuilt domain is `mail.py`. Full test suite was verified 2026-04-25 with `rtk pytest --tb=short -q` from `mcp-server/`: 214 passed. Secure SketCH catalog was repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls. KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
 
 Default next task: build `mcp-server/tools/mail.py` as the Phase 3 notification/report-delivery agent. Keep v1 narrow and read-before-write in spirit: explicit `sendMail` only, no mailbox automation. Suggested scope:
 - `mail_send_summary(to, subject, body, cc=None, importance="normal", save_to_sent_items=True, dry_run=True)` using delegated admin-account Graph `/me/sendMail`.
@@ -102,13 +102,13 @@ If Dave wants remediation instead of `mail.py`, the strongest operational next m
 
 Master Control: Microsoft estate orchestration and governance platform. Agents are domain authorities, not single-purpose scanners.
 
-**Platform decision (2026-04-21):** Claude Code IS Master Control. Domain agent capabilities via two MCP server layers:
+**Platform decision (2026-04-21, updated 2026-04-25):** Codex/Claude Code is Master Control. Domain agent capabilities run through two MCP server layers:
 
 1. **Microsoft MCP Server for Enterprise** (hosted, Microsoft-managed, public preview)
    - Remote MCP server: `https://mcp.svc.cloud.microsoft/enterprise`
    - Entra ID read-only: users, groups, apps, devices, directory, admin reporting
-   - Authenticates via Dave's Entra admin account through Claude Code OAuth flow
-   - No code to write. Configure in Claude Code MCP settings.
+   - Authenticates via Dave's Entra admin account through the MCP client's OAuth flow
+   - No code to write. Configure in the local MCP client settings.
    - App ID for Graph activity log filtering: `e8c77dc2-69b3-43f4-bc51-3213c9d915b4`
 
 2. **MCNA-AMC MCP Server** (local Python, `mcp-server/`)
@@ -127,7 +127,7 @@ Spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`.
 
 ---
 
-## Repo contents (as of 2026-04-23)
+## Repo contents (as of 2026-04-25)
 
 Core docs:
 - `CLAUDE.md` — operational brain
@@ -138,8 +138,8 @@ Core docs:
 - `README.md` — 5-line orientation
 - `activity-log.md` — append-only task log
 - `Secure_SketCH_Guidelines_2026-01-01.docx` — compliance target (binary, not git-tracked)
-- `.mcp.json` — Claude Code MCP server config (tracked in git)
-- `.claude/settings.json` — Claude Code workspace settings (tracked in git)
+- `.mcp.json` — MCP server config (tracked in git)
+- `.claude/settings.json` — legacy Claude Code workspace settings (tracked in git)
 
 Auth and docs:
 - `docs/auth/app-registrations.md` — app reg record (moved from `auth/`)
@@ -247,9 +247,8 @@ Built:
 
   **First live scan (2026-04-25):**
   - `exo_scan_mailboxes`: 187 users, 82 user mailboxes, 68 shared, 8 resource. **30 shared mailboxes with interactive sign-in enabled (High)**. Full list in KB findings.
-  - `exo_scan_forwarding`: 187 users, 441 rules scanned. **2 external forwarding rules flagged**: (1) bstraka@nofmetalcoatings.us → 4402269019@vtext.com (SMS gateway, likely intentional, undocumented); (2) wstark@nofmetalcoatings.us → X.500 legacy Exchange DNs — **false positive**, internal recipients expressed as `/o=ExchangeLabs/...` DNs.
-  - **Known bug:** `_is_external()` returns True for X.500 addresses (no `@` sign → full string returned → not in INTERNAL_DOMAINS). Fix: skip or classify addresses without `@` as non-external. Walt Stark finding should be dismissed after fix.
-  - Stale `exo_scope_gap` finding in KB (from before app token added) — needs `kb_dismiss`.
+  - `exo_scan_forwarding`: 187 users, 441 rules scanned. **2 external forwarding rules were originally flagged**: (1) bstraka@nofmetalcoatings.us → 4402269019@vtext.com (SMS gateway, likely intentional, undocumented); (2) wstark@nofmetalcoatings.us → X.500 legacy Exchange DNs.
+  - `_is_external()` was fixed 2026-04-25 to treat addresses without `@` as non-external. Walt Stark X.500 false positive and stale `exo_scope_gap` were dismissed from the KB.
 
 **Auth/graph hardening (2026-04-23):**
 - `mcp-server/auth.py` — `get_token()` no longer blocks on device code flow inline. Raises RuntimeError with instructions to run `refresh_auth.py`. Prevents MCP server from hanging on expired cache.
@@ -261,7 +260,7 @@ Built:
 - `MailboxSettings.Read` application permission added to MCNA-TenantIntel-ReadOnly, admin consent granted 2026-04-24. Recorded in `docs/auth/app-registrations.md` v1.6 and `docs/governance/scope-additions/2026-04-24-exo-application-scope.md`.
 
 **Binder smell-test — PASSED (2026-04-23):**
-- `ssk_coverage`: 7/73 automated, 66 uncovered.
+- Historical pre-refresh `ssk_coverage` output predates the 2026-04-25 catalog refresh. Current catalog is 75 controls.
 - Findings route correctly via alias map: 08-6 (29 High pim findings), 06-3 (7 medium/low license findings), 08-1 (3 disabled-account findings via LIC-DISABLED-01 → 08-1 alias at render time).
 - Evidence/reviews sections empty (expected). Actions all not_started (accurate).
 - Same-day collision handling works: timestamped suffix dirs created.
@@ -356,17 +355,20 @@ ApplicationImpersonation deprecated in EXO 2026 — do not suggest.
 - Current scopes in `docs/auth/app-registrations.md`
 - `MCNA-TenantIntel-Writer` (write-capable reg): designed, not yet created
 
-### Governance paper trail outstanding
+### Governance paper trail
 
 IT-GOV-ENTRA-v1.0 requires documented request records for scope additions.
 
 Documented in repo:
 - 2026-04-16 initial registration record exists in `docs/governance/scope-additions/2026-04-16-initial-registration.md`
 - 2026-04-20 Power Platform scope record exists in `docs/governance/scope-additions/2026-04-20-power-platform.md`
+- 2026-04-23 Intune + delegated EXO scope record exists in `docs/governance/scope-additions/2026-04-23-intune-exo-delegated-scopes.md`
+- 2026-04-24 EXO application scope record exists in `docs/governance/scope-additions/2026-04-24-exo-application-scope.md`
 
 Still outstanding:
-- Newer 2026-04-22/23 additions and consent outcomes should be written up as dated records
-- `docs/governance/scope-additions/pending-gaps.md` and `docs/auth/app-registrations.md` should be reconciled with current consent state
+- `InformationProtectionPolicy.Read.All` for full Purview label scan
+- `Microsoft365CopilotSettings.Read.All` for Copilot settings scan
+- `Sites.FullControl.All` if permission-level sharing checks become worth the scope breadth
 
 ---
 
@@ -410,11 +412,13 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-25 — v29 — Cross-document alignment pass. Current-state docs now agree on low-token startup, 75-control catalog, 214-test baseline, Phase 3 work-item wording, EXO false-positive fix, and granted vs pending scopes.
+- 2026-04-25 — v28 — Low-token startup handoff. `START_HERE.md` added; startup reads constrained to AGENTS, START_HERE, and activity-log tail unless deeper context is needed.
 - 2026-04-25 — v27 — Fresh-session handoff prompt rewritten for Phase 3 `mail.py` build. Includes current verification state, catalog repair state, and narrow v1 mail agent scope.
-- 2026-04-25 — v26 — Cleanup pass. Stale auth/SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 now 8/9 domains.
-- 2026-04-25 — v25 — Brain file sync. All 7 Phase 3 tools marked built. Test count corrected to 200/202 (2 stale auth tests). 02-3/02-4 catalog gap noted. Startup prompt updated with correct priority queue.
+- 2026-04-25 — v26 — Cleanup pass. Stale auth/SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 moved to 8/9 planned work items built or partially implemented.
+- 2026-04-25 — v25 — Intermediate brain sync before catalog repair. Superseded by v26/v29 for test count and catalog state.
 - 2026-04-25 — v24 — EXO false-positive fix. `_is_external()` skips addresses without `@`. Walt Stark finding (ce25ed77) and stale exo_scope_gap (d4038cd6) dismissed. KB now clean: 30 real High shared-mailbox findings, 1 real High forwarding finding. 19/19 EXO tests pass.
-- 2026-04-25 — v23 — EXO first live scans. `get_app_token()` added to auth.py (cert/client-credentials). MailboxSettings.Read application consented 2026-04-24. exo_scan_mailboxes: 187 users, 30 shared mailboxes interactive (High). exo_scan_forwarding: 441 rules, 1 real external fwd (bstraka→SMS), 1 false positive (wstark X.500 legacy DN). Bug identified: `_is_external()` misclassifies X.500 addresses. Stale scope-gap finding needs dismissal.
+- 2026-04-25 — v23 — EXO first live scans. `get_app_token()` added to auth.py (cert/client-credentials). MailboxSettings.Read application consented 2026-04-24. exo_scan_mailboxes: 187 users, 30 shared mailboxes interactive (High). exo_scan_forwarding: 441 rules, 1 real external fwd (bstraka→SMS), plus one X.500 false positive later fixed in v24.
 - 2026-04-23 — v22 — Auth/graph hardening. `auth.py` raises RuntimeError on expired cache instead of blocking on inline device code flow. `graph_batch()` added to graph.py. `refresh_auth.py` created as standalone re-auth script. Claude memory dir MEMORY.md rebuilt.
 - 2026-04-23 — v21 — Evidence/binder session. Backfilled `ssk_evidence` for six controls, regenerated binders in `reports/audit-binders/2026-04-23-204903/`, added `docs/how-to-use-reports.md`, and fixed `ssk_export_binder` so repeated single-control exports no longer clobber `index.md` and `manifest.json`.
 - 2026-04-23 — v20 — MEMORY cleanup pass. Removed stray tool artifact, reconciled EXO status/scope text, updated repo snapshot date and test count, clarified governance paper-trail status, and clarified domain-count wording.

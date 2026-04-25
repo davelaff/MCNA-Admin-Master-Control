@@ -5,7 +5,8 @@ Strategic direction for the Admin Master Control project. Read when scoping
 new work, when a decision needs to be checked against original intent, or when
 a new session needs directional context. Not for routine task execution.
 
-CLAUDE.md is operational. CONTEXT.md is architectural. This file is directional.
+AGENTS.md is operational for Codex. CLAUDE.md is the legacy Claude Code mirror.
+CONTEXT.md is architectural. This file is directional.
 
 ---
 
@@ -115,7 +116,7 @@ These are decisions already made. Do not relitigate task by task.
 
 ## Design decisions (locked)
 
-### Platform: Claude Code + two MCP server layers
+### Platform: Codex/Claude Code + two MCP server layers
 Decided 2026-04-21. Documented in CONTEXT.md and ARCHITECTURE.md.
 
 ### Secure SketCH tracking: Approach A (SQLite-first, conversational-only)
@@ -140,7 +141,7 @@ before.
 Decided 2026-04-22. Design spec:
 `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md` (pending).
 
-- `ssk_controls` — the catalog (73 rows after import)
+- `ssk_controls` — the catalog (75 rows after the 2026-04-25 refresh)
 - `ssk_recommended_actions` — per-action line items under each control
 - `ssk_control_status` — current maturity, target maturity, review cadence
 - `ssk_evidence` — any record supporting a control (scan output, SharePoint
@@ -235,8 +236,11 @@ Remaining unbuilt: `mail.py`. Sharing posture expansion deferred (needs `Sites.F
   sharing checks deferred (need Sites.FullControl.All) **(PARTIAL)**
 - `tools/sharing.py` — external sharing posture across SharePoint, OneDrive,
   Teams
-- `tools/exo.py` — Exchange hygiene: forwarding rules, shared mailboxes,
-  transport rules **(BUILT + LIVE-SCANNED 2026-04-25)** — 30 shared mailbox interactive sign-in findings (High), 1 external forwarding rule (High), 1 false-positive pending bug fix (`_is_external()` X.500 handling)
+- `tools/exo.py` — Exchange hygiene: forwarding rules and shared mailboxes.
+  Transport-rule depth still needs EXO PowerShell or a broader Exchange-specific
+  approach. **(BUILT + LIVE-SCANNED 2026-04-25)** — 30 shared mailbox
+  interactive sign-in findings (High), 1 external forwarding rule (High).
+  X.500 false-positive handling was fixed 2026-04-25.
 - `tools/intune.py` — device compliance, BitLocker, enrollment posture,
   baseline drift. Feeds asset-management and endpoint controls heavily. **(BUILT 2026-04-23)**
 - `tools/purview.py` — sensitivity label coverage, DLP policy inventory,
@@ -307,8 +311,9 @@ from Phase 4 write scopes. Needs design before build.
 ---
 
 ## Change log
-- 2026-04-25 — v3.7 — Cleanup pass: stale auth and SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 now 8/9 domains.
-- 2026-04-25 — v3.6 — Brain file sync: intune.py and purview.py marked BUILT. Phase 3 status updated (7 of 9 domains built). 2 stale auth tests noted. 02-3/02-4 catalog update pending.
+- 2026-04-25 — v3.8 — Cross-document alignment pass. Current-state docs now agree on low-token startup, 75-control catalog, 214-test baseline, Phase 3 work-item wording, EXO false-positive fix, and granted vs pending scopes.
+- 2026-04-25 — v3.7 — Cleanup pass: stale auth and SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 moved to 8/9 planned work items built or partially implemented.
+- 2026-04-25 — v3.6 — Intermediate brain sync: intune.py and purview.py marked built. Superseded by v3.7/v3.8 for current Phase 3 count, test count, and catalog state.
 - 2026-04-25 — v3.5 — Governance document layer section added (Track A/B relationship, Cowork package integration, evidence write-back concept). Phase 3 write-back note added.
 - 2026-04-25 — v3.4 — Phase 3 EXO live scans complete. `get_app_token()` cert-credentials flow. MailboxSettings.Read application consented. 30 High findings (shared mailbox interactive). False-positive bug in `_is_external()` identified.
 - 2026-04-23 — v3.3 — Phase 3 progress noted: pim, license, sharing built

@@ -48,6 +48,7 @@ As of 2026-04-25:
 - Full test suite last verified from `mcp-server/`: `rtk pytest --tb=short -q` -> 214 passed.
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
+- KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
 
 Implemented Phase 3 coverage:
 
@@ -63,6 +64,8 @@ Implemented Phase 3 coverage:
 
 - 30 open High EXO findings: `shared_mailbox_interactive`.
 - 1 open High EXO finding: `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` to `4402269019@vtext.com`; likely intentional SMS gateway, undocumented.
+- 40 open High Entra findings: `missing_owner`.
+- 22 open High PIM findings: `permanent_privileged_assignment`.
 - Purview label scan needs `InformationProtectionPolicy.Read.All`; without it, `purview_scope_gap` is expected.
 - Copilot settings scan needs `Microsoft365CopilotSettings.Read.All`; without it, settings scope gap is expected.
 

@@ -1,3 +1,12 @@
+# ARCHIVED MEMORY SNAPSHOT - DO NOT USE FOR CURRENT STATE
+
+This is a preserved v16 snapshot from 2026-04-23. It contains stale startup
+instructions, stale Secure SketCH catalog counts, and stale scope gaps. Current
+sessions must use `START_HERE.md` first, then `MEMORY.md` only when deeper
+context is needed.
+
+---
+
 # MEMORY.md — MCNA Admin Master Control
 Version: v16 | Updated: 2026-04-23
 

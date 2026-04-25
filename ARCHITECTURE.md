@@ -20,12 +20,12 @@ This file is where the detail lives:
 
 ## Platform Architecture
 
-Master Control runs as Claude Code augmented by two MCP server layers.
+Master Control runs as Codex/Claude Code augmented by two MCP server layers.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Claude Code (AMC)                  │
-│            CLAUDE.md = operational brain            │
+│               Codex / Claude Code (AMC)             │
+│   AGENTS.md + START_HERE.md = startup brain         │
 └───────────────┬──────────────────┬──────────────────┘
                 │                  │
    ┌────────────▼────┐    ┌────────▼────────────────┐
@@ -42,7 +42,7 @@ Master Control runs as Claude Code augmented by two MCP server layers.
    │                 │    │  KB: SQLite (OneDrive-  │
    │  Auth: Entra    │    │  synced)                │
    │  delegated via  │    └─────────────────────────┘
-   │  Claude Code    │
+   │  MCP client     │
    └─────────────────┘
 ```
 
@@ -658,53 +658,28 @@ program by providing:
 
 ## Relationship to the Current Repo
 
-The current repo contains narrow prototype capabilities.
-
-Those prototypes remain useful, but they should now be understood as:
-
-- seed functions
-- early probes
-- proof-of-concept routines
-
-They do not define the permanent architecture.
-
-Example:
-
-- `orphaned_asset_scanner.py` is not a top-level architecture concept
-- it is one capability that would eventually belong inside the
-  `SharePoint and OneDrive Agent` and possibly also intersect with
-  `Teams Agent`
-
-Likewise:
-
-- app registration governance belongs inside `Entra Agent`
-- Power Platform hygiene belongs inside `Power Platform Agent`
-- DIS daily summary is a narrow operational task, not the long-term system model
+The current repo now contains the active MCNA-AMC MCP server plus historical
+prototype/report artifacts. The permanent implementation lives under
+`mcp-server/`, with domain tools writing normalized findings and evidence into
+the local SQLite KB. Older report folders remain useful reference material, but
+new capabilities should be built under the domain-agent boundaries above.
 
 ---
 
 ## Build Direction
 
-The right next move is not to keep multiplying narrow scans under the old
-`Play` model.
-
-The right next move is:
-
-1. Stabilize the architecture.
-2. Define durable context and memory files.
-3. Define the common finding and evidence schemas.
-4. Recast existing prototypes under domain-agent boundaries.
-5. Build cross-domain services once shared structures are stable.
+The right next move is to finish the remaining Phase 3 work, then expand
+evidence coverage and remediation planning from the KB rather than multiplying
+standalone scripts.
 
 ---
 
 ## Immediate Priorities
 
-1. Build the MCNA-AMC MCP Server (`mcp-server/`) with shared auth, graph client,
-   KB schema, and the first domain tools.
-2. Configure Microsoft MCP Server for Enterprise in Claude Code MCP settings.
-3. Define the common finding schema (see above) before expanding tool surface.
-4. First domain tools to build: `entra`, `ca`, `pp`, `kb` — highest SecureSketCH
-   value and most directly fed by existing prototype logic.
-5. Tie every tool output to the KB so findings accumulate over time rather than
-   resetting each session.
+1. Build `mcp-server/tools/mail.py` as the remaining narrow Phase 3 domain.
+2. Remediate or document the 30 shared-mailbox interactive sign-in findings.
+3. Decide/document the bstraka SMS forwarding rule.
+4. Consent `InformationProtectionPolicy.Read.All` before a full Purview label
+   scan, or accept the expected scope-gap finding.
+5. Expand Secure SketCH evidence coverage for `02-3`, `02-4`, `07-2`, `06-1`,
+   and `16-1`, then regenerate binders.

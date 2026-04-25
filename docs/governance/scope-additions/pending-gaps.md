@@ -1,35 +1,35 @@
-# Scope Gap Record — Pending Consent
+# Scope Gap Record - Pending Consent
 
 Scopes identified as needed but not yet added to MCNA-TenantIntel-ReadOnly.
 Each entry requires explicit approval before adding. Update this file when consented.
 
 ---
 
-## DeviceManagementManagedDevices.Read.All
+## InformationProtectionPolicy.Read.All
 
 | Field | Value |
 |---|---|
 | **Type** | Delegated |
-| **Identified** | 2026-04-22 |
+| **Identified** | 2026-04-23 |
 | **Identified by** | D. Lafferty |
 | **Status** | Pending |
-| **Justification** | Required for `intune_*` domain tool — device compliance, BitLocker posture, enrollment status. Gates `/deviceManagement/managedDevices` and `/deviceManagement/deviceCompliancePolicies`. Intune licensing also gates which endpoints respond — probe `/subscribedSkus` first after consent. |
-| **SSK mapping** | SSK 16-x (endpoint security) |
+| **Justification** | Required for `purview_scan_labels` to enumerate sensitivity labels and policy coverage. Without it, Purview label scans should record `purview_scope_gap` instead of pretending coverage exists. |
+| **SSK mapping** | SSK 06-1 |
 | **Blocked by** | Admin consent not yet granted |
 
 ---
 
-## MailboxSettings.Read
+## Microsoft365CopilotSettings.Read.All
 
 | Field | Value |
 |---|---|
 | **Type** | Delegated |
-| **Identified** | 2026-04-22 |
+| **Identified** | 2026-04-25 |
 | **Identified by** | D. Lafferty |
 | **Status** | Pending |
-| **Justification** | Required for EXO domain tool — mailbox forwarding rules, auto-reply hygiene. Alternative: EXO PowerShell (separate auth surface). Decision deferred. |
-| **SSK mapping** | TBD — Exchange hygiene |
-| **Blocked by** | Architecture decision pending (Graph vs EXO PowerShell) |
+| **Justification** | Required for `copilot_scan_settings` to inspect tenant Copilot settings. Without it, Copilot settings scans should record `copilot_scope_gap`. |
+| **SSK mapping** | AI governance / Copilot governance evidence |
+| **Blocked by** | Admin consent not yet granted |
 
 ---
 
@@ -40,18 +40,18 @@ Each entry requires explicit approval before adding. Update this file when conse
 | **Type** | Delegated |
 | **Identified** | 2026-04-22 |
 | **Identified by** | D. Lafferty |
-| **Status** | Pending |
-| **Justification** | Required for permission-level sharing checks in `sharing_*` tools. Current `Sites.Read.All` returns site metadata but not granular permission assignments. Broad scope — add only if permission-audit depth justifies it. |
-| **SSK mapping** | SSK 15-4 (external sharing) |
-| **Blocked by** | Scope breadth review — may be deferrable indefinitely |
+| **Status** | Pending / Deferred |
+| **Justification** | Required for permission-level sharing checks in `sharing_*` tools. Current `Sites.Read.All` returns site metadata but not granular permission assignments. Broad scope; add only if permission-audit depth justifies it. |
+| **SSK mapping** | SSK 15-4 |
+| **Blocked by** | Scope breadth review; may be deferred indefinitely |
 
 ---
 
 ## How to add a scope
 
 1. Update this file: change Status to `Approved`, add Approved-by and Date fields.
-2. Add to app reg via Entra portal — API permissions → Add a permission.
+2. Add to app reg via Entra portal: API permissions -> Add a permission.
 3. Grant admin consent as nof-dlafferty@nofmetalcoatings.us.
-4. Create a new dated record in this folder (see 2026-04-16 and 2026-04-20 as templates).
+4. Create a new dated record in this folder.
 5. Update `docs/auth/app-registrations.md` permissions table.
 6. Remove the entry from this file once consented and documented.

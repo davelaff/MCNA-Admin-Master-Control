@@ -54,12 +54,13 @@ ApplicationImpersonation is deprecated in EXO 2026 — do NOT suggest it):
 Delegated scopes (admin consent granted):
 Mail.Read, Mail.Send, User.Read, Application.Read.All, AuditLog.Read.All,
 Directory.Read.All, Policy.Read.All, Reports.Read.All, RoleManagement.Read.Directory,
-Sites.Read.All,
+Sites.Read.All, DeviceManagementManagedDevices.Read.All,
+DeviceManagementConfiguration.Read.All, MailboxSettings.Read,
 Dynamics CRM: user_impersonation (Dataverse Web API per org),
 Power Apps Service: User (BAP/PowerApps/Flow APIs)
 
 Application scopes (admin consent granted):
-Tasks.Read.All — client credentials flow, cert-based
+Tasks.Read.All, MailboxSettings.Read — client credentials flow, cert-based
 
 Microsoft MCP Server for Enterprise auth: separate from the above. Authenticates
 as Dave's admin Entra account via delegated OAuth through Codex. No MSAL
@@ -119,7 +120,7 @@ Report usage guide: `docs/how-to-use-reports.md`.
 Audit binder note: when reusing the same binder output directory, `ssk_export_binder` now merges `index.md` and `manifest.json` rather than overwriting them with only the last single-control export.
 
 ## Current version
-v2.4 — 2026-04-23
+v2.5 — 2026-04-25
 
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
