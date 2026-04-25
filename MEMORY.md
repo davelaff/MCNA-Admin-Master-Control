@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v27 | Updated: 2026-04-25
+Version: v28 | Updated: 2026-04-25
 
 ## Purpose of this file
 
@@ -11,22 +11,37 @@ Use to understand:
 - truth about auth, scope, open items
 - what fresh session shouldn't rediscover
 
-Read once at project startup.
-After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavior, `ROADMAP.md` for direction and history.
+Do not read this whole file at every startup. Use `START_HERE.md` first.
+Read this file when the task needs deeper project state, prior decisions,
+unresolved findings, or historical context.
 
 ---
 
-## ▶ Next session startup prompt
+## ▶ Low-token next session startup
 
-Read first. Everything below is reference; this is what to do next.
+Read `START_HERE.md` first. Everything below is reference.
 
 **Fresh-session handoff prompt (copy/paste if starting a new agent):**
 
 You are in `C:\Users\dlafferty.MCNA\OneDrive - NOF\DL OneDrive\OneDrive - NOF\Management Information Systems - Governance and Security Project 2026\MCNA-Admin-Master-Control`.
 
-Read `AGENTS.md`, `CONTEXT.md`, this `MEMORY.md`, `ROADMAP.md`, and `ARCHITECTURE.md`. Use `rtk` for terminal commands. This repo is OneDrive-synced governance content: no scratch files, no silent failures, append one line to `activity-log.md` for every produced artifact.
+Read `AGENTS.md`, `START_HERE.md`, and the last 40 lines of `activity-log.md`.
+Do not read `MEMORY.md`, `CONTEXT.md`, `ROADMAP.md`, `ARCHITECTURE.md`, or
+`CLAUDE.md` unless the task requires them. Use `rtk` for terminal commands.
+This repo is OneDrive-synced governance content: no scratch files, no silent
+failures, append one line to `activity-log.md` for every produced artifact.
 
-Current state: Phase 3 is at 8 of 9 planned domains built. Remaining unbuilt domain is `mail.py`. Full test suite was verified 2026-04-25 with `rtk pytest --tb=short -q` from `mcp-server/`: 214 passed. Secure SketCH catalog was repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
+Then tell Dave the current state and recommend the next move before changing
+anything.
+
+**Escalate to the full brain stack only when needed:**
+- `MEMORY.md` for current-state details, prior decisions, unresolved findings
+- `CONTEXT.md` for short architecture orientation
+- `ARCHITECTURE.md` for schema/MCP/domain-agent design
+- `ROADMAP.md` for strategic direction and phase history
+- `CLAUDE.md` for legacy Claude Code operational behavior
+
+Current state: Phase 3 is at 8 of 9 planned work items built or partially implemented. Remaining unbuilt domain is `mail.py`. Full test suite was verified 2026-04-25 with `rtk pytest --tb=short -q` from `mcp-server/`: 214 passed. Secure SketCH catalog was repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
 
 Default next task: build `mcp-server/tools/mail.py` as the Phase 3 notification/report-delivery agent. Keep v1 narrow and read-before-write in spirit: explicit `sendMail` only, no mailbox automation. Suggested scope:
 - `mail_send_summary(to, subject, body, cc=None, importance="normal", save_to_sent_items=True, dry_run=True)` using delegated admin-account Graph `/me/sendMail`.
@@ -133,7 +148,7 @@ Auth and docs:
 - `docs/superpowers/plans/` — implementation plans
 
 Build artifact:
-- `mcp-server/` — MCNA-AMC MCP Server (Phase 1+2 complete, Phase 3 8/9 domains built, 214 tests passing)
+- `mcp-server/` — MCNA-AMC MCP Server (Phase 1+2 complete, Phase 3 8/9 work items built or partially implemented, 214 tests passing)
 
 Reports (historical scan outputs, still valid reference):
 - `reports/app-reg-governance/` — 2026-04-17, 2026-04-20

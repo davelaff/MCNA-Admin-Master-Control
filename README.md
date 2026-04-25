@@ -3,6 +3,6 @@
 Microsoft estate orchestration and governance platform for NOF Metal Coatings North America.
 Owned by D. Lafferty (Director of IT & MIS).
 
-Read CLAUDE.md before doing anything.
-Read CONTEXT.md for architecture orientation.
-Read MEMORY.md for current project state.
+Read AGENTS.md first.
+Use START_HERE.md for the low-token startup path.
+Read CONTEXT.md, MEMORY.md, ROADMAP.md, or ARCHITECTURE.md only when the task needs them.

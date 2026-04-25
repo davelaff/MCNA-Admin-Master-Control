@@ -222,7 +222,7 @@ CONTEXT.md and ARCHITECTURE.md.
 registering itself as an evidence contributor to specific Secure SketCH
 controls.
 
-**Status (2026-04-25):** Eight domains built and tested (214/214 tests).
+**Status (2026-04-25):** Eight planned work items built or partially implemented and tested (214/214 tests).
 `tools/pim.py`, `tools/license.py`, `tools/sharing.py`, `tools/intune.py`,
 `tools/purview.py`, `tools/exo.py`, `tools/copilot.py` complete and on main.
 Remaining unbuilt: `mail.py`. Sharing posture expansion deferred (needs `Sites.FullControl.All`).

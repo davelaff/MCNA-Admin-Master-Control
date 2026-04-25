@@ -11,7 +11,8 @@ Master Control runs as Claude Code augmented by two MCP server layers:
 - **MCNA-AMC MCP Server** (local Python, `mcp-server/`) — all other domains
   plus the persistent knowledge base (SQLite)
 
-See CONTEXT.md for architecture orientation. See ARCHITECTURE.md for full design.
+For fresh sessions, use `START_HERE.md` first. See CONTEXT.md for architecture
+orientation only when needed. See ARCHITECTURE.md for full design.
 
 This folder is OneDrive-synced to the M365 Security and Governance document
 library in the Management Information Systems SharePoint site. Anything written
@@ -110,6 +111,8 @@ What Dave wants:
 
 ## Project folder structure
 See ARCHITECTURE.md for full layout. Primary build artifact: `mcp-server/`. Knowledge base: `mcp-server/kb/mcna_amc.db`. Reports: `reports/`. Design docs: `docs/`.
+
+Low-token startup guide: `START_HERE.md`.
 
 Report usage guide: `docs/how-to-use-reports.md`.
 
