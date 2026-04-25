@@ -9,10 +9,33 @@ CLAUDE.md is operational. CONTEXT.md is architectural. This file is directional.
 
 ---
 
+## Governance document layer
+
+The 2026 Security and Governance program has two parallel tracks that complement each other:
+
+**Track A — AMC (this project):** Continuous measurement, live tenant scanning, KB-accumulated findings, evidence production. Machine-sourced. Authoritative on what is actually true in the tenant at scan time.
+
+**Track B — Cowork governance package:** Structured policy and evidence documents produced by Copilot Cowork sessions. Covers Secure SketCH workstreams W1–W6 (inventories, periodic reports, training records, technical configuration evidence, policies, operational plans). Human-authored structure with AI-generated scaffolding. Authoritative on what MCNA has committed to in governance terms.
+
+The relationship:
+- Track B documents define the standard and the evidence schema (what *should* be true, what evidence *should* exist).
+- Track A produces the live data that validates or invalidates Track B's placeholder statuses.
+- The integration point is the evidence write-back layer (see Phase 3, Phase 4 below): KB findings populate Track B workbooks, replacing AI-generated placeholders with verified, timestamped, scan-sourced data.
+
+Track B document location: `02_Policy_and_Standards/Copilot_Cowork_Generated_Materials/` (OneDrive-synced to the MIS SharePoint governance library).
+
+Key Track B workbooks AMC writes to:
+- `MIS_Technical_Configuration_Evidence.xlsx` (W4) — per-domain control rows with Covered/Partial/Gap status
+- `MIS_Periodic_Reports_Master.xlsx` and standalone report templates (W2) — recurring evidence cadence
+- `Security_Evidence_Artifacts.xlsx` (W1) — master control-to-artifact mapping
+
+---
+
 ## Project thesis
 
 Dave is overhauling MCNA's information systems governance and security
-framework for 2026. The Secure SketCH guidelines (73 controls) are the
+framework for 2026. The Secure SketCH guidelines (75 controls as of the
+2026-04-25 catalog refresh) are the
 measuring stick. MCNA's Secure SketCH score is currently high because the
 standards and policies are written — maturity level "Implemented." The score
 cannot be defended in an audit because there is no evidence or artifact
@@ -199,10 +222,10 @@ CONTEXT.md and ARCHITECTURE.md.
 registering itself as an evidence contributor to specific Secure SketCH
 controls.
 
-**Status (2026-04-22):** Three domains built and tested (149/149 tests).
-`tools/pim.py`, `tools/license.py`, `tools/sharing.py` complete and on main.
-Remaining domains below. EXO pivoted away from pending MailboxSettings.Read
-or EXO PowerShell integration.
+**Status (2026-04-25):** Eight domains built and tested (214/214 tests).
+`tools/pim.py`, `tools/license.py`, `tools/sharing.py`, `tools/intune.py`,
+`tools/purview.py`, `tools/exo.py`, `tools/copilot.py` complete and on main.
+Remaining unbuilt: `mail.py`. Sharing posture expansion deferred (needs `Sites.FullControl.All`).
 
 **Deliverables:**
 - `tools/license.py` — unassigned licenses, duplicate stacking, service plan
@@ -215,16 +238,28 @@ or EXO PowerShell integration.
 - `tools/exo.py` — Exchange hygiene: forwarding rules, shared mailboxes,
   transport rules **(BUILT + LIVE-SCANNED 2026-04-25)** — 30 shared mailbox interactive sign-in findings (High), 1 external forwarding rule (High), 1 false-positive pending bug fix (`_is_external()` X.500 handling)
 - `tools/intune.py` — device compliance, BitLocker, enrollment posture,
-  baseline drift. Feeds asset-management and endpoint controls heavily.
+  baseline drift. Feeds asset-management and endpoint controls heavily. **(BUILT 2026-04-23)**
 - `tools/purview.py` — sensitivity label coverage, DLP policy inventory,
-  audit log queries. Feeds information protection controls.
+  audit log queries. Feeds information protection controls. **(BUILT 2026-04-23)**
 - `tools/copilot.py` — Copilot license utilization, label coverage
-  readiness, oversharing risk
+  readiness, oversharing risk **(BUILT 2026-04-25)**
 - `tools/mail.py` — sendMail for summaries and alerts (read scopes pre-Phase
   4; send from admin account)
 
 Each domain tool declares which controls it contributes evidence to. The
 contribution manifest is read by `ssk_status` to compute coverage.
+
+**Evidence write-back (concept, unfleshed):**
+Every domain scan produces KB findings that validate or invalidate rows in
+the Track B Cowork workbooks — primarily W4 (`MIS_Technical_Configuration_Evidence.xlsx`)
+and W2 periodic report templates. Today this is a manual step (human reads
+findings, updates workbook). The natural next capability is an AMC write-back
+layer: KB findings → openpyxl → W4/W2 rows updated (Status, Notes, Last
+Verified fields) automatically after each scan run. Row matching uses the
+control ID columns already present in W4. This closes the loop from live
+tenant state to audit-ready evidence doc without manual transcription.
+This is a local file write (OneDrive path), not a tenant write — separate
+from Phase 4 write scopes. Needs design before build.
 
 ---
 
@@ -272,6 +307,9 @@ contribution manifest is read by `ssk_status` to compute coverage.
 ---
 
 ## Change log
+- 2026-04-25 — v3.7 — Cleanup pass: stale auth and SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 now 8/9 domains.
+- 2026-04-25 — v3.6 — Brain file sync: intune.py and purview.py marked BUILT. Phase 3 status updated (7 of 9 domains built). 2 stale auth tests noted. 02-3/02-4 catalog update pending.
+- 2026-04-25 — v3.5 — Governance document layer section added (Track A/B relationship, Cowork package integration, evidence write-back concept). Phase 3 write-back note added.
 - 2026-04-25 — v3.4 — Phase 3 EXO live scans complete. `get_app_token()` cert-credentials flow. MailboxSettings.Read application consented. 30 High findings (shared mailbox interactive). False-positive bug in `_is_external()` identified.
 - 2026-04-23 — v3.3 — Phase 3 progress noted: pim, license, sharing built
   (149 tests). EXO pivot recorded. Two scope-add candidates documented:

@@ -84,7 +84,22 @@
         "Review and revise the rules and manuals at least once a year.",
         "Review and revise the rules and procedures addressing internal and external changes such as new laws, regulations, and emerging technologies (e.g., generative AI).",
         "Review and revise the rules and procedures based on audits, training exercises, and incident response outcomes as necessary.",
-        "Examples of regulations and manuals: Information Asset Management Regulations/Risk Assessment Regulations, Risk Assessment Manual/Vulnerability Management Regulations (including content related to diagnosis and testing)/Authentication and Access Management Regulations/Data Management Regulations/Log Management Regulations/External Contractor Management Regulations/System Development Regulations/Physical Security Management Regulations/Network Management Regulations/Incident Response Manual (including recovery procedures)/Security Education Guidelines/Security Drill and Training Guidelines, etc."
+        "Examples of regulations and manuals:",
+        "Information Asset Management Regulations",
+        "Risk Assessment Regulations",
+        "Risk Assessment Manual",
+        "Vulnerability Management Regulations (including content related to diagnosis and testing)",
+        "Authentication and Access Management Regulations",
+        "Data Management Regulations",
+        "Log Management Regulations",
+        "External Contractor Management Regulations",
+        "System Development Regulations",
+        "Physical Security Management Regulations",
+        "Network Management Regulations",
+        "Incident Response Manual (including recovery procedures)",
+        "Security Education Guidelines",
+        "Security Drill and Training Guidelines",
+        "Etc."
       ],
       "insufficient_measures_risks": "Security-related workflows and processes may operate ineffectively, leaving vulnerabilities unaddressed, potentially leading to exploits and actual impact from cyberattacks."
     },
@@ -146,11 +161,52 @@
       "insufficient_measures_risks": "Security risk response plans may not be executed reliably, leading to omissions in countermeasures. Implementation status of security measures and any unaddressed risks cannot be tracked comprehensively; as a result, optimal security measures can no longer be implemented."
     },
     {
+      "control_id": "02-3",
+      "source_version": "2026-01-01",
+      "category": "02",
+      "category_name": null,
+      "title": "Leveraging threat intelligence",
+      "overview": "Collect and analyze cybersecurity information feed and intelligence that supports overall security strategy, security operations, threat detection & response; engage and communicate with stakeholders and concerned parties",
+      "status_description": "This protocol, as well as the processes for collecting, processing, analyzing, and sharing information, is regularly reviewed",
+      "recommended_actions": [
+        "Establish an overall policy or guiding protocol for the use and leveraging of threat intelligence",
+        "Identify the purpose of use and the types of information to be collected; define the overall process to be followed in collection, processing, and analysis of this information",
+        "Gather information on emerging threats, alerts, and vulnerabilities from government (or similarly official) sources and security portals",
+        "Gather information about cyberattacks (tactics, techniques, procedures, i.e. TTPs) from other organizations via information-sharing forums or communities",
+        "Collect logs and alert data from internal security equipment and measures (e.g., firewalls, WAFs, EDRs)",
+        "Utilize external resources such as OSINT tools and threat intelligence services",
+        "Collect, process, and analyze information according to defined policies and/or protocols, and share with relevant parties as necessary",
+        "Analyze collected information to identify potential attack surfaces and determine the need for countermeasures",
+        "When conducting cyberattack simulations, use methods employed by threat actors",
+        "Use IoC information (e.g., malicious IP addresses, domains) to support prevention, detection, and response to incidents",
+        "Providing incident information such as malware infection to public institutions and information sharing forums",
+        "Regularly review the process or protocol of collecting, processing, analyzing, and sharing/communication of information"
+      ],
+      "insufficient_measures_risks": "The organization may not recognize how its security posture and countermeasures fall short of the prevailing trends in cyber threats; which could result in exploits and actual impact from cyberattacks. Leveraging the knowledge and know-how based on analyses of attack patterns etc. already conducted by other companies can help prevent or control time, cost, and effort in duplicate efforts within your organization."
+    },
+    {
+      "control_id": "02-4",
+      "source_version": "2026-01-01",
+      "category": "02",
+      "category_name": null,
+      "title": "Establishing protocol for proper disclosure and communication of cybersecurity- and information security-related information",
+      "overview": "Define the stakeholder who should be disclosed a management policy and status of measure against information security risk, and disclose it with an appropriate method",
+      "status_description": "Content to be disclosed is periodically reviewed",
+      "recommended_actions": [
+        "Voluntarily disclose or share information about security measures, based on predetermined standards regarding (a) the extent or scope of such disclosure, and with (b) who this information should be made available to",
+        "Sharing/disclosure should occur in a way that makes the information accessible to the recipient",
+        "Disclose the status of response initiatives with respect to security risk factors harmful to the achievement of your organization's mission and goals",
+        "If necessary, describe the status of security risk initiatives in information security reports, CSR reports, sustainability reports, securities reports, etc.",
+        "Review disclosed content as changes in policies and countermeasures occur"
+      ],
+      "insufficient_measures_risks": "Insufficient or inappropriate (or both) disclosure of your organization's handling of cybersecurity risks may lead to a loss of trust from stakeholders in your organization, from the standpoint of responsibility and accountability to the society at large. Your organization's corporate value can significantly decline during incidents."
+    },
+    {
       "control_id": "03-1",
       "source_version": "2026-01-01",
       "category": "03",
       "category_name": null,
-      "title": "Enforcing cybersecurity- and information security-controls across all group companies",
+      "title": "Enforcing cybersecurity- and information security controls across all group companies",
       "overview": "Understand the security posture and current state of cybersecurity and information security measures across all group companies, including subsidiaries and affiliated entities; implement countermeasures shared or enforced groupwide",
       "status_description": "Regularly grasped the status of the security measures of the entire group and measures",
       "recommended_actions": [
@@ -180,10 +236,10 @@
         "Review the occurrence of past incidents and how the third party responded, recovered, and implemented recurrence prevention",
         "Use tools such as third-party assessments or security rating services to establish an objective evaluation of risks",
         "Evaluate, for important third parties, their security governance, incident response planning, and contingency planning",
-        "Regularly review these cybersecurity-/information security-criteria, and the means and methods of evaluation",
-        "*Third parties: Business partners, contractors, etc."
+        "Criteria of Regularly reviewed\u00a0(In addition to criteria of Conducted)",
+        "Regularly review these cybersecurity-/information security-criteria, and the means and methods of evaluation"
       ],
-      "insufficient_measures_risks": "Unidentified security vulnerabilities present within the engaged third party may result in cascading impact on your Organization if exploited in a cyberattack; impacts may include: leaks of the Organization's information entrusted to the third party, business disruption arising from dependencies on the third party, and the resulting reputational damage."
+      "insufficient_measures_risks": "The Organization may not recognize how its security posture and countermeasures fall short of the prevailing trends in cyber threats; which could result in exploits and actual impact from cyberattacks. Leveraging the knowledge and know-how based on analyses of attack patterns etc. already conducted by other companies can help prevent or control time, cost, and effort in duplicate efforts within your organization."
     },
     {
       "control_id": "03-3",
@@ -197,14 +253,12 @@
         "Identify and clarify cybersecurity-/information security-related responsibilities and requirements for both your Organization and the contracting third party",
         "Specify third-party security responsibilities, roles, and requirements in contracts or specifications",
         "Request response and reporting of any serious vulnerabilities discovered during the term of the contract",
-        "Request cooperation in developing response and recovery plans and advance preparations (eg, response drills) in the event of an incident",
+        "Request cooperation in developing response and recovery plans and advance preparations (e.g., response drills) in the event of an incident",
         "Request a software bill of materials (SBOM) if a critical product or service vendor maintains a SBOM",
-        "Establish provisions for activities that occur after the conclusion of service agreement (eg, return of information and submission of disposal certificate, revocation of access privileges, etc)",
-        "Request evidence (eg, self-attestation, conformance to known standards, certifications, or inspections, etc) of performing acceptable security practices",
-        "[NEW]\u00a0Establish a contractual right to request audits, and contractual provisions to establish penalties for false disclosures and responses to audit queries",
-        "Regularly review the contents of the contract, such as during periodic update or review",
-        "*Third parties: Business partners, contractors, etc.",
-        "[NEW] indicates (a) new best practice(s) added September 26, 2025"
+        "Establish provisions for activities that occur after the conclusion of service agreement (e.g., return of information and submission of disposal certificate, revocation of access privileges, etc.)",
+        "Request evidence (e.g., self-attestation, conformance to known standards, certifications, or inspections, etc.) of performing acceptable security practices",
+        "Establish a contractual right to request audits, and contractual provisions to establish penalties for false disclosures and responses to audit queries",
+        "Regularly review the contents of the contract, such as during periodic update or review"
       ],
       "insufficient_measures_risks": "Ambiguous division of incident response roles and responsibilities may cause delayed or insufficient response, or both."
     },
@@ -281,7 +335,7 @@
       "recommended_actions": [
         "Policy direction or specific policies addressing education and training for all employees and workers is established",
         "State and/or establish a code of conduct for employees addressing expectation about knowledge and learning, and clarify timelines to execute the learning plan containing relevant training and learning sessions",
-        "[NEW]\u00a0Specify conditions that trigger training requirements, such as onboarding or role changes",
+        "Specify conditions that trigger training requirements, such as onboarding or role changes",
         "Provide education and training to employees on topics in cybersecurity/information-security, following the established policy or the roadmap",
         "Often, and on an ongoing basis, share information on the status of occurrence of incidents with employees in order to raise awareness",
         "Prepare specific and easy-to-remember content, such as using the terms of your system or documents",
@@ -297,8 +351,7 @@
         "Conduct tests using e-learning (online learning management platforms) and other methods to measure employee understanding of security",
         "Arrange for feedback of education/training results to trained individuals",
         "Review instructional content and the curriculum of education/training at least annually against new trends in technology and cyber threats",
-        "Develop and improve the quality of human resource (including from a security standpoint) who can implement necessary and sufficient security measures in the execution of their work",
-        "[NEW] indicates (a) new best practice(s) added September 26, 2025"
+        "Develop and improve the quality of human resource (including from a security standpoint) who can implement necessary and sufficient security measures in the execution of their work"
       ],
       "insufficient_measures_risks": "The following incidents are likely to occur due to insufficient awareness and skill of officers and employees regarding security. Malware infection from suspicious mails and malicious sites. Internal fraud by retirees and managers (bringing out or sending out of information from company environment, in an unauthorized manner etc.). Information leak due to erroneous transmission of mail."
     },
@@ -311,13 +364,13 @@
       "overview": "Training emails that simulate cyber-attacks are sent to executives and employees to assess their ability to respond to cyber-attacks, and countermeasures are implemented based on the results of the training",
       "status_description": "The training content is reviewed regularly",
       "recommended_actions": [
-        "Distribute simulated trainings, such as targeted phishing emails (spear phishing etc) and fraudulent business email to employees and assess employee preparedness against these attacks",
+        "Distribute simulated training, such as targeted phishing emails (spear phishing etc) and fraudulent business email to employees and assess employee preparedness against these attacks",
         "Consider and implement necessary measures, based on the results of the simulation",
-        "Implement remedial or supplementary trainings for users who ended up opening the simulated emails and clicked on attachments and URLs",
+        "Implement remedial or supplementary training for users who ended up opening the simulated emails and clicked on attachments and URLs",
         "Consider implementing technical measures such as file extension-based restrictions on attachments and sender domain spoofing countermeasures",
         "Establish a system for reporting and sharing suspicious e-mails",
         "Review the training content and conduct it regularly",
-        "Update the simulated exercises based on research and understanding of latest phishing trends; eg, fine tune the subject line, sender's email address, sender domain etc"
+        "Update the simulated exercises based on research and understanding of latest phishing trends; e.g., fine tune the subject line, sender's email address, sender domain etc"
       ],
       "insufficient_measures_risks": "Awareness and ability to detect phishing attacks among executives and employees, such as targeted emails (spear phishing, whaling) does not improve, resulting in diminished ability to suppress or eliminate incidents such as malware infection due to opening phishing emails."
     },
@@ -369,14 +422,12 @@
         "Implement clear desk/clear screen policies",
         "Enforce screen lock when leaving one's seat",
         "Wire lock devices (such as portable ones), and put storage locations of terminals under lock and key to prevent loss or theft",
-        "[NEW]\u00a0Introduce MDM to enable remote data wipe on corporate smartphones or tablets if lost or stolen during their use outside the Organization",
+        "Introduce MDM to enable remote data wipe on corporate smartphones or tablets if lost or stolen during their use outside the Organization",
         "Ensure that devices are managed according to rules",
         "Patrol workspaces to visually check implementation status",
         "Use admin distributed settings or similar measures, configure all devices with configuration settings to enforce automatic screen lock after a period of inactivity",
         "Ensure that users notice when communication devices, such as cameras and microphones, are in use, so that they can detect and prevent unauthorized remote operation (by external malicious actors who may have hijacked the devices, etc.)",
-        "Regularly review rules and solutions, considering changes in the internal working environment (such as permitting remote work or working from home (WFH), working style reforms in the society as a whole), as well as external environment (such as trends in cyber-attacks)",
-        "*Endpoints: PCs, smartphones, tablets, etc.",
-        "[NEW] indicates (a) new best practice(s) added September 26, 2025"
+        "Regularly review rules and solutions, considering changes in the internal working environment (such as permitting remote work or working from home (WFH), working style reforms in the society as a whole), as well as external environment (such as trends in cyber-attacks)"
       ],
       "insufficient_measures_risks": "Unauthorized users may access information at an endpoint while the owner is away from the office, causing information leakage or unauthorized operations."
     },
@@ -455,8 +506,7 @@
         "Verify that unauthorized software is not installed",
         "For software not supported by its vendor, record and manage it as an exception",
         "Determine which browsers, mail clients, and versions are permitted to use",
-        "Update information about software assets periodically or when there is a change to its information, ensuring that this information is always up to date",
-        "*Software assets: Operating systems, applications, etc. for PCs, smartphones, and tablets."
+        "Update information about software assets periodically or when there is a change to its information, ensuring that this information is always up to date"
       ],
       "insufficient_measures_risks": "Vulnerabilities in software installed in your organization environment may not be detected and may be left vulnerable to malware or other threats. Unauthorized use of software, if undetected, cannot be remedied, possibly inviting criminal penalties due to copyright infringement etc. or claims for damages."
     },
@@ -537,8 +587,7 @@
         "Define and configure the DNS servers your enterprise uses",
         "Distribute secure checklist of standard settings and perform uniform kitting with standard settings (i.e. to a standard configuration set up)",
         "Verify that secure setting is maintained over time",
-        "Regularly review secure settings of all devices and equipment, in line with the latest technological trends and convenience",
-        "*Endpoints: PCs, smartphones, tablets, etc."
+        "Regularly review secure settings of all devices and equipment, in line with the latest technological trends and convenience"
       ],
       "insufficient_measures_risks": "If the security configuration of devices is not standardized and vulnerable configurations remain, there is a risk of unauthorized access and malware infection."
     },
@@ -638,10 +687,10 @@
         "Issue accounts in line with security requirement level (privileged access, high-level access, general access, etc)",
         "Abolish use of shared ID as much as possible and manage all access through individual accounts (ie accounts per individual)",
         "Set an expiration date for all issued accounts, at the time of issuing",
-        "In order to uniquely identify the user, reuse of the same ID is restricted for a certain period after the account ID is destroyed",
+        "To uniquely identify the user, reuse of the same ID is restricted for a certain period after the account ID is destroyed",
         "Promptly delete or disable accounts following the user's (employee, etc.) HR transfer (e.g., of roles/departments etc.) or separation (resignation, termination, etc.), such as over a sync with the connected HRM, or other source of truth",
-        "Automatically disable or remove accounts that are not used for a period of time",
-        "To maintain an audit trail, when deleting an account, deactivate the account for a period of time before fully deleting the account",
+        "Automatically disable or remove accounts that are not used for a period",
+        "To maintain an audit trail, when deleting an account, deactivate the account for a period before fully deleting the account",
         "Maintain a list of user accounts and periodically perform inventory of accounts",
         "Conduct account inventory regularly (at least once every quarter)"
       ],
@@ -659,7 +708,7 @@
         "Authenticate users when accessing systems",
         "Notify the administrator when an account with \"general\" level access fails login multiple times, or automatically lock the account",
         "Notify the administrator when the login of the administrator account fails, and automatically lock the account when it fails multiple times",
-        "During password authentication, mask the entered password with asterisks, etc",
+        "During password authentication, mask the entered password with asterisks, etc.",
         "Choose an authentication method appropriate for the security risk associated with a business activity or type of business operation related to that system (eg implementation of biometric authentication, multifactor authentication)",
         "Understand and track the authentication system used for each system",
         "Restrict authentication systems to as few as possible by integrating and centralizing authentication and managing all account access level settings (eg by way of Active Directory implementation)",
@@ -682,7 +731,7 @@
         "Allow or restrict access to each piece of information and to each system, matching with the access privilege",
         "Establish access control policies and allocation processes based on the principle of least privilege (PoLP) and separation of duties (SoD), also called segregation of duties",
         "Ensure that access privileges of employees' accounts are updated immediately in response to events such as separation (termination) of employment relationship or transfer, such as by integrating with the HR database or people administration system; employment events could include all workers in general, and transfer could include transfer of roles, teams, or other human resource transfer",
-        "Regularly conduct inventory and review of access privilege (ie periodic audit)",
+        "Regularly conduct inventory and review of access privilege (i.e. periodic audit)",
         "Conduct an inventory of access privileges regularly (at least once every quarter)"
       ],
       "insufficient_measures_risks": "Accounts not intended to access that information may be able to access it, or accounts dormant or unused for a long time or obsolete accounts may continue to access accounts, potentially leading to information leaks."
@@ -702,7 +751,7 @@
         "Always change default password present in new systems (\"factory reset\" versions of password must be changed before putting in use)",
         "Disallow the use of the same password for some iterations of password changes (password history)",
         "Use a different password for each system",
-        "Require a password whose strength is in accordance with the security requirement level (privileged access, high-level access, general access, etc)",
+        "Require a password whose strength is in accordance with the security requirement level (privileged access, high-level access, general access, etc.)",
         "Set the password strength higher if multi-factor authentication is not available for highly privileged accounts, such as administrator accounts",
         "Systematically controlled in accordance with an established policy, or the policy is thoroughly complied with",
         "Regularly review password policies"
@@ -740,7 +789,7 @@
         "Issue individual accounts (ie accounts provisioned to a person or access assigned to individual user accounts, versus a group address or shared permissions) for privileged access to operators who perform privileged work",
         "Enforce multi-factor authentication for privileged accounts",
         "Issue accounts for privileged access through the application/approval process, and store and manage record of this issue",
-        "Manage privileged accounts in list/ledger/central database etc",
+        "Manage privileged accounts in list/ledger/central database etc.",
         "Clarify how user roles are defined for each business application",
         "Confirm that accounts with privileged are properly managed and regularly review the application/approval process",
         "Regularly review privileged account assignments"
@@ -782,15 +831,14 @@
         "Identify and list the communication data (ie data in transit) that should be encrypted, and establish policies such as encryption procedure",
         "Only use encryption methods (algorithms, protocols etc) that have been verified and certified for use in encryption of data in transit",
         "Encrypt data communication and network traffic in accordance with defined policies",
-        "[NEW] Encrypt data when sending externally via email or cloud storage",
-        "[NEW] Encrypt communication for publicly exposed systems (e.g., by enforcing HTTPS)",
+        "Encrypt data when sending externally via email or cloud storage",
+        "Encrypt communication for publicly exposed systems (e.g., by enforcing HTTPS)",
         "Encrypt account names and authentication information when sent over a network",
-        "[NEW] Encrypt communication in remote access connections",
+        "Encrypt communication in remote access connections",
         "Encrypt confidential information or backup files when transferring or forwarding",
         "Use encrypted communication for all control communication, such as communication for network device management",
         "Encrypt wireless communication with AES etc",
-        "Regularly check if an encryption algorithm in use is reported as compromised",
-        "[NEW] indicates (a) new best practice(s) added September 26, 2025"
+        "Regularly check if an encryption algorithm in use is reported as compromised"
       ],
       "insufficient_measures_risks": "There is a risk of cyber-attacks, such as eavesdropping on and tampering with communications."
     },
@@ -871,9 +919,9 @@
       "overview": "Implement products to acquire endpoint logs, to actively detect threats, to visualize suspicious behavior and respond in real time when malware infection occurs (e.g. EDR solution)",
       "status_description": "The details and methodology of the response are reviewed on a regular basis",
       "recommended_actions": [
-        "Implement logging at endpoints with a granularity and level of detail sufficient for tracking malicious programs, when a malware infection is detected and must be tracked (examples of actions to be logged: read or write out (print) operations on files, operations on the OS registry, processes started, access to networks etc)",
-        "Obtain command-line audit logs (such as PowerShell \u00ae or BASH\u2122) for the device, equipment, or other machines applicable",
-        "Implement mechanisms to prevent or preempt operations by malware (malicious or unauthorized communication, unauthorized encrypted communication, executing malicious programs, etc)",
+        "Implement logging at endpoints with a granularity and level of detail sufficient for tracking malicious programs, when a malware infection is detected and must be tracked (examples of actions to be logged: read or write out (print) operations on files, operations on the OS registry, processes started, access to networks etc.)",
+        "Obtain command-line audit logs (such as PowerShell or BASH) for the device, equipment, or other machines applicable",
+        "Implement mechanisms to prevent or preempt operations by malware (malicious or unauthorized communication, unauthorized encrypted communication, executing malicious programs, etc.)",
         "Implement mechanisms to automatically restore the machine and its state to their proper state, such as by deleting unauthorized programs)",
         "Regularly simulate logging status, and timely and swift response to malware infection on devices"
       ],
@@ -1336,13 +1384,13 @@
         "Enforce secure design principles, such as adhering to the principle of least privilege (PoLP) and ensuring that user input is validated",
         "For each system, evaluate the business impact of system downtime in the event of a failure, and implement load balancing and redundancy in implementations to achieve the length of the acceptable downtime",
         "Confidential information stored in reusable resources, such as memory, disk, or their caches, should be erased immediately when no longer needed",
-        "[NEW] Identify metrics to be monitored, such as CPU usage, and configure appropriate alerts",
+        "Identify metrics to be monitored, such as CPU usage, and configure appropriate alerts",
         "Design a system, with due consideration to information security, following the viewpoints and methodology identified in the above organization stage",
         "Conduct security reviews at the system design stage, and issue instructions for improvements, as needed, such as refinement or a review of the design, considering alternatives to meet security requirements, tentative or permanent countermeasure as necessary",
         "When issuing requests for improvements stated above, reassess and confirm its implementation",
-        "[NEW] Create system architecture diagrams to visualize communication and data flows",
+        "Create system architecture diagrams to visualize communication and data flows",
         "Regularly review the information security and cybersecurity aspects when designing information systems",
-        "[NEW] Regularly update system architecture diagrams"
+        "Regularly update system architecture diagrams"
       ],
       "insufficient_measures_risks": "Inappropriate or insufficient consideration to information security during the design stage may result in repetitive steps or \"loopbacks\" to previous stages in the process, resulting in additional costs, and potentially resulting in unprofitable development and operations."
     },
@@ -1356,18 +1404,18 @@
       "status_description": "The security perspectives for system installation and test are reviewed regularly",
       "recommended_actions": [
         "Understand and formalize cybersecurity considerations to be checked at the system implementation and testing phases",
-        "[NEW] Remove/disable unneeded configurations or settings in infrastructure or the source code based on the principle of least privilege",
+        "Remove/disable unneeded configurations or settings in infrastructure or the source code based on the principle of least privilege",
         "Educate developers on secure coding guidelines",
         "Restrict access to infrastructure and source code",
         "Use only latest, reliable external components in development, following due approval of their use by a specialist department or team",
-        "[NEW] Use code signing and similar techniques to detect unauthorized changes to external components",
+        "Use code signing and similar techniques to detect unauthorized changes to external components",
         "Implement a function to validate input from the user in terms of data size, type, format, etc",
         "Ensure your organization's data is protected from access by other users or their processes when sharing the same platform (so called, \"multitenant platforms\")",
-        "[NEW] Prevent release mistakes or unwanted changes by building CI/CD pipelines",
+        "Prevent release mistakes or unwanted changes by building CI/CD pipelines",
         "Implement and test the system in line with these formalized information security/cybersecurity considerations",
-        "Physically or virtually isolate system environment (production environment and development / test environment, etc) according to the required security level",
+        "Physically or virtually isolate system environment (production environment and development / test environment, etc.) according to the required security level",
         "Create and select test data to meet test requirements",
-        "In principle, production data should not be used as test data If used, confidential data should be hid, using techniques such as data masking",
+        "In principle, production data should not be used as test data If used, confidential data should be hidden, using techniques such as data masking",
         "Use SAST/DAST (static/dynamic application security testing tool) to ensure that your system adheres to secure coding guidelines",
         "Regularly review the security considerations during the system implementation and testing"
       ],
@@ -1390,7 +1438,7 @@
         "Ensure that version support has not expired for all software acquired from outside the organization",
         "If unsupported (beyond EoL - End of Life) software must be used for some reason, identify risks, implement additional measures such as isolation from external networks, and manage renewal and retirement plans",
         "Physically or logically separate the interface between administrator functions and normal user functions",
-        "[NEW] Restrict export of (or otherwise bringing out of) confidential information using technology-based controls, and require approval whenever such export etc. is needed",
+        "Restrict export of (or otherwise bringing out of) confidential information using technology-based controls, and require approval whenever such export etc. is needed",
         "Operate and maintain the system according to the formalized security considerations",
         "Confirm that the system is operated and maintained with security in mind, including when outsourcing",
         "Manage tools, methods and personnel used to perform system maintenance",
@@ -1415,16 +1463,16 @@
       "recommended_actions": [
         "Perform at least one scan using scanning tools etc., to check for vulnerabilities in systems, infrastructure, or applications and execute response or remediation as required",
         "Use a dedicated account, IP address, and machine for vulnerability scanning",
-        "[NEW] Check for vulnerabilities in source code, such as by using means like SAST",
-        "[NEW] Check for web application vulnerabilities, such as by using means like DAST and web application scanners",
-        "[NEW] Check for vulnerabilities in external libraries, such as by using means like SCA",
-        "[NEW] Use network scanning to confirm that there are no open ports or permitted and/or services with no valid requirement",
+        "Check for vulnerabilities in source code, such as by using means like SAST",
+        "Check for web application vulnerabilities, such as by using means like DAST and web application scanners",
+        "Check for vulnerabilities in external libraries, such as by using means like SCA",
+        "Use network scanning to confirm that there are no open ports or permitted and/or services with no valid requirement",
         "Test for whether communication is possible across network boundaries",
-        "[NEW] Use scanning tools to detect misconfigurations or vulnerabilities in cloud environments or containers",
-        "[NEW] Conduct source code review following discovery or reports of critical or especially notable vulnerabilities, and evaluate the need for specific response",
+        "Use scanning tools to detect misconfigurations or vulnerabilities in cloud environments or containers",
+        "Conduct source code review following discovery or reports of critical or especially notable vulnerabilities, and evaluate the need for specific response",
         "Always conduct scans and code reviews by other developers before each release",
         "Conduct scans at least annually to identify and address vulnerabilities",
-        "[NEW] Perform scans following discovery or reports of vulnerabilities"
+        "Perform scans following discovery or reports of vulnerabilities"
       ],
       "insufficient_measures_risks": "Vulnerabilities could persist within the system, and they can be exploited to gain unauthorized access from outside."
     },
@@ -1439,8 +1487,8 @@
       "recommended_actions": [
         "Identify important systems that require continuity and fast recovery in the event of an incident or disaster, and assign priority gradations (level) to their recovery",
         "Identify important systems essential to core business functions",
-        "[NEW] Define the maximum tolerable downtime (MTD) for systems",
-        "[NEW] Define recovery point objectives (RPO) and recovery time objectives (RTO) for systems",
+        "Define the maximum tolerable downtime (MTD) for systems",
+        "Define recovery point objectives (RPO) and recovery time objectives (RTO) for systems",
         "Prepare appropriately, such as creating response guidelines or manuals for procedures to be performed in the event of an accident or disaster, and maintaining list of contacts",
         "Establish a response / recovery plan at the time of accident or disaster",
         "Define criteria for triggering the plan",
@@ -1501,7 +1549,7 @@
         "Confirm that information security continuity, redundancy, and availability are maintained even in the event of system overload or cyber attacks",
         "Obtain executive approval for the recovery and improvement policy, and communicate to concerned parties and stakeholders",
         "Define roles for specialized response teams; define responsibilities of administrators (system admins, network admins, etc.)",
-        "Communicate the recovery and improvement policy to internal and external stakeholders and ensure understand of roles and reporting flows",
+        "Communicate the recovery and improvement policy to internal and external stakeholders and ensure understanding of roles and reporting flows",
         "Review the recovery and improvement policy periodically; conduct reviews against challenges, issues, and lessons learned that are identified as part of executing the recovery and improvement policy"
       ],
       "insufficient_measures_risks": "In the absence of a predefined response policy, it is systemic or organized response to incidents is not possible anymore. Ad hoc responses to incidents diminish or eliminates the ability to circle back learnings from incident response and improve future incident response."
@@ -1517,10 +1565,10 @@
       "recommended_actions": [
         "Establish specific response procedures for assessing incident impact, initial response, tentative response, permanent response, and preventive measures",
         "The established response procedure is approved by the site supervisor and upper management, and it is communicated to all concerned parties (in the wide sense of RACI parties)",
-        "To quickly conduct forensic investigations, acquire detailed log and system information in real time using EDR etc in cooperation with analysts",
+        "To quickly conduct forensic investigations, acquire detailed log and system information in real time using EDR etc. in cooperation with analysts",
         "Protect the data collected during forensic investigations from tampering, forging, modification or unauthorized access to ensure it can be used for analysis and as evidence",
         "Procedures that can be automated should be, and a combination of automatic and manual response is used to quickly respond to incidents",
-        "Create a procedure corresponding to each incident type (eg fraud, malware, internal fraud, etc) is created",
+        "Create a procedure corresponding to each incident type (e.g. fraud, malware, internal fraud, etc.) is created",
         "Review the response procedure regularly",
         "Perform a review of the incident after each occurrence, and use results from it to review procedures and implement security measures"
       ],
@@ -1552,7 +1600,7 @@
       "overview": "Training or simulations involving the incident response team",
       "status_description": "Training contents are reviewed and training is conducted regularly",
       "recommended_actions": [
-        "[NEW] Conduct reviews involving the incident response teams, of response procedures to be deployed for each risk scenario to identify areas for improvement; risk scenarios may include malware infection using spear phishing tactics, defacement of websites following access breach",
+        "Conduct reviews involving the incident response teams, of response procedures to be deployed for each risk scenario to identify areas for improvement; risk scenarios may include malware infection using spear phishing tactics, defacement of websites following access breach",
         "Conduct incident response training for the incident response team and document the training content",
         "Conduct tabletop or live training for incident response for each risk scenario",
         "Prepare a training environment as needed to minimize the impact on operations",
@@ -1570,7 +1618,7 @@
       "overview": "Conduct incident response training not only for the incident response team but also for all relevant departments and officers and employees",
       "status_description": "Training contents are reviewed and training is conducted regularly",
       "recommended_actions": [
-        "[NEW] Conduct reviews that comprise participants across teams, functions, and departments (i.e. cross-functional reviews, not just limited to the incident response teams), and that also involve the organization's senior roles of response procedures for each risk scenario and identify areas for improvement; risk scenarios may include: malware infection using spear phishing tactics, defacement of websites following access breach",
+        "Conduct reviews that comprise participants across teams, functions, and departments (i.e. cross-functional reviews, not just limited to the incident response teams), and that also involve the organization's senior roles of response procedures for each risk scenario and identify areas for improvement; risk scenarios may include: malware infection using spear phishing tactics, defacement of websites following access breach",
         "Conduct incident response training for internal departments and staff in addition to the incident response team, and document the training content",
         "Conduct tabletop exercises or live/hands-on trainings for incident response for each risk scenario",
         "Prepare a training environment as needed to minimize the impact on operations",

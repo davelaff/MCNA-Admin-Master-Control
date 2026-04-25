@@ -28,7 +28,7 @@ def test_get_token_uses_cache_when_available(tmp_path, mocker):
     mock_app.acquire_token_silent.assert_called_once()
     mock_app.initiate_device_flow.assert_not_called()
 
-def test_get_token_triggers_device_flow_when_no_cache(tmp_path, mocker):
+def test_get_token_raises_reauth_instruction_when_no_cache(tmp_path, mocker):
     env_path = tmp_path / "test.env"
     env_path.write_text(ENV_CONTENT)
 
@@ -42,12 +42,13 @@ def test_get_token_triggers_device_flow_when_no_cache(tmp_path, mocker):
     mocker.patch("msal.PublicClientApplication", return_value=mock_app)
 
     from auth import get_token
-    token = get_token()
+    with pytest.raises(RuntimeError, match="refresh_auth.py"):
+        get_token()
 
-    assert token == "new-token"
     mock_app.initiate_device_flow.assert_called_once()
+    mock_app.acquire_token_by_device_flow.assert_not_called()
 
-def test_get_token_raises_on_auth_failure(tmp_path, mocker):
+def test_get_token_raises_reauth_instruction_before_inline_auth_failure(tmp_path, mocker):
     env_path = tmp_path / "test.env"
     env_path.write_text(ENV_CONTENT)
 
@@ -64,8 +65,9 @@ def test_get_token_raises_on_auth_failure(tmp_path, mocker):
     mocker.patch("msal.PublicClientApplication", return_value=mock_app)
 
     from auth import get_token
-    with pytest.raises(RuntimeError, match="Auth failed"):
+    with pytest.raises(RuntimeError, match="refresh_auth.py"):
         get_token()
+    mock_app.acquire_token_by_device_flow.assert_not_called()
 
 def test_get_token_requests_correct_scope_for_bap(tmp_path, mocker):
     env_path = tmp_path / "test.env"

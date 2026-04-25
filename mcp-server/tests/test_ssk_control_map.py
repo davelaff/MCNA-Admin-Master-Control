@@ -16,9 +16,23 @@ def _emitted_legacy_codes() -> set[str]:
     tools_dir = Path(__file__).resolve().parent.parent / "tools"
     pattern = re.compile(r'securesketch_control="([^"]+)"')
     emitted: set[str] = set()
-    for name in ("entra.py", "ca.py", "pp.py", "pim.py", "license.py", "sharing.py", "intune.py", "purview.py", "exo.py"):
+    for name in ("entra.py", "ca.py", "pp.py", "pim.py", "license.py", "sharing.py", "intune.py", "purview.py", "exo.py", "copilot.py"):
         emitted.update(pattern.findall((tools_dir / name).read_text(encoding="utf-8")))
     return emitted
+
+
+def _referenced_legacy_codes() -> set[str]:
+    tools_dir = Path(__file__).resolve().parent.parent / "tools"
+    patterns = (
+        re.compile(r'securesketch_control="([^"]+)"'),
+        re.compile(r'canonical_control_id\("([^"]+)"\)'),
+    )
+    referenced: set[str] = set()
+    for path in tools_dir.glob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        for pattern in patterns:
+            referenced.update(pattern.findall(text))
+    return referenced
 
 
 def test_every_emitted_legacy_code_is_present_in_alias_file(db):
@@ -35,7 +49,7 @@ def test_every_alias_resolves_to_imported_control_id(db):
 
 
 def test_all_aliases_match_emitted_legacy_codes():
-    assert set(all_aliases()) == _emitted_legacy_codes()
+    assert set(all_aliases()) == _referenced_legacy_codes()
 
 
 def test_unknown_control_id_passes_through_unchanged():

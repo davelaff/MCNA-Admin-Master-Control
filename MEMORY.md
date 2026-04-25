@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v24 | Updated: 2026-04-25
+Version: v27 | Updated: 2026-04-25
 
 ## Purpose of this file
 
@@ -20,8 +20,24 @@ After: `CONTEXT.md` governs architecture, `CLAUDE.md` governs operational behavi
 
 Read first. Everything below is reference; this is what to do next.
 
-**Where we left off (2026-04-25 session):**
-EXO false-positive bug fixed. `_is_external()` now returns False for any address without `@` — X.500/legacy Exchange DNs are internal routing artifacts. Walt Stark finding (ce25ed77) dismissed as false positive. Stale exo_scope_gap finding (d4038cd6, pre-app-token) dismissed. 19/19 EXO tests passing. Committed as `fix(exo)`.
+**Fresh-session handoff prompt (copy/paste if starting a new agent):**
+
+You are in `C:\Users\dlafferty.MCNA\OneDrive - NOF\DL OneDrive\OneDrive - NOF\Management Information Systems - Governance and Security Project 2026\MCNA-Admin-Master-Control`.
+
+Read `AGENTS.md`, `CONTEXT.md`, this `MEMORY.md`, `ROADMAP.md`, and `ARCHITECTURE.md`. Use `rtk` for terminal commands. This repo is OneDrive-synced governance content: no scratch files, no silent failures, append one line to `activity-log.md` for every produced artifact.
+
+Current state: Phase 3 is at 8 of 9 planned domains built. Remaining unbuilt domain is `mail.py`. Full test suite was verified 2026-04-25 with `rtk pytest --tb=short -q` from `mcp-server/`: 214 passed. Secure SketCH catalog was repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
+
+Default next task: build `mcp-server/tools/mail.py` as the Phase 3 notification/report-delivery agent. Keep v1 narrow and read-before-write in spirit: explicit `sendMail` only, no mailbox automation. Suggested scope:
+- `mail_send_summary(to, subject, body, cc=None, importance="normal", save_to_sent_items=True, dry_run=True)` using delegated admin-account Graph `/me/sendMail`.
+- `dry_run=True` by default; actual send requires `dry_run=False` and non-empty recipient, subject, and body.
+- Log every attempted send to KB `activity_log` with outcome `dry_run`, `sent`, or `failed`.
+- Return JSON with recipients, subject, dry_run, sent status, and Graph error detail if failed.
+- Tests first, following existing domain patterns. Register tool in `server.py` after implementation.
+
+Do not add broader mail read/write behavior unless Dave explicitly asks. Do not suggest EXO ApplicationImpersonation; it is deprecated. If Graph returns 401/403, stop and report it.
+
+If Dave wants remediation instead of `mail.py`, the strongest operational next move remains shared mailbox remediation planning: 30 High `shared_mailbox_interactive` findings, plus one likely-intentional bstraka SMS forwarding finding that needs acceptance/removal.
 
 **KB state (EXO domain, post-cleanup):**
 - 30 open High findings — `shared_mailbox_interactive` (shared mailboxes with interactive sign-in enabled → 08-1)
@@ -54,7 +70,8 @@ EXO false-positive bug fixed. `_is_external()` now returns False for any address
 1. **Shared mailbox remediation** — 30 High findings open. Decide: bulk disable via DIS, or triage each. Need to confirm which shared mailboxes are still active vs defunct before disabling accounts.
 2. **bstraka SMS forward** — 1 High finding. Confirm with Brian Straka whether intentional. If yes, document as accepted risk in KB. If no, remove the rule.
 3. **Run Purview live scans** — consent `InformationProtectionPolicy.Read.All` first or accept scope gap finding.
-4. **Expand evidence coverage** — add artifacts for `07-2`, `06-1`, `16-1`, then regenerate binders.
+4. **Build mail.py** — last unbuilt Phase 3 domain.
+5. **Expand evidence coverage** — add artifacts for `02-3`, `02-4`, `07-2`, `06-1`, `16-1`, then regenerate binders.
 
 **Default if no preference:** shared mailbox remediation planning (30 High findings, clearest next win).
 
@@ -116,7 +133,7 @@ Auth and docs:
 - `docs/superpowers/plans/` — implementation plans
 
 Build artifact:
-- `mcp-server/` — MCNA-AMC MCP Server (Phase 1+2 complete, Phase 3 in progress, 201 tests passing)
+- `mcp-server/` — MCNA-AMC MCP Server (Phase 1+2 complete, Phase 3 8/9 domains built, 214 tests passing)
 
 Reports (historical scan outputs, still valid reference):
 - `reports/app-reg-governance/` — 2026-04-17, 2026-04-20
@@ -247,7 +264,7 @@ Built:
 - Intune scopes now consented: `DeviceManagementManagedDevices.Read.All` + `DeviceManagementConfiguration.Read.All` (2026-04-23).
 - Purview needs `InformationProtectionPolicy.Read.All` — not yet in app reg.
 
-Next candidates (priority order): remediate 30 shared mailbox interactive-sign-in findings (confirm active vs defunct before disabling), document or accept bstraka SMS forward, then `purview`, `copilot`, `mail`.
+Next candidates (priority order): remediate 30 shared mailbox interactive-sign-in findings (confirm active vs defunct before disabling), document or accept bstraka SMS forward, run Purview live scans, then build `mail.py`.
 
 **Python environment:** Python 3.14.2, `mcp` 1.26.0, `python-docx` installed.
 
@@ -289,7 +306,7 @@ Existing (Phase 1) — five tables in `mcp-server/kb/mcna_amc.db`:
 
 Built (Phase 2) — 7 new tables + 1 new column:
 
-- **`ssk_controls`** — Secure SketCH catalog (73 controls after import)
+- **`ssk_controls`** — Secure SketCH catalog (75 controls after 2026-04-25 re-import)
 - **`ssk_controls_history`** — superseded control rows after re-import
 - **`ssk_categories`** — small lookup (category → name, ~10-20 rows)
 - **`ssk_recommended_actions`** — per-action checklist rows (flat, ~600 rows)
@@ -378,6 +395,9 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ---
 
 ## Change log
+- 2026-04-25 — v27 — Fresh-session handoff prompt rewritten for Phase 3 `mail.py` build. Includes current verification state, catalog repair state, and narrow v1 mail agent scope.
+- 2026-04-25 — v26 — Cleanup pass. Stale auth/SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 now 8/9 domains.
+- 2026-04-25 — v25 — Brain file sync. All 7 Phase 3 tools marked built. Test count corrected to 200/202 (2 stale auth tests). 02-3/02-4 catalog gap noted. Startup prompt updated with correct priority queue.
 - 2026-04-25 — v24 — EXO false-positive fix. `_is_external()` skips addresses without `@`. Walt Stark finding (ce25ed77) and stale exo_scope_gap (d4038cd6) dismissed. KB now clean: 30 real High shared-mailbox findings, 1 real High forwarding finding. 19/19 EXO tests pass.
 - 2026-04-25 — v23 — EXO first live scans. `get_app_token()` added to auth.py (cert/client-credentials). MailboxSettings.Read application consented 2026-04-24. exo_scan_mailboxes: 187 users, 30 shared mailboxes interactive (High). exo_scan_forwarding: 441 rules, 1 real external fwd (bstraka→SMS), 1 false positive (wstark X.500 legacy DN). Bug identified: `_is_external()` misclassifies X.500 addresses. Stale scope-gap finding needs dismissal.
 - 2026-04-23 — v22 — Auth/graph hardening. `auth.py` raises RuntimeError on expired cache instead of blocking on inline device code flow. `graph_batch()` added to graph.py. `refresh_auth.py` created as standalone re-auth script. Claude memory dir MEMORY.md rebuilt.
