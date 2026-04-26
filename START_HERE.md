@@ -51,10 +51,11 @@ As of 2026-04-26:
 - No tenant remediations are approved or executing.
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
-- Audit-defensible evidence coverage: 6 of 75 controls evidenced; 69 controls remain evidence gaps.
+- Audit-defensible evidence coverage: 12 of 75 controls evidenced; 63 controls remain evidence gaps.
 - Automated tool mapping coverage: 11 of 75 controls have mapped domain tools.
 - Latest matrix report: `reports/ssk-control-coverage/coverage-2026-04-26.md`.
 - Latest gap report: `reports/ssk-evidence-gaps/gaps-2026-04-26.md`.
+- Latest full audit binder: `reports/audit-binders/2026-04-26/`.
 - KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
 
 Implemented Phase 3 coverage:
