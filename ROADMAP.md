@@ -267,13 +267,25 @@ from Phase 4 write scopes. Needs design before build.
 
 ---
 
-### Phase 4 — Remediation planning and evidence closure
-**Goal:** Convert KB findings into approved, staged remediation plans with closure evidence. Tenant writes remain gated and are not automatic.
+### Phase 4 — Control coverage, evidence expansion, and remediation closure
+**Goal:** Prove control-by-control Secure SketCH coverage, expand real evidence pointers, and convert KB findings into approved remediation plans with closure evidence. Tenant writes remain gated and are not automatic.
 
-**Status (2026-04-25):** Approval/closure foundation built. First operational plan created for EXO shared mailbox interactive sign-in findings:
+**Status (2026-04-26):** Phase 4A-4B coverage/evidence foundation built. The current matrix classifies all 75 controls:
+6 evidenced, 69 gaps, 11 controls with mapped automated tools, and 64 controls currently manual/policy evidence required. Latest reports:
+`reports/ssk-control-coverage/coverage-2026-04-26.md` and
+`reports/ssk-evidence-gaps/gaps-2026-04-26.md`.
+
+The earlier approval/closure foundation also remains built. First operational plan exists for EXO shared mailbox interactive sign-in findings:
 `docs/operations/exo-shared-mailbox-remediation-plan.md`.
 
-No tenant remediations are approved or executing. The current mode is planning, validation, approval queueing, and evidence readiness.
+No tenant remediations are approved or executing. The current mode is evidence coverage, planning, validation, approval queueing, and closure readiness.
+
+**Phase 4A-4B built coverage/evidence layer:**
+- `ssk_control_coverage_snapshots` KB table for durable matrix runs
+- `mcp-server/tools/ssk_matrix.py` MCP tools for control matrix, gap report, coverage detail, and scan-evidence backfill
+- `ssk_coverage()` expanded to include Intune, Purview, EXO, and Copilot automated mappings
+- Audit-defensible coverage rule: only active, verified evidence pointers count as evidenced
+- No Copilot Cowork workbook write-back and no placeholder evidence rows
 
 **Built foundation:**
 - `remediation_plans`, `remediation_actions`, and `remediation_events` KB tables
@@ -291,7 +303,7 @@ No tenant remediations are approved or executing. The current mode is planning, 
 - Every write action produces an evidence row linked to the relevant control(s)
 
 **Current Phase 4 operating rule:**
-Manual or automated remediation can be planned, but execution requires Dave's explicit approval per batch. The EXO shared mailbox plan uses four batches: immediate shared/function mailboxes, remaining shared/function mailboxes, former-user validation, and device/automation validation.
+Manual or automated remediation can be planned, but execution requires Dave's explicit approval per batch. Evidence work must use real pointers only. The EXO shared mailbox plan uses four batches: immediate shared/function mailboxes, remaining shared/function mailboxes, former-user validation, and device/automation validation.
 
 ---
 
@@ -322,6 +334,7 @@ Manual or automated remediation can be planned, but execution requires Dave's ex
 ---
 
 ## Change log
+- 2026-04-26 — v4.1 — Phase 4A-4B coverage/evidence foundation built: all 75 controls classified, durable coverage snapshots added, evidence/gap reports generated, and automated coverage expanded to Intune/Purview/EXO/Copilot.
 - 2026-04-25 — v4.0 — Phase 4 approval/closure foundation built: remediation plans/actions/events, exported approval queues, and closure evidence linkage without tenant writes.
 - 2026-04-25 — v3.9 — Phase 3 marked complete at 9/9 planned work items and 219-test baseline. Phase 4 recast as remediation planning and evidence closure; EXO shared mailbox remediation plan added as first Phase 4 artifact.
 - 2026-04-25 — v3.8 — Cross-document alignment pass. Current-state docs now agree on low-token startup, 75-control catalog, 214-test baseline, Phase 3 work-item wording, EXO false-positive fix, and granted vs pending scopes.

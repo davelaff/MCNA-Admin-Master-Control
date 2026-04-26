@@ -61,10 +61,11 @@ mcp-server/
 │   ├── ssk.py, ssk_common.py, ssk_parser.py, ssk_loader.py
 │   ├── ssk_control_map.py, ssk_evidence.py, ssk_reviews.py
 │   ├── ssk_actions.py, ssk_registry.py, ssk_binder.py  # Phase 2 (built)
+│   ├── ssk_matrix.py                                  # Phase 4A-4B (built)
 │   ├── pim.py, license.py, sharing.py, intune.py        # Phase 3 (built)
 │   ├── exo.py, purview.py, copilot.py                  # Phase 3 (built)
-│   └── (planned: mail.py)                              # Phase 3 remaining
-├── tests/             # 214 tests (all passing)
+│   └── mail.py                                         # Phase 3 (built)
+├── tests/             # 247 tests (all passing)
 └── kb/
     ├── mcna_amc.db              # SQLite knowledge base (OneDrive-synced)
     ├── ssk_control_aliases.json # Alias map for control lookup
@@ -82,6 +83,12 @@ Phase 2 (built) — seven ssk_* tables + one new column: `ssk_controls`,
 `ssk_controls_history`, `ssk_categories`, `ssk_recommended_actions`,
 `ssk_control_status`, `ssk_evidence`, `ssk_reviews`, `ssk_registries`;
 `findings.closure_evidence_id` links resolved findings to closure evidence.
+
+Phase 4A-4B (built) — `ssk_control_coverage_snapshots` stores durable
+per-control matrix rows for each coverage run. `tools/ssk_matrix.py` produces
+the control matrix, evidence gap report, single-control detail, and real
+scan-run evidence backfill. Coverage is audit-defensible: only active,
+verified evidence pointers count as evidenced.
 
 ---
 
@@ -676,10 +683,10 @@ standalone scripts.
 
 ## Immediate Priorities
 
-1. Build `mcp-server/tools/mail.py` as the remaining narrow Phase 3 domain.
+1. Work the Secure SketCH evidence gaps from `reports/ssk-evidence-gaps/gaps-2026-04-26.md`.
 2. Remediate or document the 30 shared-mailbox interactive sign-in findings.
 3. Decide/document the bstraka SMS forwarding rule.
 4. Consent `InformationProtectionPolicy.Read.All` before a full Purview label
    scan, or accept the expected scope-gap finding.
-5. Expand Secure SketCH evidence coverage for `02-3`, `02-4`, `07-2`, `06-1`,
-   and `16-1`, then regenerate binders.
+5. Link real policy/manual evidence pointers for high-priority manual controls;
+   do not create placeholder evidence.

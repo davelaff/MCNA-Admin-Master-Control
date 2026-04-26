@@ -26,6 +26,10 @@ _AUTOMATED_MODULES = [
     "tools.pim",
     "tools.license",
     "tools.sharing",
+    "tools.intune",
+    "tools.purview",
+    "tools.exo",
+    "tools.copilot",
 ]
 
 
@@ -46,10 +50,11 @@ def _collect_automated_controls() -> dict[str, list[str]]:
             if key == "__tool__":
                 continue
             for cid in (cids or []):
-                if cid:
-                    covered.setdefault(cid, [])
-                    if mod_name not in covered[cid]:
-                        covered[cid].append(mod_name)
+                canonical = canonical_control_id(cid) if cid else None
+                if canonical:
+                    covered.setdefault(canonical, [])
+                    if mod_name not in covered[canonical]:
+                        covered[canonical].append(mod_name)
     return covered
 
 

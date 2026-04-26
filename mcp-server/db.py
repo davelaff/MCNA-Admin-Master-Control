@@ -156,6 +156,23 @@ CREATE TABLE IF NOT EXISTS ssk_registries (
 CREATE UNIQUE INDEX IF NOT EXISTS ix_ssk_registries_active_key
     ON ssk_registries(registry_name, entry_key)
     WHERE status = 'active';
+CREATE TABLE IF NOT EXISTS ssk_control_coverage_snapshots (
+    snapshot_id              TEXT PRIMARY KEY,
+    run_id                   TEXT NOT NULL,
+    control_id               TEXT NOT NULL,
+    audit_status             TEXT NOT NULL,
+    tooling_status           TEXT NOT NULL,
+    evidence_source_type     TEXT NOT NULL,
+    evidence_count           INTEGER NOT NULL,
+    open_finding_count       INTEGER NOT NULL,
+    missing_evidence_action  TEXT,
+    rationale                TEXT,
+    metadata                 TEXT,
+    created_at               TEXT NOT NULL,
+    FOREIGN KEY (control_id) REFERENCES ssk_controls(control_id)
+);
+CREATE INDEX IF NOT EXISTS ix_ssk_control_coverage_snapshots_run
+    ON ssk_control_coverage_snapshots(run_id, control_id);
 CREATE TABLE IF NOT EXISTS remediation_plans (
     plan_id         TEXT PRIMARY KEY,
     title           TEXT NOT NULL,

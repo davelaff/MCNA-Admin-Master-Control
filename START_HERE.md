@@ -41,15 +41,20 @@ Read these only on demand:
 
 ## Current State
 
-As of 2026-04-25:
+As of 2026-04-26:
 
 - Phase 3 is 9 of 9 planned work items built or partially implemented.
 - Final Phase 3 domain `mcp-server/tools/mail.py` is built and registered.
-- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 231 passed.
+- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 247 passed.
 - Phase 4 approval/closure foundation is built: remediation plans, actions, events, approval queue export, and closure evidence linkage.
+- Phase 4A-4B coverage/evidence foundation is built: control matrix, evidence gap report, scan-evidence backfill tool, and durable coverage snapshots.
 - No tenant remediations are approved or executing.
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
+- Audit-defensible evidence coverage: 6 of 75 controls evidenced; 69 controls remain evidence gaps.
+- Automated tool mapping coverage: 11 of 75 controls have mapped domain tools.
+- Latest matrix report: `reports/ssk-control-coverage/coverage-2026-04-26.md`.
+- Latest gap report: `reports/ssk-evidence-gaps/gaps-2026-04-26.md`.
 - KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
 
 Implemented Phase 3 coverage:
@@ -83,10 +88,10 @@ Implemented Phase 3 coverage:
 If Dave gives no specific task, recommend one of these before changing files:
 
 1. Review/approve or reject Batch 1 rows in the EXO shared mailbox approval queue; do not execute tenant changes without explicit approval.
-2. bstraka SMS forwarding decision: accept/document risk or remove rule.
-3. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
-4. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
-5. Expand Secure SketCH evidence coverage for `02-3`, `02-4`, `07-2`, `06-1`, and `16-1`.
+2. Work the Secure SketCH evidence gaps from `reports/ssk-evidence-gaps/gaps-2026-04-26.md`; do not create placeholder evidence.
+3. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
+4. Decide/document the bstraka SMS forwarding rule.
+5. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
 
 ## Brain Update Check
 

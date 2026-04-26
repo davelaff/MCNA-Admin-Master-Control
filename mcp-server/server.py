@@ -35,6 +35,12 @@ from tools.ssk_reviews import ssk_record_review, ssk_review_history, ssk_alerts,
 from tools.ssk_actions import ssk_mark_action, ssk_action_queue
 from tools.ssk_registry import registry_add, registry_list, registry_get, registry_retire
 from tools.ssk_binder import ssk_coverage, ssk_export_binder
+from tools.ssk_matrix import (
+    ssk_backfill_scan_evidence,
+    ssk_control_matrix,
+    ssk_evidence_gaps,
+    ssk_control_coverage_detail,
+)
 
 mcp = FastMCP(
     "mcna-amc",
@@ -128,6 +134,10 @@ mcp.tool()(registry_get)
 mcp.tool()(registry_retire)
 mcp.tool()(ssk_coverage)
 mcp.tool()(ssk_export_binder)
+mcp.tool()(ssk_backfill_scan_evidence)
+mcp.tool()(ssk_control_matrix)
+mcp.tool()(ssk_evidence_gaps)
+mcp.tool()(ssk_control_coverage_detail)
 
 if __name__ == "__main__":
     init_db()

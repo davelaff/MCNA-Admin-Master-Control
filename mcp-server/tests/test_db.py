@@ -21,6 +21,7 @@ def test_init_creates_all_tables(tmp_db):
         "ssk_controls", "ssk_controls_history", "ssk_categories",
         "ssk_recommended_actions", "ssk_control_status",
         "ssk_evidence", "ssk_reviews", "ssk_registries",
+        "ssk_control_coverage_snapshots",
         "remediation_plans", "remediation_actions", "remediation_events",
     }
 
@@ -28,7 +29,7 @@ def test_init_is_idempotent(tmp_db):
     init_db(tmp_db)  # second call must not raise
     with sqlite3.connect(tmp_db) as conn:
         tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-    assert len(tables) == 16
+    assert len(tables) == 17
 
 def test_get_connection_commits(tmp_db, monkeypatch):
     import db as db_mod
@@ -85,3 +86,29 @@ def test_remediation_tables_exist(db):
     names = {r["name"] for r in rows}
     missing = expected - names
     assert not missing, f"missing remediation tables: {missing}"
+
+def test_ssk_control_coverage_snapshot_table_exists(db):
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        ).fetchall()
+        cols = conn.execute(
+            "PRAGMA table_info(ssk_control_coverage_snapshots)"
+        ).fetchall()
+    names = {r["name"] for r in rows}
+    col_names = {c["name"] for c in cols}
+    assert "ssk_control_coverage_snapshots" in names
+    assert {
+        "snapshot_id",
+        "run_id",
+        "control_id",
+        "audit_status",
+        "tooling_status",
+        "evidence_source_type",
+        "evidence_count",
+        "open_finding_count",
+        "missing_evidence_action",
+        "rationale",
+        "metadata",
+        "created_at",
+    } <= col_names
