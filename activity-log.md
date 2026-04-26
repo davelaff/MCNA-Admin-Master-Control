@@ -3,6 +3,7 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-26 — Entra app reg cleanup executed — 7 abandoned apps deleted from Entra portal; KB actions closed. Workflow spared (active, has valid certs); expired cert removal queued in plan 616b15cf — mcp-server/kb/mcna_amc.db
 2026-04-26 — Entra Critical findings triage — 8 abandoned app regs resolved; remediation plan dff0f29f created, 8 deletion actions queued pending approval — mcp-server/kb/mcna_amc.db
 2026-04-26 — bstraka external_forwarding_rule resolved — intentional Verizon SMS gateway, documented — mcp-server/kb/mcna_amc.db
 2026-04-26 — purview_scan_labels retry — still available:false; Microsoft provisioning incomplete — mcp-server/kb/mcna_amc.db
