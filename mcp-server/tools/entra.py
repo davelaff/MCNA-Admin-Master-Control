@@ -8,6 +8,10 @@ from tools.ssk_control_map import canonical_control_id
 
 DOMAIN = "entra"
 
+# Power Platform system apps auto-rotate short-lived connection certs at high volume.
+# Apps exceeding this threshold are platform-managed; cert expiry findings are suppressed.
+_PP_CERT_THRESHOLD = 20
+
 CONTRIBUTES_TO = {
     "__tool__": [
         canonical_control_id("IAM-APP-01"),
@@ -103,17 +107,19 @@ def entra_scan_app_regs() -> str:
                                    securesketch_control="IAM-APP-02")
                     findings_count += 1
 
-            for cred in app.get("keyCredentials", []):
-                end = cred.get("endDateTime")
-                if not end:
-                    continue
-                exp = datetime.fromisoformat(end.replace("Z", "+00:00"))
-                if exp < now:
-                    label = cred.get("displayName") or cred["keyId"]
-                    _upsert_finding(conn, "app_registration", aid, name, "expired_cert", "Critical",
-                                   f"Certificate '{label}' expired {end}.",
-                                   securesketch_control="IAM-APP-02")
-                    findings_count += 1
+            key_creds = app.get("keyCredentials", [])
+            if len(key_creds) <= _PP_CERT_THRESHOLD:
+                for cred in key_creds:
+                    end = cred.get("endDateTime")
+                    if not end:
+                        continue
+                    exp = datetime.fromisoformat(end.replace("Z", "+00:00"))
+                    if exp < now:
+                        label = cred.get("displayName") or cred["keyId"]
+                        _upsert_finding(conn, "app_registration", aid, name, "expired_cert", "Critical",
+                                       f"Certificate '{label}' expired {end}.",
+                                       securesketch_control="IAM-APP-02")
+                        findings_count += 1
 
             web_uris = (app.get("web") or {}).get("redirectUris", [])
             pub_uris = (app.get("publicClient") or {}).get("redirectUris", [])

@@ -66,6 +66,18 @@ def test_dismissed_finding_not_recreated(db):
     open_findings = json.loads(__import__("tools.kb", fromlist=["kb_get_findings"]).kb_get_findings(domain="entra", status="open"))
     assert not any(f["finding_id"] == fid for f in open_findings)
 
+def test_platform_managed_app_cert_expiry_suppressed(db):
+    # Apps with > 20 key creds are Power Platform system apps; skip expired_cert findings.
+    expired = {"keyId": f"k0", "displayName": "auto", "endDateTime": "2020-01-01T00:00:00Z"}
+    many_certs = [{"keyId": f"k{i}", "displayName": "auto", "endDateTime": "2020-01-01T00:00:00Z"} for i in range(21)]
+    apps = [_app(aid="pp1", name="Workflow", certs=many_certs + [expired])]
+    with patch("tools.entra.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.entra.graph_get_all", return_value=apps):
+        entra_scan_app_regs()
+    findings = json.loads(__import__("tools.kb", fromlist=["kb_get_findings"]).kb_get_findings(domain="entra"))
+    assert not any(f["finding_type"] == "expired_cert" and f["object_id"] == "pp1" for f in findings)
+
+
 def _guest(gid="g1", name="Guest User", created="2026-01-01T00:00:00Z", last_sign_in=None):
     return {
         "id": gid,
