@@ -48,7 +48,7 @@ As of 2026-04-26:
 - Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 250 passed.
 - Phase 4 approval/closure foundation is built: remediation plans, actions, events, approval queue export, and closure evidence linkage.
 - Phase 4A-4B coverage/evidence foundation is built: control matrix, evidence gap report, scan-evidence backfill tool, and durable coverage snapshots.
-- No tenant remediations are approved or executing.
+- Tenant remediations executed 2026-04-26: 7 abandoned Entra app regs deleted; Workflow cert finding closed as false positive (Power Platform system app, PP suppression added to scanner).
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
 - Audit-defensible evidence coverage: 75 of 75 controls evidenced; 0 gaps remain. 27 policy docs created under `docs/policies/` on 2026-04-26 to close all 49 manual_required gaps.
@@ -56,7 +56,7 @@ As of 2026-04-26:
 - Latest matrix report: `reports/ssk-control-coverage/coverage-2026-04-26.md`.
 - Latest gap report: `reports/ssk-evidence-gaps/gaps-2026-04-26.md`.
 - Latest full audit binder: `reports/audit-binders/2026-04-26/`.
-- KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
+- KB open findings: 0 Critical, ~113 High (10 MIS acknowledged, bstraka resolved), 18 Medium, 1 Low.
 
 Implemented Phase 3 coverage:
 
@@ -80,7 +80,13 @@ Implemented Phase 3 coverage:
   - Current decision: document and stage only; no tenant action yet.
 - 1 EXO finding `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` → `4402269019@vtext.com` (Verizon SMS): resolved 2026-04-26 as intentional SMS gateway, documented.
 - 40 open High Entra findings: `missing_owner`.
-- 22 open High PIM findings: `permanent_privileged_assignment`.
+- PIM triage 2026-04-26 (pending follow-up next week):
+  - `cloudadmin@nofmetalcoatings.us` — unknown owner, App Admin + Cloud App Admin, created 2026-03-12, signed in once, never again. Waiting on DIS (Nate/Tony) to confirm if break-glass.
+  - Diana Kochever — HR Admin holding Teams Admin, User Admin, Exchange Admin. Over-scoped. Meeting scheduled to determine actual needs.
+  - `admin@nofmetalcoatings.us` — confirmed break-glass. Acknowledge when ready.
+  - DIS Global Admin (`dis@nofmetalcoatings.us`) — permanent Global Admin on non-dedicated account. Raise with Nate Whitelaw.
+  - MIS service account — 10 findings acknowledged as intentional.
+  - Your own roles + PowerBI service principals — structural (no P2); acknowledge when ready.
 - Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. First sensitivity label created and policy published 2026-04-26 to initialize the unified labeling store. Scan still returns `available:false` — Microsoft provisioning window is up to 24hr. Re-run `purview_scan_labels` on 2026-04-27; expect `available:true`. Full label taxonomy (Public / Internal / Confidential / Highly Confidential) still to be designed and published org-wide once the store is live.
 - Copilot settings scan: fixed 2026-04-26. Uses `CopilotSettings-LimitedMode.Read` via `/copilot/admin/settings/limitedMode` (v1.0). Last run returned `available:true`, 0 findings.
 
@@ -88,9 +94,12 @@ Implemented Phase 3 coverage:
 
 If Dave gives no specific task, recommend one of these before changing files:
 
-1. Review/approve or reject Batch 1 rows in the EXO shared mailbox approval queue; do not execute tenant changes without explicit approval.
-2. Re-run `purview_scan_labels` — still `available:false` as of 2026-04-26; retry 2026-04-27. Once live, design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
-3. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
+1. Re-run `purview_scan_labels` — still `available:false` as of 2026-04-26; retry 2026-04-27. Once live, design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
+2. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
+3. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
+4. Raise DIS Global Admin on non-dedicated account with Nate Whitelaw.
+5. Acknowledge remaining structural PIM findings (admin break-glass, Dave's own roles, PowerBI service principals).
+6. Review/approve EXO shared mailbox approval queue (on hold).
 
 ## Brain Update Check
 
