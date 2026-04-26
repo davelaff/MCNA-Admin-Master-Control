@@ -445,22 +445,45 @@ def ssk_alerts() -> str:
     return json_ok([_row_to_payload(row) for row in rows])
 
 
-def ssk_due(days_ahead: int = 30) -> str:
+def ssk_due(days_ahead: int = 30, include_never_reviewed: bool = True) -> str:
+    """Return controls due for review within days_ahead, plus never-reviewed controls when include_never_reviewed is True."""
     if days_ahead < 0:
         return json_error("days_ahead must be zero or greater", "ValidationError")
     now = datetime.fromisoformat(ssk_common.utc_now())
     cutoff = (now + timedelta(days=days_ahead)).isoformat()
     with get_connection() as conn:
-        rows = conn.execute(
-            """
-            SELECT s.control_id, s.current_maturity, s.last_reviewed_at, s.next_review_due,
-                   s.review_cadence_days, s.gap_summary, c.title, c.category, c.category_name
-            FROM ssk_control_status s
-            JOIN ssk_controls c ON c.control_id = s.control_id
-            WHERE s.next_review_due IS NOT NULL
-              AND s.next_review_due <= ?
-            ORDER BY s.next_review_due, s.control_id
-            """,
-            (cutoff,),
-        ).fetchall()
+        if include_never_reviewed:
+            rows = conn.execute(
+                """
+                SELECT s.control_id, s.current_maturity, s.last_reviewed_at, s.next_review_due,
+                       s.review_cadence_days, s.gap_summary, c.title, c.category, c.category_name,
+                       CASE WHEN s.next_review_due IS NULL THEN 'never_reviewed'
+                            WHEN s.next_review_due < ? THEN 'overdue'
+                            ELSE 'due_soon'
+                       END AS review_status
+                FROM ssk_control_status s
+                JOIN ssk_controls c ON c.control_id = s.control_id
+                WHERE (s.next_review_due IS NULL)
+                   OR (s.next_review_due <= ?)
+                ORDER BY
+                    CASE WHEN s.next_review_due IS NULL THEN 1 ELSE 0 END,
+                    s.next_review_due,
+                    s.control_id
+                """,
+                (now.isoformat(), cutoff),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                """
+                SELECT s.control_id, s.current_maturity, s.last_reviewed_at, s.next_review_due,
+                       s.review_cadence_days, s.gap_summary, c.title, c.category, c.category_name,
+                       CASE WHEN s.next_review_due < ? THEN 'overdue' ELSE 'due_soon' END AS review_status
+                FROM ssk_control_status s
+                JOIN ssk_controls c ON c.control_id = s.control_id
+                WHERE s.next_review_due IS NOT NULL
+                  AND s.next_review_due <= ?
+                ORDER BY s.next_review_due, s.control_id
+                """,
+                (now.isoformat(), cutoff),
+            ).fetchall()
     return json_ok([dict(row) for row in rows])

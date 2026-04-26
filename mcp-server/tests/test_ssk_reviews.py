@@ -5,7 +5,7 @@ from docx import Document
 from tools import ssk_common
 from tools.ssk import ssk_import_catalog, ssk_status
 from tools.ssk_evidence import ssk_link_evidence, ssk_verify_pointers
-from tools.ssk_reviews import ssk_alerts, ssk_record_review, ssk_review_history
+from tools.ssk_reviews import ssk_alerts, ssk_due, ssk_record_review, ssk_review_history
 
 
 def _seed_control_via_import(tmp_path, control_id: str = "06-3") -> None:
@@ -260,3 +260,61 @@ def test_ssk_review_tools_canonicalize_control_aliases(db, tmp_path, monkeypatch
     assert review["control_id"] == "08-1"
     assert history[0]["control_id"] == "08-1"
     assert history[0]["review_id"] == review["review_id"]
+
+
+def test_ssk_due_returns_never_reviewed_by_default(db, tmp_path):
+    _seed_control_via_import(tmp_path, control_id="06-3")
+
+    result = json.loads(ssk_due(days_ahead=30))
+
+    assert len(result) == 1
+    assert result[0]["control_id"] == "06-3"
+    assert result[0]["review_status"] == "never_reviewed"
+    assert result[0]["next_review_due"] is None
+
+
+def test_ssk_due_excludes_never_reviewed_when_flag_false(db, tmp_path):
+    _seed_control_via_import(tmp_path, control_id="06-3")
+
+    result = json.loads(ssk_due(days_ahead=30, include_never_reviewed=False))
+
+    assert result == []
+
+
+def test_ssk_due_overdue_after_review_recorded(db, tmp_path, monkeypatch):
+    _seed_control_via_import(tmp_path, control_id="06-3")
+    # Review recorded in the past; next_review_due = 2026-01-01 + 90d = 2026-04-01
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: "2026-01-01T12:00:00+00:00")
+    ssk_record_review(
+        control_id="06-3",
+        reviewer="tester@example.com",
+        evidence_ids=[],
+        scope_summary="Initial review",
+        outcome="ok",
+    )
+    # Advance clock past next_review_due so the control shows as overdue
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: "2026-05-01T12:00:00+00:00")
+
+    result = json.loads(ssk_due(days_ahead=30))
+
+    assert len(result) == 1
+    assert result[0]["control_id"] == "06-3"
+    assert result[0]["review_status"] == "overdue"
+    assert result[0]["next_review_due"] is not None
+
+
+def test_ssk_due_not_returned_when_review_is_current(db, tmp_path, monkeypatch):
+    _seed_control_via_import(tmp_path, control_id="06-3")
+    # Review recorded today — next_review_due is 90 days out, well past days_ahead=30
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: "2026-04-26T12:00:00+00:00")
+    ssk_record_review(
+        control_id="06-3",
+        reviewer="tester@example.com",
+        evidence_ids=[],
+        scope_summary="Current review",
+        outcome="ok",
+    )
+
+    result = json.loads(ssk_due(days_ahead=30, include_never_reviewed=False))
+
+    assert result == []
