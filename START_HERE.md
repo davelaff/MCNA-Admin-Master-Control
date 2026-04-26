@@ -78,7 +78,7 @@ Implemented Phase 3 coverage:
   - Approval queue: `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`
   - KB remediation plan: `d5d91bf4-9ca7-49cd-98b7-d2ea0e11e8d9`, 30 pending actions
   - Current decision: document and stage only; no tenant action yet.
-- 1 open High EXO finding: `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` to `4402269019@vtext.com`; likely intentional SMS gateway, undocumented.
+- 1 EXO finding `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` → `4402269019@vtext.com` (Verizon SMS): resolved 2026-04-26 as intentional SMS gateway, documented.
 - 40 open High Entra findings: `missing_owner`.
 - 22 open High PIM findings: `permanent_privileged_assignment`.
 - Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. First sensitivity label created and policy published 2026-04-26 to initialize the unified labeling store. Scan still returns `available:false` — Microsoft provisioning window is up to 24hr. Re-run `purview_scan_labels` on 2026-04-27; expect `available:true`. Full label taxonomy (Public / Internal / Confidential / Highly Confidential) still to be designed and published org-wide once the store is live.
@@ -89,9 +89,8 @@ Implemented Phase 3 coverage:
 If Dave gives no specific task, recommend one of these before changing files:
 
 1. Review/approve or reject Batch 1 rows in the EXO shared mailbox approval queue; do not execute tenant changes without explicit approval.
-2. Decide/document the bstraka SMS forwarding rule.
-3. Re-run `purview_scan_labels` on 2026-04-27 to confirm unified labeling store provisioned; then design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
-4. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
+2. Re-run `purview_scan_labels` — still `available:false` as of 2026-04-26; retry 2026-04-27. Once live, design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
+3. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
 
 ## Brain Update Check
 
