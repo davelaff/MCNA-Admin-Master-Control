@@ -27,6 +27,8 @@ __pycache__/
 *.pyo
 .pytest_cache/
 .pytest-basetemp/
+.pytest-tmp/
+mcp-server/.pytest-tmp/
 .tmp-pytest/
 .venv/
 venv/
