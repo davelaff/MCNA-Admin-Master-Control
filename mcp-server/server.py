@@ -15,6 +15,15 @@ from tools.purview import purview_scan_labels, purview_scan_audit
 from tools.exo import exo_scan_mailboxes, exo_scan_forwarding
 from tools.copilot import copilot_scan_licenses, copilot_scan_settings
 from tools.mail import mail_send_summary
+from tools.remediation import (
+    remediation_create_plan,
+    remediation_add_action,
+    remediation_list_actions,
+    remediation_approve_action,
+    remediation_reject_action,
+    remediation_export_queue,
+    remediation_close_action,
+)
 from tools.ssk import (
     ssk_import_catalog, ssk_list_controls, ssk_get_control,
     ssk_status, ssk_status_all, ssk_gaps,
@@ -84,6 +93,15 @@ mcp.tool()(copilot_scan_settings)
 
 # Mail tools
 mcp.tool()(mail_send_summary)
+
+# Remediation tools
+mcp.tool()(remediation_create_plan)
+mcp.tool()(remediation_add_action)
+mcp.tool()(remediation_list_actions)
+mcp.tool()(remediation_approve_action)
+mcp.tool()(remediation_reject_action)
+mcp.tool()(remediation_export_queue)
+mcp.tool()(remediation_close_action)
 
 # Secure SketCH tools (Phase 2a)
 mcp.tool()(ssk_import_catalog)

@@ -270,12 +270,17 @@ from Phase 4 write scopes. Needs design before build.
 ### Phase 4 — Remediation planning and evidence closure
 **Goal:** Convert KB findings into approved, staged remediation plans with closure evidence. Tenant writes remain gated and are not automatic.
 
-**Status (2026-04-25):** Started. First operational plan created for EXO shared mailbox interactive sign-in findings:
+**Status (2026-04-25):** Approval/closure foundation built. First operational plan created for EXO shared mailbox interactive sign-in findings:
 `docs/operations/exo-shared-mailbox-remediation-plan.md`.
 
-No tenant remediations are approved or executing. The current mode is planning, validation, and evidence readiness.
+No tenant remediations are approved or executing. The current mode is planning, validation, approval queueing, and evidence readiness.
 
-**Requirements before build:**
+**Built foundation:**
+- `remediation_plans`, `remediation_actions`, and `remediation_events` KB tables
+- `mcp-server/tools/remediation.py` MCP tools for plan/action creation, approval, rejection, queue export, and closure
+- finding closure through `ssk_evidence(evidence_type='finding_closure')` plus `findings.closure_evidence_id`
+
+**Requirements before tenant-write build:**
 - Phase 2 Secure SketCH layer functional — remediations must be tracked as
   closure evidence against controls, not as blind tenant writes
 - MCNA-TenantIntel-Writer app reg created with targeted write scopes
@@ -317,6 +322,7 @@ Manual or automated remediation can be planned, but execution requires Dave's ex
 ---
 
 ## Change log
+- 2026-04-25 — v4.0 — Phase 4 approval/closure foundation built: remediation plans/actions/events, exported approval queues, and closure evidence linkage without tenant writes.
 - 2026-04-25 — v3.9 — Phase 3 marked complete at 9/9 planned work items and 219-test baseline. Phase 4 recast as remediation planning and evidence closure; EXO shared mailbox remediation plan added as first Phase 4 artifact.
 - 2026-04-25 — v3.8 — Cross-document alignment pass. Current-state docs now agree on low-token startup, 75-control catalog, 214-test baseline, Phase 3 work-item wording, EXO false-positive fix, and granted vs pending scopes.
 - 2026-04-25 — v3.7 — Cleanup pass: stale auth and SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 moved to 8/9 planned work items built or partially implemented.

@@ -156,6 +156,53 @@ CREATE TABLE IF NOT EXISTS ssk_registries (
 CREATE UNIQUE INDEX IF NOT EXISTS ix_ssk_registries_active_key
     ON ssk_registries(registry_name, entry_key)
     WHERE status = 'active';
+CREATE TABLE IF NOT EXISTS remediation_plans (
+    plan_id         TEXT PRIMARY KEY,
+    title           TEXT NOT NULL,
+    domain          TEXT NOT NULL,
+    description     TEXT,
+    source_pointer  TEXT,
+    owner           TEXT,
+    status          TEXT NOT NULL DEFAULT 'open',
+    created_at      TEXT NOT NULL,
+    updated_at      TEXT NOT NULL,
+    notes           TEXT
+);
+CREATE TABLE IF NOT EXISTS remediation_actions (
+    action_id            TEXT PRIMARY KEY,
+    plan_id              TEXT NOT NULL,
+    finding_id           TEXT NOT NULL,
+    target_id            TEXT NOT NULL,
+    target_name          TEXT,
+    proposed_action      TEXT NOT NULL,
+    control_id           TEXT,
+    risk_notes           TEXT,
+    batch_name           TEXT,
+    status               TEXT NOT NULL DEFAULT 'pending',
+    approved_by          TEXT,
+    approved_at          TEXT,
+    approval_note        TEXT,
+    rejected_by          TEXT,
+    rejected_at          TEXT,
+    rejection_reason     TEXT,
+    closure_evidence_id  TEXT,
+    closed_by            TEXT,
+    closed_at            TEXT,
+    created_at           TEXT NOT NULL,
+    updated_at           TEXT NOT NULL,
+    UNIQUE (plan_id, finding_id),
+    FOREIGN KEY (plan_id) REFERENCES remediation_plans(plan_id),
+    FOREIGN KEY (finding_id) REFERENCES findings(finding_id)
+);
+CREATE TABLE IF NOT EXISTS remediation_events (
+    event_id    TEXT PRIMARY KEY,
+    plan_id     TEXT,
+    action_id   TEXT,
+    event_type  TEXT NOT NULL,
+    actor       TEXT,
+    timestamp   TEXT NOT NULL,
+    detail      TEXT
+);
 """
 
 def _apply_findings_migration(conn):

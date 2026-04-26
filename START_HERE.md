@@ -45,8 +45,9 @@ As of 2026-04-25:
 
 - Phase 3 is 9 of 9 planned work items built or partially implemented.
 - Final Phase 3 domain `mcp-server/tools/mail.py` is built and registered.
-- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 219 passed.
-- Phase 4 planning has started. No tenant remediations are approved or executing.
+- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 231 passed.
+- Phase 4 approval/closure foundation is built: remediation plans, actions, events, approval queue export, and closure evidence linkage.
+- No tenant remediations are approved or executing.
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
 - KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
@@ -67,6 +68,7 @@ Implemented Phase 3 coverage:
 - 30 open High EXO findings: `shared_mailbox_interactive`.
   - Remediation worksheet: `reports/exo-shared-mailbox-remediation/2026-04-25.md`
   - Execution plan: `docs/operations/exo-shared-mailbox-remediation-plan.md`
+  - Approval tooling: `mcp-server/tools/remediation.py`
   - Current decision: document and stage only; no tenant action yet.
 - 1 open High EXO finding: `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` to `4402269019@vtext.com`; likely intentional SMS gateway, undocumented.
 - 40 open High Entra findings: `missing_owner`.
@@ -78,11 +80,11 @@ Implemented Phase 3 coverage:
 
 If Dave gives no specific task, recommend one of these before changing files:
 
-1. bstraka SMS forwarding decision: accept/document risk or remove rule.
-2. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
-3. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
-4. Expand Secure SketCH evidence coverage for `02-3`, `02-4`, `07-2`, `06-1`, and `16-1`.
-5. Backfill evidence coverage for the completed Phase 3 mail domain after first real use.
+1. Seed the EXO shared mailbox remediation plan into the new approval queue; do not execute tenant changes.
+2. bstraka SMS forwarding decision: accept/document risk or remove rule.
+3. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
+4. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
+5. Expand Secure SketCH evidence coverage for `02-3`, `02-4`, `07-2`, `06-1`, and `16-1`.
 
 ## Brain Update Check
 
