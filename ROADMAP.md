@@ -218,15 +218,15 @@ CONTEXT.md and ARCHITECTURE.md.
 
 ---
 
-### Phase 3 — Broad domain coverage feeding the evidence layer (in progress)
+### Phase 3 — Broad domain coverage feeding the evidence layer (COMPLETE 2026-04-25)
 **Goal:** Cover the remaining Microsoft domains, with every new tool
 registering itself as an evidence contributor to specific Secure SketCH
 controls.
 
-**Status (2026-04-25):** Eight planned work items built or partially implemented and tested (214/214 tests).
+**Status (2026-04-25):** Nine planned work items built or partially implemented and tested (219/219 tests).
 `tools/pim.py`, `tools/license.py`, `tools/sharing.py`, `tools/intune.py`,
-`tools/purview.py`, `tools/exo.py`, `tools/copilot.py` complete and on main.
-Remaining unbuilt: `mail.py`. Sharing posture expansion deferred (needs `Sites.FullControl.All`).
+`tools/purview.py`, `tools/exo.py`, `tools/copilot.py`, and `tools/mail.py`
+are built. Sharing posture expansion remains deferred (needs `Sites.FullControl.All`).
 
 **Deliverables:**
 - `tools/license.py` — unassigned licenses, duplicate stacking, service plan
@@ -248,7 +248,7 @@ Remaining unbuilt: `mail.py`. Sharing posture expansion deferred (needs `Sites.F
 - `tools/copilot.py` — Copilot license utilization, label coverage
   readiness, oversharing risk **(BUILT 2026-04-25)**
 - `tools/mail.py` — sendMail for summaries and alerts (read scopes pre-Phase
-  4; send from admin account)
+  4; send from admin account) **(BUILT 2026-04-25)**
 
 Each domain tool declares which controls it contributes evidence to. The
 contribution manifest is read by `ssk_status` to compute coverage.
@@ -267,10 +267,13 @@ from Phase 4 write scopes. Needs design before build.
 
 ---
 
-### Phase 4 — Write phase
-**Goal:** Execute approved remediations via a separate write-capable app reg.
+### Phase 4 — Remediation planning and evidence closure
+**Goal:** Convert KB findings into approved, staged remediation plans with closure evidence. Tenant writes remain gated and are not automatic.
 
-**Status:** Architecture designed (see MEMORY.md). Not yet approved for build.
+**Status (2026-04-25):** Started. First operational plan created for EXO shared mailbox interactive sign-in findings:
+`docs/operations/exo-shared-mailbox-remediation-plan.md`.
+
+No tenant remediations are approved or executing. The current mode is planning, validation, and evidence readiness.
 
 **Requirements before build:**
 - Phase 2 Secure SketCH layer functional — remediations must be tracked as
@@ -281,6 +284,9 @@ from Phase 4 write scopes. Needs design before build.
   (type = finding_closure), and SharePoint report
 - Every write action gated on explicit Dave approval
 - Every write action produces an evidence row linked to the relevant control(s)
+
+**Current Phase 4 operating rule:**
+Manual or automated remediation can be planned, but execution requires Dave's explicit approval per batch. The EXO shared mailbox plan uses four batches: immediate shared/function mailboxes, remaining shared/function mailboxes, former-user validation, and device/automation validation.
 
 ---
 
@@ -311,6 +317,7 @@ from Phase 4 write scopes. Needs design before build.
 ---
 
 ## Change log
+- 2026-04-25 — v3.9 — Phase 3 marked complete at 9/9 planned work items and 219-test baseline. Phase 4 recast as remediation planning and evidence closure; EXO shared mailbox remediation plan added as first Phase 4 artifact.
 - 2026-04-25 — v3.8 — Cross-document alignment pass. Current-state docs now agree on low-token startup, 75-control catalog, 214-test baseline, Phase 3 work-item wording, EXO false-positive fix, and granted vs pending scopes.
 - 2026-04-25 — v3.7 — Cleanup pass: stale auth and SSK alias tests fixed, Secure SketCH catalog re-imported from updated docx (75 controls, 728 actions), test-pollution controls 98-1/98-2 removed, Copilot marked built, Phase 3 moved to 8/9 planned work items built or partially implemented.
 - 2026-04-25 — v3.6 — Intermediate brain sync: intune.py and purview.py marked built. Superseded by v3.7/v3.8 for current Phase 3 count, test count, and catalog state.

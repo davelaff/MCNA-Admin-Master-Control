@@ -43,9 +43,10 @@ Read these only on demand:
 
 As of 2026-04-25:
 
-- Phase 3 is 8 of 9 planned work items built or partially implemented.
-- Remaining unbuilt domain: `mcp-server/tools/mail.py`.
-- Full test suite last verified from `mcp-server/`: `rtk pytest --tb=short -q` -> 214 passed.
+- Phase 3 is 9 of 9 planned work items built or partially implemented.
+- Final Phase 3 domain `mcp-server/tools/mail.py` is built and registered.
+- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 219 passed.
+- Phase 4 planning has started. No tenant remediations are approved or executing.
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
 - KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
@@ -59,10 +60,14 @@ Implemented Phase 3 coverage:
 - `purview.py`
 - `exo.py`
 - `copilot.py`
+- `mail.py`
 
 ## Active Operational Items
 
 - 30 open High EXO findings: `shared_mailbox_interactive`.
+  - Remediation worksheet: `reports/exo-shared-mailbox-remediation/2026-04-25.md`
+  - Execution plan: `docs/operations/exo-shared-mailbox-remediation-plan.md`
+  - Current decision: document and stage only; no tenant action yet.
 - 1 open High EXO finding: `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` to `4402269019@vtext.com`; likely intentional SMS gateway, undocumented.
 - 40 open High Entra findings: `missing_owner`.
 - 22 open High PIM findings: `permanent_privileged_assignment`.
@@ -73,11 +78,11 @@ Implemented Phase 3 coverage:
 
 If Dave gives no specific task, recommend one of these before changing files:
 
-1. Shared mailbox remediation planning: 30 High findings, clearest operational win.
-2. bstraka SMS forwarding decision: accept/document risk or remove rule.
-3. Build `mcp-server/tools/mail.py` as the final Phase 3 domain.
-4. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
-5. Expand Secure SketCH evidence coverage for `02-3`, `02-4`, `07-2`, `06-1`, and `16-1`.
+1. bstraka SMS forwarding decision: accept/document risk or remove rule.
+2. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
+3. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
+4. Expand Secure SketCH evidence coverage for `02-3`, `02-4`, `07-2`, `06-1`, and `16-1`.
+5. Backfill evidence coverage for the completed Phase 3 mail domain after first real use.
 
 ## Brain Update Check
 
@@ -102,9 +107,9 @@ or:
 Brain update: activity-log + MEMORY.md.
 ```
 
-## `mail.py` Scope If Requested
+## `mail.py` Current Scope
 
-Keep v1 narrow:
+v1 is intentionally narrow:
 
 - Tool: `mail_send_summary(to, subject, body, cc=None, importance="normal", save_to_sent_items=True, dry_run=True)`
 - Use delegated admin-account Graph `/me/sendMail`.
