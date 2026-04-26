@@ -3,6 +3,7 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-26 — copilot_scan_settings fix — corrected Graph endpoint and permission name; scan now returns available:true, 0 findings — mcp-server/tools/copilot.py
 2026-04-25 — Brain file sync — MEMORY.md v25, ROADMAP.md v3.6, ARCHITECTURE.md updated (exo+purview built, 202 tests), 02-3/02-4 catalog gap noted — MEMORY.md, ROADMAP.md, ARCHITECTURE.md, activity-log.md
 2026-04-25 — exo_scan_mailboxes (first live run) — 187 users, 30 High findings (shared_mailbox_interactive) — mcp-server/kb/mcna_amc.db
 2026-04-25 — exo_scan_forwarding (first live run) — 441 rules, 1 High (bstraka external SMS fwd), 1 false positive (wstark X.500 DN) — mcp-server/kb/mcna_amc.db
@@ -106,3 +107,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-26 11:38 — Purview portal URL correction — compliance.microsoft.com confirmed retired per MS Learn; correct URL is purview.microsoft.com/informationprotection/informationprotectionlabels/sensitivitylabels; updated pending-gaps.md, app-registrations.md, and KB finding notes — docs/governance/scope-additions/pending-gaps.md, docs/auth/app-registrations.md
 2026-04-26 11:40 -- purview_scan_labels endpoint fix -- app token + /me/ fallback implemented; 403 confirmed as App Gateway provisioning block; KB finding updated with precise root cause -- mcp-server/tools/purview.py
 2026-04-26 12:39 — Purview unified labeling store provisioning — First sensitivity label created and policy published to nof-dlafferty@nofmetalcoatings.us to trigger store initialization; scan still returns available:false (Microsoft-Azure-Application-Gateway/v2 403); Microsoft confirmed up to 24hr propagation window; no code changes needed — mcp-server/kb/mcna_amc.db
+2026-04-26 17:37 — gitignore: exclude .pytest-tmp — committed — .gitignore

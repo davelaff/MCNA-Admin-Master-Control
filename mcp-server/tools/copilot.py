@@ -45,8 +45,7 @@ COPILOT_SKUS: set[str] = {
     "COPILOT_FOR_M365",
 }
 
-# Full URL required — graph_get prepends v1.0 base for non-https paths.
-COPILOT_SETTINGS_PATH = "https://graph.microsoft.com/beta/admin/microsoft365/copilotSettings"
+COPILOT_SETTINGS_PATH = "/copilot/admin/settings/limitedMode"
 
 
 def _now() -> str:
@@ -159,10 +158,9 @@ def copilot_scan_licenses() -> str:
 
 
 def copilot_scan_settings() -> str:
-    """Probe Copilot for M365 admin settings via Graph beta endpoint.
+    """Probe Copilot for M365 admin settings via Graph v1.0 endpoint.
     403/404 produces a scope_gap finding. Requires
-    Microsoft365CopilotSettings.Read.All (not yet consented); until then
-    this scan records the gap."""
+    CopilotSettings-LimitedMode.Read (Delegated, admin consent required)."""
     token = get_token()
     findings_count = 0
 
@@ -178,7 +176,7 @@ def copilot_scan_settings() -> str:
                 _upsert_finding(
                     conn, "tenant", "copilot-settings", "Copilot Settings",
                     "copilot_scope_gap", "Medium",
-                    "Grant Microsoft365CopilotSettings.Read.All delegated consent to the "
+                    "Grant CopilotSettings-LimitedMode.Read delegated consent to the "
                     "MCNA-TenantIntel-ReadOnly app registration to enable Copilot settings "
                     "governance visibility.",
                     securesketch_control="COP-SETTINGS-01",
@@ -187,6 +185,7 @@ def copilot_scan_settings() -> str:
             return json.dumps({
                 "domain": DOMAIN,
                 "available": False,
+                "http_status": status,
                 "findings": findings_count,
             })
         raise
