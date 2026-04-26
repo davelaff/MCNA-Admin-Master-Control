@@ -2,14 +2,17 @@ import json
 import uuid
 import requests
 from datetime import datetime, timezone
-from auth import get_token
+from auth import get_token, get_app_token
 from graph import graph_get, graph_get_all, GraphError
 from db import get_connection
 from tools.ssk_control_map import canonical_control_id
 
 DOMAIN = "purview"
 
+# Application-permission path (org-wide, requires InformationProtectionPolicy.Read.All app perm)
 LABELS_URL = "https://graph.microsoft.com/beta/security/informationProtection/sensitivityLabels"
+# Delegated fallback (user-scoped, requires InformationProtectionPolicy.Read delegated)
+LABELS_URL_ME = "https://graph.microsoft.com/beta/me/security/informationProtection/sensitivityLabels"
 AUDIT_PATH = "/auditLogs/directoryAudits"
 
 CONTRIBUTES_TO = {
@@ -55,7 +58,8 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
         ON CONFLICT(finding_id) DO UPDATE SET
             last_seen=excluded.last_seen,
             object_name=excluded.object_name,
-            owner=excluded.owner
+            owner=excluded.owner,
+            recommended_action=excluded.recommended_action
     """, (finding_id, DOMAIN, object_type, object_id, object_name, None,
           finding_type, severity, securesketch_control, recommended_action, now, now))
     return finding_id
@@ -71,35 +75,41 @@ def _append_activity(conn, tool_name: str, outcome: str, detail: dict) -> None:
     )
 
 
-def _try_labels(token: str) -> tuple[list, bool, str]:
-    """Fetch sensitivity labels from beta endpoint.
-    Returns (labels, available, reason).
-    403 from Application Gateway = Purview API not enabled for this tenant (licensing).
-    403 from Graph = permission not consented.
-    404 = beta feature unavailable in this tenant."""
-    try:
-        return graph_get_all(LABELS_URL, token), True, ""
-    except GraphError as e:
-        if e.status == 403:
-            reason = "api_unavailable" if "Application-Gateway" in e.args[0] else "permission_denied"
-            return [], False, reason
-        if e.status == 400:
-            return [], False, "api_unavailable"
-        raise
-    except requests.exceptions.HTTPError as e:
-        if e.response is not None and e.response.status_code in (400, 404):
-            return [], False, "api_unavailable"
-        raise
+def _try_labels() -> tuple[list, bool, str]:
+    """Fetch sensitivity labels. Tries application token against org-wide endpoint first
+    (InformationProtectionPolicy.Read.All), then falls back to delegated token against
+    /me endpoint (InformationProtectionPolicy.Read).
+    Returns (labels, available, reason)."""
+    attempts = [
+        (get_app_token, LABELS_URL),
+        (get_token, LABELS_URL_ME),
+    ]
+    last_reason = "api_unavailable"
+    for get_tok, url in attempts:
+        try:
+            token = get_tok()
+            return graph_get_all(url, token), True, ""
+        except GraphError as e:
+            if e.status == 403:
+                last_reason = "api_unavailable" if "Application-Gateway" in str(e) else "permission_denied"
+            elif e.status == 400:
+                last_reason = "api_unavailable"
+            else:
+                raise
+        except requests.exceptions.HTTPError as e:
+            if e.response is not None and e.response.status_code in (400, 404):
+                last_reason = "api_unavailable"
+            else:
+                raise
+    return [], False, last_reason
 
 
 def purview_scan_labels() -> str:
     """Enumerate Microsoft Purview sensitivity labels. No labels = no information
     classification baseline across M365. Requires InformationProtectionPolicy.Read
-    (Delegated). Uses Graph beta: /beta/security/informationProtection/sensitivityLabels.
-    Note: InformationProtectionPolicy.Read.All does not exist as a Delegated scope;
-    Application-only callers are blocked at the API gateway level regardless of permission."""
-    token = get_token()
-    labels, available, reason = _try_labels(token)
+    (Delegated) or InformationProtectionPolicy.Read.All (Application).
+    Tries application token against org-wide endpoint first, falls back to delegated /me path."""
+    labels, available, reason = _try_labels()
     findings_count = 0
 
     with get_connection() as conn:

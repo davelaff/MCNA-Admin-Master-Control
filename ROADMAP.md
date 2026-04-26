@@ -271,7 +271,7 @@ from Phase 4 write scopes. Needs design before build.
 **Goal:** Prove control-by-control Secure SketCH coverage, expand real evidence pointers, and convert KB findings into approved remediation plans with closure evidence. Tenant writes remain gated and are not automatic.
 
 **Status (2026-04-26):** Phase 4A-4B coverage/evidence foundation built. The current matrix classifies all 75 controls:
-6 evidenced, 69 gaps, 11 controls with mapped automated tools, and 64 controls currently manual/policy evidence required. Latest reports:
+75 evidenced, 0 gaps. 27 policy docs created under `docs/policies/` on 2026-04-26 closed the final 49 manual-evidence gaps. 11 controls have mapped automated scan tools; 64 controls carry policy/manual evidence. Latest reports:
 `reports/ssk-control-coverage/coverage-2026-04-26.md` and
 `reports/ssk-evidence-gaps/gaps-2026-04-26.md`.
 
@@ -334,6 +334,7 @@ Manual or automated remediation can be planned, but execution requires Dave's ex
 ---
 
 ## Change log
+- 2026-04-26 — v4.2 — Purview endpoint fix (dual-attempt: app token + delegated /me/ fallback); App Gateway 403 root cause confirmed as unified labeling store not yet provisioned; first label + policy published to trigger initialization; 24hr propagation window in progress. Phase 4 matrix updated to 75/75 evidenced (policy docs closed all 49 manual gaps).
 - 2026-04-26 — v4.1 — Phase 4A-4B coverage/evidence foundation built: all 75 controls classified, durable coverage snapshots added, evidence/gap reports generated, and automated coverage expanded to Intune/Purview/EXO/Copilot.
 - 2026-04-25 — v4.0 — Phase 4 approval/closure foundation built: remediation plans/actions/events, exported approval queues, and closure evidence linkage without tenant writes.
 - 2026-04-25 — v3.9 — Phase 3 marked complete at 9/9 planned work items and 219-test baseline. Phase 4 recast as remediation planning and evidence closure; EXO shared mailbox remediation plan added as first Phase 4 artifact.

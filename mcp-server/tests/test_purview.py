@@ -53,7 +53,8 @@ def _raises_http_404(*args, **kwargs):
 # ---------------------------------------------------------------------------
 
 def test_scan_labels_scope_gap_returns_not_available(db):
-    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
          patch("tools.purview.graph_get_all", side_effect=_raises_403):
         result = json.loads(purview_scan_labels())
     assert result["available"] is False
@@ -61,7 +62,8 @@ def test_scan_labels_scope_gap_returns_not_available(db):
 
 
 def test_scan_labels_scope_gap_emits_finding(db):
-    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
          patch("tools.purview.graph_get_all", side_effect=_raises_403):
         result = json.loads(purview_scan_labels())
     assert result["findings"] == 1
@@ -71,7 +73,8 @@ def test_scan_labels_scope_gap_emits_finding(db):
 
 
 def test_scan_labels_404_returns_not_available(db):
-    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
          patch("tools.purview.graph_get_all", side_effect=_raises_http_404):
         result = json.loads(purview_scan_labels())
     assert result["available"] is False
@@ -83,7 +86,8 @@ def test_scan_labels_404_returns_not_available(db):
 # ---------------------------------------------------------------------------
 
 def test_scan_labels_none_defined_flagged_high(db):
-    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
          patch("tools.purview.graph_get_all", return_value=[]):
         result = json.loads(purview_scan_labels())
     assert result["available"] is True
@@ -100,7 +104,8 @@ def test_scan_labels_none_defined_flagged_high(db):
 
 def test_scan_labels_defined_no_finding(db):
     labels = [_label("l1", "Confidential"), _label("l2", "Internal")]
-    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
          patch("tools.purview.graph_get_all", return_value=labels):
         result = json.loads(purview_scan_labels())
     assert result["available"] is True
@@ -111,7 +116,8 @@ def test_scan_labels_defined_no_finding(db):
 
 
 def test_scan_labels_single_label_no_finding(db):
-    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
          patch("tools.purview.graph_get_all", return_value=[_label("l3", "Public")]):
         result = json.loads(purview_scan_labels())
     assert result["labels_found"] == 1
@@ -120,7 +126,8 @@ def test_scan_labels_single_label_no_finding(db):
 
 def test_scan_labels_summary_shape(db):
     labels = [_label(f"lx{i}") for i in range(5)]
-    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
          patch("tools.purview.graph_get_all", return_value=labels):
         result = json.loads(purview_scan_labels())
     assert result["domain"] == "purview"

@@ -67,7 +67,7 @@ on the local workstation and are never stored here.
 | `mail_*` | Send summary emails | Scopes ready, tools not yet built |
 | `intune_*` | Device compliance, BitLocker | Scopes granted — tools functional |
 | `exo_*` | Exchange hygiene, forwarding rules | MailboxSettings.Read delegated + application granted — tools functional |
-| `purview_*` | Sensitivity labels, DLP, audit | `AuditLog.Read.All` (delegated) functional for audit scan. `InformationProtectionPolicy.Read` (delegated) consented. Label scan endpoint blocked at API gateway level — likely Purview P1/P2 not licensed in tenant. |
+| `purview_*` | Sensitivity labels, DLP, audit | `AuditLog.Read.All` (delegated) functional for audit scan. `InformationProtectionPolicy.Read` (delegated) and `InformationProtectionPolicy.Read.All` (application) consented. Label scan endpoint blocked at API gateway level — **not a licensing or permission gap**. Root cause: Purview unified labeling store not yet provisioned/activated. Action: [purview.microsoft.com/informationprotection/informationprotectionlabels/sensitivitylabels](https://purview.microsoft.com/informationprotection/informationprotectionlabels/sensitivitylabels) (compliance.microsoft.com is retired). |
 | `kb_*` | Knowledge base (SQLite) | No scopes required — local only |
 
 ### Notes

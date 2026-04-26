@@ -45,7 +45,7 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
             (finding_id,domain,object_type,object_id,object_name,finding_type,
              severity,securesketch_control,recommended_action,status,first_seen,last_seen)
         VALUES (?,?,?,?,?,?,?,?,?,'open',?,?)
-        ON CONFLICT(finding_id) DO UPDATE SET last_seen=excluded.last_seen, object_name=excluded.object_name
+        ON CONFLICT(finding_id) DO UPDATE SET last_seen=excluded.last_seen, object_name=excluded.object_name, recommended_action=excluded.recommended_action
     """, (finding_id, DOMAIN, object_type, object_id, object_name, finding_type,
           severity, securesketch_control, recommended_action, now, now))
     return finding_id
