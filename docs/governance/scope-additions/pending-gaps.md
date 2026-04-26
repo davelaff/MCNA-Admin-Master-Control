@@ -12,10 +12,11 @@ Each entry requires explicit approval before adding. Update this file when conse
 | **Type** | Delegated |
 | **Identified** | 2026-04-23 |
 | **Identified by** | D. Lafferty |
-| **Status** | Pending |
-| **Justification** | Required for `purview_scan_labels` to enumerate sensitivity labels and policy coverage. Without it, Purview label scans should record `purview_scope_gap` instead of pretending coverage exists. |
+| **Status** | **Consented — 2026-04-26** |
+| **Consented by** | D. Lafferty (global admin) |
+| **Justification** | Required for `purview_scan_labels` to enumerate sensitivity labels and policy coverage. |
 | **SSK mapping** | SSK 06-1 |
-| **Blocked by** | Admin consent not yet granted |
+| **Outcome** | Scan ran 2026-04-26: 0 labels configured. Baseline documented in `docs/policies/data/information-asset-classification.md`. Label taxonomy improvement queued in IT roadmap. |
 
 ---
 

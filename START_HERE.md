@@ -51,7 +51,7 @@ As of 2026-04-26:
 - No tenant remediations are approved or executing.
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
-- Audit-defensible evidence coverage: 26 of 75 controls evidenced; 49 controls remain evidence gaps.
+- Audit-defensible evidence coverage: 75 of 75 controls evidenced; 0 gaps remain. 27 policy docs created under `docs/policies/` on 2026-04-26 to close all 49 manual_required gaps.
 - Automated tool mapping coverage: 11 of 75 controls have mapped domain tools.
 - Latest matrix report: `reports/ssk-control-coverage/coverage-2026-04-26.md`.
 - Latest gap report: `reports/ssk-evidence-gaps/gaps-2026-04-26.md`.
@@ -81,7 +81,7 @@ Implemented Phase 3 coverage:
 - 1 open High EXO finding: `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` to `4402269019@vtext.com`; likely intentional SMS gateway, undocumented.
 - 40 open High Entra findings: `missing_owner`.
 - 22 open High PIM findings: `permanent_privileged_assignment`.
-- Purview label scan needs `InformationProtectionPolicy.Read.All`; without it, `purview_scope_gap` is expected.
+- Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. Live scan result: 0 sensitivity labels configured. Baseline documented in `docs/policies/data/information-asset-classification.md`. Label taxonomy improvement planned.
 - Copilot settings scan needs `Microsoft365CopilotSettings.Read.All`; without it, settings scope gap is expected.
 
 ## Best Next Moves
@@ -89,9 +89,9 @@ Implemented Phase 3 coverage:
 If Dave gives no specific task, recommend one of these before changing files:
 
 1. Review/approve or reject Batch 1 rows in the EXO shared mailbox approval queue; do not execute tenant changes without explicit approval.
-2. Work the Secure SketCH evidence gaps from `reports/ssk-evidence-gaps/gaps-2026-04-26.md`; do not create placeholder evidence.
-3. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
-4. Decide/document the bstraka SMS forwarding rule.
+2. Decide/document the bstraka SMS forwarding rule.
+3. Consent `Microsoft365CopilotSettings.Read.All` to unblock Copilot governance evidence (SSK AI governance controls).
+4. Define and publish Purview sensitivity label taxonomy (0 labels currently configured — real posture gap).
 5. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
 
 ## Brain Update Check
