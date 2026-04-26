@@ -69,6 +69,8 @@ Implemented Phase 3 coverage:
   - Remediation worksheet: `reports/exo-shared-mailbox-remediation/2026-04-25.md`
   - Execution plan: `docs/operations/exo-shared-mailbox-remediation-plan.md`
   - Approval tooling: `mcp-server/tools/remediation.py`
+  - Approval queue: `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`
+  - KB remediation plan: `d5d91bf4-9ca7-49cd-98b7-d2ea0e11e8d9`, 30 pending actions
   - Current decision: document and stage only; no tenant action yet.
 - 1 open High EXO finding: `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` to `4402269019@vtext.com`; likely intentional SMS gateway, undocumented.
 - 40 open High Entra findings: `missing_owner`.
@@ -80,7 +82,7 @@ Implemented Phase 3 coverage:
 
 If Dave gives no specific task, recommend one of these before changing files:
 
-1. Seed the EXO shared mailbox remediation plan into the new approval queue; do not execute tenant changes.
+1. Review/approve or reject Batch 1 rows in the EXO shared mailbox approval queue; do not execute tenant changes without explicit approval.
 2. bstraka SMS forwarding decision: accept/document risk or remove rule.
 3. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
 4. Run Purview live scans after consenting `InformationProtectionPolicy.Read.All`.
