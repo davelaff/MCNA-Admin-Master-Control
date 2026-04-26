@@ -3,6 +3,7 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-26 — Entra Critical findings triage — 8 abandoned app regs resolved; remediation plan dff0f29f created, 8 deletion actions queued pending approval — mcp-server/kb/mcna_amc.db
 2026-04-26 — bstraka external_forwarding_rule resolved — intentional Verizon SMS gateway, documented — mcp-server/kb/mcna_amc.db
 2026-04-26 — purview_scan_labels retry — still available:false; Microsoft provisioning incomplete — mcp-server/kb/mcna_amc.db
 2026-04-26 — START_HERE brain update — Copilot scan stale note removed, Best Next Moves renumbered — START_HERE.md
