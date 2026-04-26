@@ -61,6 +61,16 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
     return finding_id
 
 
+def _append_activity(conn, tool_name: str, outcome: str, detail: dict) -> None:
+    conn.execute(
+        """
+        INSERT INTO activity_log (run_id, timestamp, tool_name, domain, outcome, detail)
+        VALUES (?,?,?,?,?,?)
+        """,
+        (str(uuid.uuid4()), _now(), tool_name, DOMAIN, outcome, json.dumps(detail, sort_keys=True)),
+    )
+
+
 def _try_labels(token: str) -> tuple[list, bool]:
     """Fetch sensitivity labels from beta endpoint. Returns (labels, available).
     403 = InformationProtectionPolicy.Read.All not consented.
@@ -95,12 +105,14 @@ def purview_scan_labels() -> str:
                 securesketch_control="PURVIEW-SCOPE-01",
             )
             findings_count += 1
-            return json.dumps({
+            result = {
                 "domain": DOMAIN,
                 "available": False,
                 "labels_found": 0,
                 "findings": findings_count,
-            })
+            }
+            _append_activity(conn, "purview_scan_labels", "success", result)
+            return json.dumps(result)
 
         for label in labels:
             _upsert_snapshot(conn, "sensitivity_label", label["id"],
@@ -116,12 +128,15 @@ def purview_scan_labels() -> str:
             )
             findings_count += 1
 
-    return json.dumps({
-        "domain": DOMAIN,
-        "available": True,
-        "labels_found": len(labels),
-        "findings": findings_count,
-    })
+        result = {
+            "domain": DOMAIN,
+            "available": True,
+            "labels_found": len(labels),
+            "findings": findings_count,
+        }
+        _append_activity(conn, "purview_scan_labels", "success", result)
+
+    return json.dumps(result)
 
 
 def purview_scan_audit() -> str:
@@ -153,12 +168,14 @@ def purview_scan_audit() -> str:
                 securesketch_control="PURVIEW-SCOPE-01",
             )
             findings_count += 1
-            return json.dumps({
+            result = {
                 "domain": DOMAIN,
                 "available": False,
                 "recent_events_found": 0,
                 "findings": findings_count,
-            })
+            }
+            _append_activity(conn, "purview_scan_audit", "success", result)
+            return json.dumps(result)
 
         if not events:
             _upsert_finding(
@@ -170,11 +187,14 @@ def purview_scan_audit() -> str:
             )
             findings_count += 1
 
-    most_recent = events[0].get("activityDateTime") if events else None
-    return json.dumps({
-        "domain": DOMAIN,
-        "available": True,
-        "recent_events_found": len(events),
-        "most_recent_event": most_recent,
-        "findings": findings_count,
-    })
+        most_recent = events[0].get("activityDateTime") if events else None
+        result = {
+            "domain": DOMAIN,
+            "available": True,
+            "recent_events_found": len(events),
+            "most_recent_event": most_recent,
+            "findings": findings_count,
+        }
+        _append_activity(conn, "purview_scan_audit", "success", result)
+
+    return json.dumps(result)

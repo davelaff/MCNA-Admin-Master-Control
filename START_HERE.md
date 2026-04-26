@@ -45,13 +45,13 @@ As of 2026-04-26:
 
 - Phase 3 is 9 of 9 planned work items built or partially implemented.
 - Final Phase 3 domain `mcp-server/tools/mail.py` is built and registered.
-- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 247 passed.
+- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 250 passed.
 - Phase 4 approval/closure foundation is built: remediation plans, actions, events, approval queue export, and closure evidence linkage.
 - Phase 4A-4B coverage/evidence foundation is built: control matrix, evidence gap report, scan-evidence backfill tool, and durable coverage snapshots.
 - No tenant remediations are approved or executing.
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
-- Audit-defensible evidence coverage: 12 of 75 controls evidenced; 63 controls remain evidence gaps.
+- Audit-defensible evidence coverage: 16 of 75 controls evidenced; 59 controls remain evidence gaps.
 - Automated tool mapping coverage: 11 of 75 controls have mapped domain tools.
 - Latest matrix report: `reports/ssk-control-coverage/coverage-2026-04-26.md`.
 - Latest gap report: `reports/ssk-evidence-gaps/gaps-2026-04-26.md`.

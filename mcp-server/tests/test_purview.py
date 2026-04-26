@@ -5,6 +5,7 @@ import pytest
 import requests
 
 from graph import GraphError
+from db import get_connection
 from tools.purview import purview_scan_labels, purview_scan_audit
 from tools.kb import kb_get_findings
 
@@ -197,3 +198,23 @@ def test_scan_audit_summary_shape(db):
     assert result["domain"] == "purview"
     assert "most_recent_event" in result
     assert result["findings"] == 0
+
+
+def test_scan_audit_records_success_activity(db):
+    events = [_audit_event("activity1")]
+    with patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.graph_get", return_value={"value": events}):
+        purview_scan_audit()
+
+    with get_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT * FROM activity_log
+            WHERE tool_name = 'purview_scan_audit'
+              AND domain = 'purview'
+              AND outcome = 'success'
+            """
+        ).fetchone()
+
+    assert row is not None
+    assert json.loads(row["detail"])["recent_events_found"] == 1

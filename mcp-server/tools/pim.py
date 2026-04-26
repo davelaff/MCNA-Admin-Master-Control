@@ -87,6 +87,16 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
     return finding_id
 
 
+def _append_activity(conn, tool_name: str, outcome: str, detail: dict) -> None:
+    conn.execute(
+        """
+        INSERT INTO activity_log (run_id, timestamp, tool_name, domain, outcome, detail)
+        VALUES (?,?,?,?,?,?)
+        """,
+        (str(uuid.uuid4()), _now(), tool_name, DOMAIN, outcome, json.dumps(detail, sort_keys=True)),
+    )
+
+
 def _is_user_principal(principal: dict) -> bool:
     odata = (principal or {}).get("@odata.type", "")
     return "user" in odata.lower() and "servicePrincipal" not in odata
@@ -210,13 +220,16 @@ def pim_scan_role_assignments() -> str:
                 )
                 findings_count += 1
 
-    return json.dumps({
-        "pim_available": pim_available,
-        "active_assignments": len(active),
-        "eligible_assignments": len(eligible),
-        "privileged_active": privileged_active_count,
-        "findings": findings_count,
-    })
+        result = {
+            "pim_available": pim_available,
+            "active_assignments": len(active),
+            "eligible_assignments": len(eligible),
+            "privileged_active": privileged_active_count,
+            "findings": findings_count,
+        }
+        _append_activity(conn, "pim_scan_role_assignments", "success", result)
+
+    return json.dumps(result)
 
 
 def pim_scan_role_definitions() -> str:
@@ -269,9 +282,12 @@ def pim_scan_role_definitions() -> str:
                 )
                 findings_count += 1
 
-    return json.dumps({
-        "scanned": len(defs),
-        "custom_roles": custom_count,
-        "findings": findings_count,
-        "pim_available": pim_available,
-    })
+        result = {
+            "scanned": len(defs),
+            "custom_roles": custom_count,
+            "findings": findings_count,
+            "pim_available": pim_available,
+        }
+        _append_activity(conn, "pim_scan_role_definitions", "success", result)
+
+    return json.dumps(result)

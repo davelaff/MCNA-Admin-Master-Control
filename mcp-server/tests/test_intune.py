@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from graph import GraphError
+from db import get_connection
 from tools.intune import intune_scan_devices, intune_scan_compliance_policies
 from tools.kb import kb_get_findings
 
@@ -239,6 +240,26 @@ def test_scan_devices_summary_shape(db):
     assert result["stale"] == 1
     assert result["not_encrypted"] == 1
     assert result["intune_available"] is True
+
+
+def test_scan_devices_records_success_activity(db):
+    with patch("tools.intune.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.intune.graph_get_all", side_effect=_dispatch(
+             devices=[_device("activity1")])):
+        intune_scan_devices()
+
+    with get_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT * FROM activity_log
+            WHERE tool_name = 'intune_scan_devices'
+              AND domain = 'intune'
+              AND outcome = 'success'
+            """
+        ).fetchone()
+
+    assert row is not None
+    assert json.loads(row["detail"])["scanned"] == 1
 
 
 # ---------------------------------------------------------------------------

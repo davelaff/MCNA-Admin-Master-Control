@@ -64,6 +64,16 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
     return finding_id
 
 
+def _append_activity(conn, tool_name: str, outcome: str, detail: dict) -> None:
+    conn.execute(
+        """
+        INSERT INTO activity_log (run_id, timestamp, tool_name, domain, outcome, detail)
+        VALUES (?,?,?,?,?,?)
+        """,
+        (str(uuid.uuid4()), _now(), tool_name, DOMAIN, outcome, json.dumps(detail, sort_keys=True)),
+    )
+
+
 def _try_intune(path: str, token: str) -> tuple[list, bool]:
     """Call an Intune deviceManagement endpoint. Returns (results, available).
     GraphError 403 = required scope not consented or Intune not licensed.
@@ -113,7 +123,7 @@ def intune_scan_devices() -> str:
                 securesketch_control="INTUNE-SCOPE-01",
             )
             findings_count += 1
-            return json.dumps({
+            result = {
                 "domain": DOMAIN,
                 "scanned": 0,
                 "intune_available": False,
@@ -121,7 +131,9 @@ def intune_scan_devices() -> str:
                 "stale": 0,
                 "not_encrypted": 0,
                 "findings": findings_count,
-            })
+            }
+            _append_activity(conn, "intune_scan_devices", "success", result)
+            return json.dumps(result)
 
         for device in devices:
             did = device.get("id", "")
@@ -204,15 +216,18 @@ def intune_scan_devices() -> str:
                     securesketch_control="INTUNE-ENCRYPT-01",
                 )
 
-    return json.dumps({
-        "domain": DOMAIN,
-        "scanned": len(devices),
-        "intune_available": True,
-        "not_compliant": not_compliant,
-        "stale": stale,
-        "not_encrypted": not_encrypted,
-        "findings": findings_count,
-    })
+        result = {
+            "domain": DOMAIN,
+            "scanned": len(devices),
+            "intune_available": True,
+            "not_compliant": not_compliant,
+            "stale": stale,
+            "not_encrypted": not_encrypted,
+            "findings": findings_count,
+        }
+        _append_activity(conn, "intune_scan_devices", "success", result)
+
+    return json.dumps(result)
 
 
 def intune_scan_compliance_policies() -> str:
@@ -241,12 +256,14 @@ def intune_scan_compliance_policies() -> str:
                 securesketch_control="INTUNE-SCOPE-01",
             )
             findings_count += 1
-            return json.dumps({
+            result = {
                 "domain": DOMAIN,
                 "intune_available": False,
                 "policies_found": 0,
                 "findings": findings_count,
-            })
+            }
+            _append_activity(conn, "intune_scan_compliance_policies", "success", result)
+            return json.dumps(result)
 
         if not policies:
             _upsert_finding(
@@ -274,9 +291,12 @@ def intune_scan_compliance_policies() -> str:
                 "lastModifiedDateTime": policy.get("lastModifiedDateTime"),
             })
 
-    return json.dumps({
-        "domain": DOMAIN,
-        "intune_available": True,
-        "policies_found": len(policies),
-        "findings": findings_count,
-    })
+        result = {
+            "domain": DOMAIN,
+            "intune_available": True,
+            "policies_found": len(policies),
+            "findings": findings_count,
+        }
+        _append_activity(conn, "intune_scan_compliance_policies", "success", result)
+
+    return json.dumps(result)

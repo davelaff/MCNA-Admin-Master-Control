@@ -2,6 +2,7 @@ import json
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 import requests
+from db import get_connection
 from tools.pim import pim_scan_role_assignments, pim_scan_role_definitions
 from tools.kb import kb_get_findings
 
@@ -186,6 +187,26 @@ def test_builtin_role_not_flagged_as_unused(db):
         pim_scan_role_definitions()
     findings = json.loads(kb_get_findings(domain="pim"))
     assert not any(f["finding_type"] == "unused_custom_role" for f in findings)
+
+
+def test_scan_role_definitions_records_success_activity(db):
+    defs = [_role_def("reader", "Directory Readers", built_in=True)]
+    with patch("tools.pim.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.pim.graph_get_all", side_effect=_graph_dispatch(defs, [], [])):
+        pim_scan_role_definitions()
+
+    with get_connection() as conn:
+        row = conn.execute(
+            """
+            SELECT * FROM activity_log
+            WHERE tool_name = 'pim_scan_role_definitions'
+              AND domain = 'pim'
+              AND outcome = 'success'
+            """
+        ).fetchone()
+
+    assert row is not None
+    assert json.loads(row["detail"])["scanned"] == 1
 
 
 # ---------------------------------------------------------------- P2 fallback

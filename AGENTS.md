@@ -22,6 +22,9 @@ files left behind.
 
 ## Operating principles
 - Read-only by default. Any write action must be explicitly requested.
+- Use sub-agents when they reduce elapsed time, improve parallelism, or let
+  independent work proceed more efficiently. Keep write scopes explicit and
+  preserve the read-only-by-default rule for tenant and repo changes.
 - Fail loud, not silent. If auth breaks, an API returns an error, or a query
   comes back empty when it shouldn't, stop and tell Dave. Do not retry silently,
   do not paper over the failure with a plausible-looking output.
