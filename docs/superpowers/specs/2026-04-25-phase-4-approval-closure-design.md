@@ -16,13 +16,15 @@ approval surface. MCP tools create, list, approve, reject, export, and close
 remediation actions, but they do not call Graph write endpoints or change
 tenant state.
 
-The implementation adds two SQLite tables:
+The implementation adds three SQLite tables:
 
 - `remediation_plans`: plan-level metadata, such as plan ID, domain, title,
   source artifact, owner, status, and timestamps.
 - `remediation_actions`: one row per proposed action, linked to a finding and
   a plan. Each row stores target identity, proposed action, risk notes,
   approval state, approval metadata, closure evidence, and timestamps.
+- `remediation_events`: append-only decision history for each plan/action,
+  including create, approve, reject, export, and close events.
 
 Existing tables stay authoritative for evidence and findings:
 
@@ -30,6 +32,7 @@ Existing tables stay authoritative for evidence and findings:
 - `findings.closure_evidence_id` links a resolved finding to the closure
   evidence row.
 - `activity_log` records every approval-layer operation.
+- `remediation_events` preserves the approval-layer history in domain terms.
 
 ## Approval Model
 
