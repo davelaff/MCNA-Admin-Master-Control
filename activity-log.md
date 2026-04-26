@@ -3,6 +3,7 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-26 — START_HERE brain update — Copilot scan stale note removed, Best Next Moves renumbered — START_HERE.md
 2026-04-26 — copilot_scan_settings fix — corrected Graph endpoint and permission name; scan now returns available:true, 0 findings — mcp-server/tools/copilot.py
 2026-04-25 — Brain file sync — MEMORY.md v25, ROADMAP.md v3.6, ARCHITECTURE.md updated (exo+purview built, 202 tests), 02-3/02-4 catalog gap noted — MEMORY.md, ROADMAP.md, ARCHITECTURE.md, activity-log.md
 2026-04-25 — exo_scan_mailboxes (first live run) — 187 users, 30 High findings (shared_mailbox_interactive) — mcp-server/kb/mcna_amc.db

@@ -82,7 +82,7 @@ Implemented Phase 3 coverage:
 - 40 open High Entra findings: `missing_owner`.
 - 22 open High PIM findings: `permanent_privileged_assignment`.
 - Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. First sensitivity label created and policy published 2026-04-26 to initialize the unified labeling store. Scan still returns `available:false` — Microsoft provisioning window is up to 24hr. Re-run `purview_scan_labels` on 2026-04-27; expect `available:true`. Full label taxonomy (Public / Internal / Confidential / Highly Confidential) still to be designed and published org-wide once the store is live.
-- Copilot settings scan needs `Microsoft365CopilotSettings.Read.All`; without it, settings scope gap is expected.
+- Copilot settings scan: fixed 2026-04-26. Uses `CopilotSettings-LimitedMode.Read` via `/copilot/admin/settings/limitedMode` (v1.0). Last run returned `available:true`, 0 findings.
 
 ## Best Next Moves
 
@@ -90,9 +90,8 @@ If Dave gives no specific task, recommend one of these before changing files:
 
 1. Review/approve or reject Batch 1 rows in the EXO shared mailbox approval queue; do not execute tenant changes without explicit approval.
 2. Decide/document the bstraka SMS forwarding rule.
-3. Consent `Microsoft365CopilotSettings.Read.All` to unblock Copilot governance evidence (SSK AI governance controls).
-4. Re-run `purview_scan_labels` on 2026-04-27 to confirm unified labeling store provisioned; then design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
-5. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
+3. Re-run `purview_scan_labels` on 2026-04-27 to confirm unified labeling store provisioned; then design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
+4. Validate EXO shared mailbox remediation batches with owners; do not execute changes without explicit approval.
 
 ## Brain Update Check
 
