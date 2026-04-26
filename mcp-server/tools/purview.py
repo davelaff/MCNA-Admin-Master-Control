@@ -71,37 +71,58 @@ def _append_activity(conn, tool_name: str, outcome: str, detail: dict) -> None:
     )
 
 
-def _try_labels(token: str) -> tuple[list, bool]:
-    """Fetch sensitivity labels from beta endpoint. Returns (labels, available).
-    403 = InformationProtectionPolicy.Read.All not consented.
+def _try_labels(token: str) -> tuple[list, bool, str]:
+    """Fetch sensitivity labels from beta endpoint.
+    Returns (labels, available, reason).
+    403 from Application Gateway = Purview API not enabled for this tenant (licensing).
+    403 from Graph = permission not consented.
     404 = beta feature unavailable in this tenant."""
     try:
-        return graph_get_all(LABELS_URL, token), True
+        return graph_get_all(LABELS_URL, token), True, ""
     except GraphError as e:
-        if e.status in (400, 403):
-            return [], False
+        if e.status == 403:
+            reason = "api_unavailable" if "Application-Gateway" in e.args[0] else "permission_denied"
+            return [], False, reason
+        if e.status == 400:
+            return [], False, "api_unavailable"
         raise
     except requests.exceptions.HTTPError as e:
         if e.response is not None and e.response.status_code in (400, 404):
-            return [], False
+            return [], False, "api_unavailable"
         raise
 
 
 def purview_scan_labels() -> str:
     """Enumerate Microsoft Purview sensitivity labels. No labels = no information
-    classification baseline across M365. Requires InformationProtectionPolicy.Read.All.
-    Uses Graph beta: /beta/security/informationProtection/sensitivityLabels."""
+    classification baseline across M365. Requires InformationProtectionPolicy.Read
+    (Delegated). Uses Graph beta: /beta/security/informationProtection/sensitivityLabels.
+    Note: InformationProtectionPolicy.Read.All does not exist as a Delegated scope;
+    Application-only callers are blocked at the API gateway level regardless of permission."""
     token = get_token()
-    labels, available = _try_labels(token)
+    labels, available, reason = _try_labels(token)
     findings_count = 0
 
     with get_connection() as conn:
         if not available:
+            if reason == "api_unavailable":
+                action = (
+                    "The sensitivity labels API endpoint is blocked at the Microsoft "
+                    "infrastructure level. This typically means Purview/AIP is not licensed "
+                    "or enabled for this tenant. Check Microsoft 365 subscription tier for "
+                    "Purview P1/P2 entitlement, or verify the unified labeling feature is "
+                    "activated in the Microsoft Purview compliance portal."
+                )
+            else:
+                action = (
+                    "Grant InformationProtectionPolicy.Read (Delegated) to the "
+                    "MCNA-TenantIntel-ReadOnly app registration and ensure the account "
+                    "running the scan has label viewer permissions, then re-run this scan. "
+                    "Note: .Read.All does not exist as a Delegated scope for this API."
+                )
             _upsert_finding(
                 conn, "tenant", "purview", "Microsoft Purview",
                 "purview_scope_gap", "Medium",
-                "Grant InformationProtectionPolicy.Read.All delegated consent to the "
-                "MCNA-TenantIntel-ReadOnly app registration, then re-run this scan.",
+                action,
                 securesketch_control="PURVIEW-SCOPE-01",
             )
             findings_count += 1

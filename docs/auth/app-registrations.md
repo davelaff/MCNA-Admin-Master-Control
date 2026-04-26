@@ -40,6 +40,8 @@ on the local workstation and are never stored here.
 | MailboxSettings.Read | Delegated | Granted | `exo_*` |
 | MailboxSettings.Read | Application | Granted | `exo_*` |
 | Tasks.Read.All | Application | Granted | `entra_*` (Planner orphan detection) |
+| InformationProtectionPolicy.Read | Delegated | Not required | `purview_*` |
+| InformationProtectionPolicy.Read.All | Application | Granted | `purview_*` |
 | Dynamics CRM: user_impersonation | Delegated | Granted | `pp_*` (Dataverse Web API) |
 | Power Apps Service: User | Delegated | Granted | `pp_*` (BAP/PowerApps/Flow) |
 
@@ -65,7 +67,7 @@ on the local workstation and are never stored here.
 | `mail_*` | Send summary emails | Scopes ready, tools not yet built |
 | `intune_*` | Device compliance, BitLocker | Scopes granted — tools functional |
 | `exo_*` | Exchange hygiene, forwarding rules | MailboxSettings.Read delegated + application granted — tools functional |
-| `purview_*` | Sensitivity labels, DLP, audit | Partial — AuditLog.Read.All granted; InformationProtectionPolicy.Read.All needed for purview_scan_labels |
+| `purview_*` | Sensitivity labels, DLP, audit | `AuditLog.Read.All` (delegated) functional for audit scan. `InformationProtectionPolicy.Read` (delegated) consented. Label scan endpoint blocked at API gateway level — likely Purview P1/P2 not licensed in tenant. |
 | `kb_*` | Knowledge base (SQLite) | No scopes required — local only |
 
 ### Notes
@@ -106,3 +108,4 @@ on the local workstation and are never stored here.
 - 2026-04-24 — v1.6 — Added MailboxSettings.Read delegated (consented 2026-04-23) and
   MailboxSettings.Read application (consented 2026-04-24). Application permission enables
   full cross-user EXO scans via cert-based client credentials flow.
+- 2026-04-26 — v1.7 — Added `InformationProtectionPolicy.Read.All` as Application permission (admin consent granted 2026-04-26). Also confirmed `InformationProtectionPolicy.Read` (Delegated) is present. `purview_scan_labels` uses delegated auth per Microsoft docs. Label scan endpoint returns HTTP 403 from Microsoft-Azure-Application-Gateway for all callers regardless of token type — API is blocked at tenant infrastructure level, likely requires Purview P1/P2 licensing. `purview_scan_audit` uses `AuditLog.Read.All` (delegated) and is functional.

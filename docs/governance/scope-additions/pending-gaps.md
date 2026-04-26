@@ -9,14 +9,14 @@ Each entry requires explicit approval before adding. Update this file when conse
 
 | Field | Value |
 |---|---|
-| **Type** | Delegated |
+| **Type** | Application (only form available; Delegated `.Read.All` does not exist in Graph) |
 | **Identified** | 2026-04-23 |
 | **Identified by** | D. Lafferty |
 | **Status** | **Consented — 2026-04-26** |
 | **Consented by** | D. Lafferty (global admin) |
-| **Justification** | Required for `purview_scan_labels` to enumerate sensitivity labels and policy coverage. |
+| **Justification** | Added to support `purview_scan_labels`. Application credential present and consented. However, the Graph beta endpoint (`/beta/security/informationProtection/sensitivityLabels`) returns HTTP 403 from Microsoft-Azure-Application-Gateway for both delegated and application callers. This is an API availability block, not a permission issue — the endpoint requires Purview/AIP to be licensed and activated in the tenant. The tool correctly uses delegated auth (`InformationProtectionPolicy.Read`) per Microsoft docs; the Application permission is also present but does not unblock the endpoint. |
 | **SSK mapping** | SSK 06-1 |
-| **Outcome** | Scan ran 2026-04-26: 0 labels configured. Baseline documented in `docs/policies/data/information-asset-classification.md`. Label taxonomy improvement queued in IT roadmap. |
+| **Outcome** | `purview_scan_labels` returns `available: false` with `purview_scope_gap` finding and action pointing to Purview P1/P2 licensing check. The permission itself is not the gap. |
 
 ---
 
