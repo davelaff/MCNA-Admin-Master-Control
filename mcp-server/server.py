@@ -41,6 +41,7 @@ from tools.ssk_matrix import (
     ssk_evidence_gaps,
     ssk_control_coverage_detail,
     ssk_maturity_dashboard,
+    ssk_quarterly_packet,
 )
 
 mcp = FastMCP(
@@ -140,6 +141,7 @@ mcp.tool()(ssk_control_matrix)
 mcp.tool()(ssk_evidence_gaps)
 mcp.tool()(ssk_control_coverage_detail)
 mcp.tool()(ssk_maturity_dashboard)
+mcp.tool()(ssk_quarterly_packet)
 
 if __name__ == "__main__":
     init_db()

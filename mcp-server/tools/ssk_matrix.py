@@ -1,8 +1,9 @@
-"""Secure SketCH Phase 4A coverage matrix and evidence gap reports."""
+"""Secure SketCH Phase 4A coverage matrix, evidence gap reports, and governance packets."""
 
 import importlib
 import json
 import uuid
+from datetime import datetime
 from pathlib import Path
 
 from db import get_connection
@@ -13,6 +14,7 @@ from tools.ssk_control_map import canonical_control_id
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _COVERAGE_REPORT_DIR = _REPO_ROOT / "reports" / "ssk-control-coverage"
 _GAP_REPORT_DIR = _REPO_ROOT / "reports" / "ssk-evidence-gaps"
+_GOVERNANCE_PACKET_DIR = _REPO_ROOT / "reports" / "governance-packets"
 
 _AUTOMATED_MODULES = [
     "tools.entra",
@@ -610,6 +612,171 @@ def ssk_maturity_dashboard() -> str:
         },
     )
     return json_ok(data)
+
+
+def _quarter_label(dt: datetime) -> str:
+    q = (dt.month - 1) // 3 + 1
+    return f"Q{q} {dt.year}"
+
+
+def _default_packet_path(dt: datetime) -> Path:
+    q = (dt.month - 1) // 3 + 1
+    slug = f"{dt.year}-Q{q}"
+    _GOVERNANCE_PACKET_DIR.mkdir(parents=True, exist_ok=True)
+    return _GOVERNANCE_PACKET_DIR / f"{slug}.md"
+
+
+def _due_for_packet(conn, now: str) -> list[dict]:
+    rows = conn.execute(
+        """
+        SELECT s.control_id, s.last_reviewed_at, s.next_review_due,
+               c.title, c.category, c.category_name,
+               CASE WHEN s.next_review_due IS NULL THEN 'never_reviewed'
+                    WHEN s.next_review_due < ? THEN 'overdue'
+                    ELSE 'due_soon'
+               END AS review_status
+        FROM ssk_control_status s
+        JOIN ssk_controls c ON c.control_id = s.control_id
+        WHERE s.next_review_due IS NULL OR s.next_review_due <= ?
+        ORDER BY
+            CASE WHEN s.next_review_due IS NULL THEN 1 ELSE 0 END,
+            s.next_review_due,
+            s.control_id
+        """,
+        (now, now),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def _packet_markdown(now: str, dashboard: dict, due: list[dict], gaps: list[dict]) -> str:
+    dt = datetime.fromisoformat(now)
+    quarter = _quarter_label(dt)
+    s = dashboard["summary"]
+
+    def _trunc(val: str | None) -> str:
+        return val[:10] if val else "—"
+
+    lines = [
+        "# MCNA Secure SketCH Quarterly Governance Review",
+        f"## {quarter} — Generated: {now}",
+        "",
+        "---",
+        "",
+        "## Program Summary",
+        "",
+        "| Metric | Value |",
+        "|---|---|",
+        f"| Total controls | {s['total_controls']} |",
+        f"| Evidenced | {s['total_evidenced']} |",
+        f"| Evidence gaps | {s['total_evidence_gaps']} |",
+        f"| Regularly reviewed | {s['maturity_breakdown'].get('regularly_reviewed', 0)} |",
+        f"| Never reviewed | {s['never_reviewed_count']} |",
+        f"| Overdue for review | {s['overdue_count']} |",
+        "",
+        "---",
+        "",
+        "## Maturity by Category",
+        "",
+        "| Category | Name | Controls | Reg. Reviewed | Evidenced | Overdue | Never Reviewed |",
+        "|---|---|---:|---:|---:|---:|---:|",
+    ]
+    for cat in dashboard["categories"]:
+        reg = cat["maturity_breakdown"].get("regularly_reviewed", 0)
+        lines.append(
+            f"| {cat['category']} | {cat['category_name']} | {cat['control_count']} "
+            f"| {reg} | {cat['evidenced']} | {cat['overdue_count']} | {cat['never_reviewed_count']} |"
+        )
+
+    lines += ["", "---", "", "## Review Queue", ""]
+    if due:
+        lines += [
+            f"Controls requiring attention ({len(due)} total):",
+            "",
+            "| Control | Title | Review Status | Next Due | Last Reviewed |",
+            "|---|---|---|---|---|",
+        ]
+        for row in due:
+            title = (row["title"] or "").replace("|", "\\|")
+            lines.append(
+                f"| {row['control_id']} | {title} | {row['review_status']} "
+                f"| {_trunc(row['next_review_due'])} | {_trunc(row['last_reviewed_at'])} |"
+            )
+    else:
+        lines.append("No controls overdue or never reviewed.")
+
+    lines += ["", "---", "", "## Evidence Gaps", ""]
+    if gaps:
+        lines += [
+            f"Controls with missing or unverified evidence ({len(gaps)} total):",
+            "",
+            "| Control | Title | Audit Status | Action Required |",
+            "|---|---|---|---|",
+        ]
+        for row in gaps:
+            title = (row["title"] or "").replace("|", "\\|")
+            action = (row["missing_evidence_action"] or "").replace("|", "\\|")
+            lines.append(
+                f"| {row['control_id']} | {title} | {row['audit_status']} | {action} |"
+            )
+    else:
+        lines.append("No evidence gaps.")
+
+    lines += ["", "---", "", "## Recommended Actions", ""]
+    actions = []
+    if s["overdue_count"]:
+        actions.append(f"Schedule reviews for {s['overdue_count']} overdue control(s).")
+    if s["never_reviewed_count"]:
+        actions.append(
+            f"Conduct initial reviews for {s['never_reviewed_count']} control(s) that have never been reviewed."
+        )
+    if s["total_evidence_gaps"]:
+        actions.append(f"Close {s['total_evidence_gaps']} evidence gap(s) before next audit.")
+    if not actions:
+        actions.append("All controls are evidenced and no reviews are overdue. Maintain current cadence.")
+    for i, action in enumerate(actions, 1):
+        lines.append(f"{i}. {action}")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+def ssk_quarterly_packet(output_path: str | None = None) -> str:
+    """Generate quarterly governance review packet: program summary, maturity by category, review queue, and evidence gaps."""
+    now = utc_now()
+    dashboard = _dashboard_data()
+
+    with get_connection() as conn:
+        due = _due_for_packet(conn, now)
+
+    gap_rows = [row for row in _matrix_rows() if row["audit_status"] != "evidenced"]
+
+    dt = datetime.fromisoformat(now)
+    path = Path(output_path) if output_path else _default_packet_path(dt)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(_packet_markdown(now, dashboard, due, gap_rows), encoding="utf-8")
+
+    append_activity(
+        "ssk_quarterly_packet",
+        "success",
+        {
+            "total_controls": dashboard["summary"]["total_controls"],
+            "total_evidenced": dashboard["summary"]["total_evidenced"],
+            "overdue_count": dashboard["summary"]["overdue_count"],
+            "never_reviewed_count": dashboard["summary"]["never_reviewed_count"],
+            "evidence_gaps": dashboard["summary"]["total_evidence_gaps"],
+            "output_path": str(path),
+        },
+    )
+    return json_ok(
+        {
+            "output_path": str(path),
+            "total_controls": dashboard["summary"]["total_controls"],
+            "total_evidenced": dashboard["summary"]["total_evidenced"],
+            "overdue_count": dashboard["summary"]["overdue_count"],
+            "never_reviewed_count": dashboard["summary"]["never_reviewed_count"],
+            "evidence_gaps": dashboard["summary"]["total_evidence_gaps"],
+        }
+    )
 
 
 def ssk_evidence_gaps(

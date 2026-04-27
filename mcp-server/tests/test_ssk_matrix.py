@@ -11,6 +11,7 @@ from tools.ssk_matrix import (
     ssk_control_matrix,
     ssk_evidence_gaps,
     ssk_maturity_dashboard,
+    ssk_quarterly_packet,
 )
 
 
@@ -412,3 +413,107 @@ def test_maturity_dashboard_registered_in_server():
     import tools.ssk_matrix as ssk_matrix
 
     assert server.ssk_maturity_dashboard is ssk_matrix.ssk_maturity_dashboard
+
+
+# --- ssk_quarterly_packet tests ---
+
+
+def test_quarterly_packet_writes_markdown_file(tmp_path, db):
+    _seed_control("06-3", "License control")
+    out = tmp_path / "packet.md"
+
+    result = json.loads(ssk_quarterly_packet(output_path=str(out)))
+
+    assert result["output_path"] == str(out)
+    assert out.exists()
+    text = out.read_text(encoding="utf-8")
+    assert "# MCNA Secure SketCH Quarterly Governance Review" in text
+
+
+def test_quarterly_packet_includes_summary_table(tmp_path, db):
+    _seed_control("06-3", "License control")
+    out = tmp_path / "packet.md"
+
+    json.loads(ssk_quarterly_packet(output_path=str(out)))
+    text = out.read_text(encoding="utf-8")
+
+    assert "Total controls" in text
+    assert "Program Summary" in text
+
+
+def test_quarterly_packet_review_queue_shows_overdue(tmp_path, db):
+    _seed_control("06-3", "License control")
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE ssk_control_status SET next_review_due = ?, last_reviewed_at = ? WHERE control_id = ?",
+            ("2026-01-01T00:00:00+00:00", "2025-10-01T00:00:00+00:00", "06-3"),
+        )
+    out = tmp_path / "packet.md"
+
+    json.loads(ssk_quarterly_packet(output_path=str(out)))
+    text = out.read_text(encoding="utf-8")
+
+    assert "06-3" in text
+    assert "overdue" in text
+
+
+def test_quarterly_packet_review_queue_empty_message(tmp_path, db):
+    _seed_control("06-3", "License control")
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE ssk_control_status SET next_review_due = ? WHERE control_id = ?",
+            ("2030-01-01T00:00:00+00:00", "06-3"),
+        )
+    out = tmp_path / "packet.md"
+
+    json.loads(ssk_quarterly_packet(output_path=str(out)))
+    text = out.read_text(encoding="utf-8")
+
+    assert "No controls overdue or never reviewed." in text
+
+
+def test_quarterly_packet_evidence_gaps_section(tmp_path, db):
+    _seed_control("06-3", "License control")
+    out = tmp_path / "packet.md"
+
+    json.loads(ssk_quarterly_packet(output_path=str(out)))
+    text = out.read_text(encoding="utf-8")
+
+    assert "## Evidence Gaps" in text
+    assert "06-3" in text
+
+
+def test_quarterly_packet_no_gaps_message(tmp_path, db):
+    _seed_control("06-3", "License control")
+    _seed_activity("run-1")
+    _seed_evidence("06-3", status="resolved")
+    out = tmp_path / "packet.md"
+
+    json.loads(ssk_quarterly_packet(output_path=str(out)))
+    text = out.read_text(encoding="utf-8")
+
+    assert "No evidence gaps." in text
+
+
+def test_quarterly_packet_recommended_actions_all_good(tmp_path, db):
+    _seed_control("06-3", "License control")
+    _seed_activity("run-1")
+    _seed_evidence("06-3", status="resolved")
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE ssk_control_status SET next_review_due = ? WHERE control_id = ?",
+            ("2030-01-01T00:00:00+00:00", "06-3"),
+        )
+    out = tmp_path / "packet.md"
+
+    json.loads(ssk_quarterly_packet(output_path=str(out)))
+    text = out.read_text(encoding="utf-8")
+
+    assert "Maintain current cadence" in text
+
+
+def test_quarterly_packet_registered_in_server():
+    import server
+    import tools.ssk_matrix as ssk_matrix
+
+    assert server.ssk_quarterly_packet is ssk_matrix.ssk_quarterly_packet
