@@ -41,7 +41,7 @@ Read these only on demand:
 
 ## Current State
 
-As of 2026-04-26:
+As of 2026-04-27:
 
 - Phase 3 is 9 of 9 planned work items built or partially implemented.
 - Final Phase 3 domain `mcp-server/tools/mail.py` is built and registered.
@@ -73,9 +73,11 @@ Implemented Phase 3 coverage:
 Implemented Phase 5 tools (partial):
 
 - `ssk_due` — controls past or approaching `next_review_due`; `include_never_reviewed` param added
+- `ssk_review_notifications` — scheduled review digest generator with optional `mail_send_summary` dry-run/send handoff
 - `ssk_maturity_dashboard` — per-category maturity rollup (review status, evidence coverage, maturity levels)
 - `ssk_quarterly_packet` — auto-assembled quarterly governance review packet
 - Live Q2 2026 packet generated: `reports/governance-packets/2026-Q2.md`
+- Initial review batch recorded 2026-04-27: families `08`, `09`, `14`, `19` and control `15-3`; notification queue reduced from 75 never-reviewed controls to 58. `09`, `14`, and `19` are now `regularly_reviewed`; `08` and `15-3` were reviewed with `action_required` because open findings remain.
 
 ## Active Operational Items
 
@@ -90,12 +92,12 @@ Implemented Phase 5 tools (partial):
 - 40 open High Entra findings: `missing_owner`.
 - PIM triage 2026-04-26 (pending follow-up next week):
   - `cloudadmin@nofmetalcoatings.us` — unknown owner, App Admin + Cloud App Admin, created 2026-03-12, signed in once, never again. Waiting on DIS (Nate/Tony) to confirm if break-glass.
-  - Diana Kochever — HR Admin holding Teams Admin, User Admin, Exchange Admin. Over-scoped. Meeting scheduled to determine actual needs.
+  - Diana Kochever — keeps existing admin roles; no remediation needed.
   - `admin@nofmetalcoatings.us` — confirmed break-glass. Acknowledge when ready.
   - DIS Global Admin (`dis@nofmetalcoatings.us`) — permanent Global Admin on non-dedicated account. Decision: have DIS repurpose the existing account into a dedicated admin-only identity (`DIS Admin`, no mailbox/general routing, MFA enforced, privileged use only). Dave emailed Nate Whitelaw on 2026-04-27 and is waiting on written confirmation before verification/closure.
   - MIS service account — 10 findings acknowledged as intentional.
   - Your own roles + PowerBI service principals — structural (no P2); acknowledge when ready.
-- Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. First sensitivity label created and policy published 2026-04-26 to initialize the unified labeling store. Scan still returns `available:false` — Microsoft provisioning window is up to 24hr. Re-run `purview_scan_labels` on 2026-04-27; expect `available:true`. Full label taxonomy (Public / Internal / Confidential / Highly Confidential) still to be designed and published org-wide once the store is live.
+- Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. A real `Public` sensitivity label and published policy now exist in the tenant. Live `purview_scan_labels` still returns `available:false`, but now correctly reports dual 403 Microsoft-Azure-Application-Gateway blocks on both the org-wide and `/me` sensitivity-label endpoints. This is a scanner-access/platform issue, not evidence that labels are absent. Full label taxonomy (Public / Internal / Confidential / Highly Confidential) still to be designed and published org-wide once the platform path is usable.
 - Copilot settings scan: fixed 2026-04-26. Uses `CopilotSettings-LimitedMode.Read` via `/copilot/admin/settings/limitedMode` (v1.0). Last run returned `available:true`, 0 findings.
 
 ## DIS Privileged Access Decision
@@ -134,7 +136,7 @@ If Dave gives no specific task, recommend one of these before changing files:
 4. Wait for Nate Whitelaw to confirm the `dis@nofmetalcoatings.us` repurpose in writing, then verify the account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
 5. Acknowledge remaining structural PIM findings (admin break-glass, Dave's own roles, PowerBI service principals).
 6. Review/approve EXO shared mailbox approval queue (on hold).
-7. Phase 5 remaining: scheduled review notifications; Secure SketCH portal re-score submission workflow.
+7. Phase 5 remaining: Secure SketCH portal re-score submission workflow.
 
 ## Brain Update Check
 

@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, timedelta
 
 from db import get_connection
+from tools.mail import mail_send_summary
 from tools import ssk_common
 from tools.ssk_control_map import canonical_control_id
 from tools.ssk_common import (
@@ -487,3 +488,110 @@ def ssk_due(days_ahead: int = 30, include_never_reviewed: bool = True) -> str:
                 (now.isoformat(), cutoff),
             ).fetchall()
     return json_ok([dict(row) for row in rows])
+
+
+def _review_notification_subject(counts: dict, generated_at: str) -> str:
+    return (
+        "MCNA Secure SketCH review queue "
+        f"({counts['total']} controls, {generated_at[:10]})"
+    )
+
+
+def _review_notification_body(
+    generated_at: str,
+    days_ahead: int,
+    counts: dict,
+    rows: list[dict],
+) -> str:
+    def _label(row: dict) -> str:
+        status = row["review_status"].replace("_", " ")
+        due = row["next_review_due"][:10] if row["next_review_due"] else "none"
+        reviewed = row["last_reviewed_at"][:10] if row["last_reviewed_at"] else "never"
+        title = row["title"] or ""
+        return (
+            f"- {row['control_id']} | {status} | next due {due} | "
+            f"last reviewed {reviewed} | {title}"
+        )
+
+    lines = [
+        "MCNA Secure SketCH scheduled review notification",
+        f"Generated: {generated_at}",
+        f"Window: next {days_ahead} day(s)",
+        "",
+        f"Controls requiring attention: {counts['total']}",
+        f"Overdue: {counts['overdue']}",
+        f"Due soon: {counts['due_soon']}",
+        f"Never reviewed: {counts['never_reviewed']}",
+        "",
+    ]
+    if rows:
+        lines.append("Review queue:")
+        lines.extend(_label(row) for row in rows)
+    else:
+        lines.append("No controls currently require review.")
+    return "\n".join(lines)
+
+
+def ssk_review_notifications(
+    days_ahead: int = 30,
+    include_never_reviewed: bool = True,
+    to=None,
+    cc=None,
+    importance: str = "normal",
+    dry_run: bool = True,
+) -> str:
+    """Build a review digest and optionally preview/send it through mail_send_summary."""
+    due_result = json.loads(
+        ssk_due(days_ahead=days_ahead, include_never_reviewed=include_never_reviewed)
+    )
+    if isinstance(due_result, dict) and due_result.get("error_type"):
+        return json.dumps(due_result)
+
+    rows = due_result
+    counts = {
+        "total": len(rows),
+        "overdue": sum(1 for row in rows if row["review_status"] == "overdue"),
+        "due_soon": sum(1 for row in rows if row["review_status"] == "due_soon"),
+        "never_reviewed": sum(1 for row in rows if row["review_status"] == "never_reviewed"),
+    }
+    generated_at = ssk_common.utc_now()
+    subject = _review_notification_subject(counts, generated_at)
+    body = _review_notification_body(generated_at, days_ahead, counts, rows)
+
+    mail_result = None
+    if to is not None:
+        mail_result = json.loads(
+            mail_send_summary(
+                to=to,
+                cc=cc,
+                subject=subject,
+                body=body,
+                importance=importance,
+                dry_run=dry_run,
+            )
+        )
+
+    append_activity(
+        "ssk_review_notifications",
+        "success",
+        {
+            "days_ahead": days_ahead,
+            "include_never_reviewed": include_never_reviewed,
+            "control_count": counts["total"],
+            "mail_requested": to is not None,
+            "dry_run": dry_run,
+            "mail_sent": None if mail_result is None else mail_result.get("sent"),
+        },
+    )
+    return json_ok(
+        {
+            "generated_at": generated_at,
+            "days_ahead": days_ahead,
+            "include_never_reviewed": include_never_reviewed,
+            "counts": counts,
+            "controls": rows,
+            "subject": subject,
+            "body": body,
+            "mail": mail_result,
+        }
+    )

@@ -31,7 +31,13 @@ from tools.ssk import (
 from tools.ssk_evidence import (
     ssk_link_evidence, ssk_list_evidence, ssk_evidence_expiring, ssk_verify_pointers,
 )
-from tools.ssk_reviews import ssk_record_review, ssk_review_history, ssk_alerts, ssk_due
+from tools.ssk_reviews import (
+    ssk_record_review,
+    ssk_review_history,
+    ssk_alerts,
+    ssk_due,
+    ssk_review_notifications,
+)
 from tools.ssk_actions import ssk_mark_action, ssk_action_queue
 from tools.ssk_registry import registry_add, registry_list, registry_get, registry_retire
 from tools.ssk_binder import ssk_coverage, ssk_export_binder
@@ -128,6 +134,7 @@ mcp.tool()(ssk_record_review)
 mcp.tool()(ssk_review_history)
 mcp.tool()(ssk_alerts)
 mcp.tool()(ssk_due)
+mcp.tool()(ssk_review_notifications)
 mcp.tool()(ssk_mark_action)
 mcp.tool()(ssk_action_queue)
 mcp.tool()(registry_add)

@@ -1,11 +1,18 @@
 import json
+from unittest.mock import patch
 
 from docx import Document
 
 from tools import ssk_common
 from tools.ssk import ssk_import_catalog, ssk_status
 from tools.ssk_evidence import ssk_link_evidence, ssk_verify_pointers
-from tools.ssk_reviews import ssk_alerts, ssk_due, ssk_record_review, ssk_review_history
+from tools.ssk_reviews import (
+    ssk_alerts,
+    ssk_due,
+    ssk_record_review,
+    ssk_review_history,
+    ssk_review_notifications,
+)
 
 
 def _seed_control_via_import(tmp_path, control_id: str = "06-3") -> None:
@@ -318,3 +325,56 @@ def test_ssk_due_not_returned_when_review_is_current(db, tmp_path, monkeypatch):
     result = json.loads(ssk_due(days_ahead=30, include_never_reviewed=False))
 
     assert result == []
+
+
+def test_ssk_review_notifications_returns_report_without_mail(db, tmp_path, monkeypatch):
+    _seed_control_via_import(tmp_path, control_id="06-3")
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: "2026-04-27T12:00:00+00:00")
+
+    result = json.loads(ssk_review_notifications(days_ahead=30))
+
+    assert result["generated_at"] == "2026-04-27T12:00:00+00:00"
+    assert result["counts"] == {
+        "total": 1,
+        "overdue": 0,
+        "due_soon": 0,
+        "never_reviewed": 1,
+    }
+    assert result["controls"][0]["control_id"] == "06-3"
+    assert result["mail"] is None
+    assert "06-3" in result["body"]
+    assert "never reviewed" in result["body"].lower()
+
+
+def test_ssk_review_notifications_uses_mail_send_summary_for_dry_run_preview(
+    db, tmp_path, monkeypatch
+):
+    _seed_control_via_import(tmp_path, control_id="06-3")
+    monkeypatch.setattr(ssk_common, "utc_now", lambda: "2026-04-27T12:00:00+00:00")
+
+    with patch(
+        "tools.ssk_reviews.mail_send_summary",
+        return_value=json.dumps({"dry_run": True, "sent": False, "subject": "preview"}),
+    ) as mail_send:
+        result = json.loads(
+            ssk_review_notifications(
+                days_ahead=30,
+                to="ops@nofmetalcoatings.us",
+                cc="audit@nofmetalcoatings.us",
+            )
+        )
+
+    mail_send.assert_called_once()
+    kwargs = mail_send.call_args.kwargs
+    assert kwargs["to"] == "ops@nofmetalcoatings.us"
+    assert kwargs["cc"] == "audit@nofmetalcoatings.us"
+    assert kwargs["dry_run"] is True
+    assert "MCNA Secure SketCH review queue" in kwargs["subject"]
+    assert "06-3" in kwargs["body"]
+    assert result["mail"]["dry_run"] is True
+
+
+def test_ssk_review_notifications_registered_in_server():
+    import server
+
+    assert server.ssk_review_notifications is ssk_review_notifications
