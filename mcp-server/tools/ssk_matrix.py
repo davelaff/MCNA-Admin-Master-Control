@@ -520,6 +520,98 @@ def ssk_control_matrix(
     )
 
 
+def _dashboard_data() -> dict:
+    now = utc_now()
+    with get_connection() as conn:
+        control_rows = conn.execute(
+            """
+            SELECT c.control_id, c.category, c.category_name,
+                   s.current_maturity, s.next_review_due, s.last_reviewed_at
+            FROM ssk_controls c
+            JOIN ssk_control_status s ON s.control_id = c.control_id
+            ORDER BY c.control_id
+            """
+        ).fetchall()
+        evidenced_ids = {
+            row["control_id"]
+            for row in conn.execute(
+                """
+                SELECT control_id FROM ssk_evidence
+                WHERE (expires_at IS NULL OR expires_at >= ?)
+                  AND verification_status = 'resolved'
+                GROUP BY control_id
+                """,
+                (now,),
+            ).fetchall()
+        }
+
+    categories: dict[str, dict] = {}
+    for row in control_rows:
+        cat = row["category"]
+        if cat not in categories:
+            categories[cat] = {
+                "category": cat,
+                "category_name": row["category_name"],
+                "control_count": 0,
+                "maturity_breakdown": {},
+                "evidenced": 0,
+                "evidence_gaps": 0,
+                "overdue_count": 0,
+                "never_reviewed_count": 0,
+            }
+        entry = categories[cat]
+        entry["control_count"] += 1
+
+        maturity = row["current_maturity"] or "not_regularly_reviewed"
+        entry["maturity_breakdown"][maturity] = entry["maturity_breakdown"].get(maturity, 0) + 1
+
+        if row["control_id"] in evidenced_ids:
+            entry["evidenced"] += 1
+        else:
+            entry["evidence_gaps"] += 1
+
+        if row["next_review_due"] is None:
+            entry["never_reviewed_count"] += 1
+        elif row["next_review_due"] < now:
+            entry["overdue_count"] += 1
+
+    cat_list = sorted(categories.values(), key=lambda x: x["category"])
+
+    all_maturities: dict[str, int] = {}
+    for cat_entry in cat_list:
+        for maturity, count in cat_entry["maturity_breakdown"].items():
+            all_maturities[maturity] = all_maturities.get(maturity, 0) + count
+
+    return {
+        "generated_at": now,
+        "summary": {
+            "total_controls": len(control_rows),
+            "maturity_breakdown": all_maturities,
+            "total_evidenced": sum(c["evidenced"] for c in cat_list),
+            "total_evidence_gaps": sum(c["evidence_gaps"] for c in cat_list),
+            "overdue_count": sum(c["overdue_count"] for c in cat_list),
+            "never_reviewed_count": sum(c["never_reviewed_count"] for c in cat_list),
+        },
+        "categories": cat_list,
+    }
+
+
+def ssk_maturity_dashboard() -> str:
+    """Maturity dashboard: per-category rollup of review status, evidence coverage, and maturity levels."""
+    data = _dashboard_data()
+    append_activity(
+        "ssk_maturity_dashboard",
+        "success",
+        {
+            "total_controls": data["summary"]["total_controls"],
+            "total_evidenced": data["summary"]["total_evidenced"],
+            "never_reviewed_count": data["summary"]["never_reviewed_count"],
+            "overdue_count": data["summary"]["overdue_count"],
+        },
+    )
+    return json_ok(data)
+
+
 def ssk_evidence_gaps(
     output_path: str | None = None,
     format: str = "markdown",

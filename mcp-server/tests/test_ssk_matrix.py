@@ -10,6 +10,7 @@ from tools.ssk_matrix import (
     ssk_control_coverage_detail,
     ssk_control_matrix,
     ssk_evidence_gaps,
+    ssk_maturity_dashboard,
 )
 
 
@@ -303,3 +304,111 @@ def test_ssk_matrix_tools_registered_in_server():
     assert server.ssk_control_matrix is ssk_matrix.ssk_control_matrix
     assert server.ssk_evidence_gaps is ssk_matrix.ssk_evidence_gaps
     assert server.ssk_control_coverage_detail is ssk_matrix.ssk_control_coverage_detail
+
+
+# --- ssk_maturity_dashboard tests ---
+
+
+def test_maturity_dashboard_empty_db(db):
+    result = json.loads(ssk_maturity_dashboard())
+
+    assert result["summary"]["total_controls"] == 0
+    assert result["summary"]["total_evidenced"] == 0
+    assert result["summary"]["total_evidence_gaps"] == 0
+    assert result["summary"]["never_reviewed_count"] == 0
+    assert result["summary"]["overdue_count"] == 0
+    assert result["categories"] == []
+
+
+def test_maturity_dashboard_groups_controls_by_category(db):
+    _seed_control("06-3", "License control")
+    _seed_control("08-1", "Access control")
+
+    result = json.loads(ssk_maturity_dashboard())
+
+    category_ids = [c["category"] for c in result["categories"]]
+    assert "06" in category_ids
+    assert "08" in category_ids
+    assert len(result["categories"]) == 2
+
+
+def test_maturity_dashboard_summary_total_controls(db):
+    _seed_control("06-3")
+    _seed_control("06-4")
+    _seed_control("08-1")
+
+    result = json.loads(ssk_maturity_dashboard())
+
+    assert result["summary"]["total_controls"] == 3
+    cat_06 = next(c for c in result["categories"] if c["category"] == "06")
+    assert cat_06["control_count"] == 2
+
+
+def test_maturity_dashboard_evidenced_count(db):
+    _seed_control("06-3", "License control")
+    _seed_control("08-1", "Access control")
+    _seed_activity("run-1")
+    _seed_evidence("06-3", status="resolved")
+
+    result = json.loads(ssk_maturity_dashboard())
+
+    assert result["summary"]["total_evidenced"] == 1
+    assert result["summary"]["total_evidence_gaps"] == 1
+    cat_06 = next(c for c in result["categories"] if c["category"] == "06")
+    cat_08 = next(c for c in result["categories"] if c["category"] == "08")
+    assert cat_06["evidenced"] == 1
+    assert cat_06["evidence_gaps"] == 0
+    assert cat_08["evidenced"] == 0
+    assert cat_08["evidence_gaps"] == 1
+
+
+def test_maturity_dashboard_never_reviewed_count(db):
+    _seed_control("06-3")
+    _seed_control("08-1")
+
+    result = json.loads(ssk_maturity_dashboard())
+
+    assert result["summary"]["never_reviewed_count"] == 2
+    assert result["summary"]["overdue_count"] == 0
+
+
+def test_maturity_dashboard_overdue_count(db):
+    _seed_control("06-3")
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE ssk_control_status SET next_review_due = ?, last_reviewed_at = ? WHERE control_id = ?",
+            ("2026-01-01T00:00:00+00:00", "2025-10-01T00:00:00+00:00", "06-3"),
+        )
+
+    result = json.loads(ssk_maturity_dashboard())
+
+    assert result["summary"]["overdue_count"] == 1
+    assert result["summary"]["never_reviewed_count"] == 0
+    cat_06 = next(c for c in result["categories"] if c["category"] == "06")
+    assert cat_06["overdue_count"] == 1
+    assert cat_06["never_reviewed_count"] == 0
+
+
+def test_maturity_dashboard_maturity_breakdown(db):
+    _seed_control("06-3")
+    _seed_control("06-4")
+    with get_connection() as conn:
+        conn.execute(
+            "UPDATE ssk_control_status SET current_maturity = 'regularly_reviewed' WHERE control_id = ?",
+            ("06-3",),
+        )
+
+    result = json.loads(ssk_maturity_dashboard())
+
+    cat_06 = next(c for c in result["categories"] if c["category"] == "06")
+    assert cat_06["maturity_breakdown"].get("regularly_reviewed") == 1
+    assert cat_06["maturity_breakdown"].get("not_regularly_reviewed") == 1
+    assert result["summary"]["maturity_breakdown"].get("regularly_reviewed") == 1
+    assert result["summary"]["maturity_breakdown"].get("not_regularly_reviewed") == 1
+
+
+def test_maturity_dashboard_registered_in_server():
+    import server
+    import tools.ssk_matrix as ssk_matrix
+
+    assert server.ssk_maturity_dashboard is ssk_matrix.ssk_maturity_dashboard
