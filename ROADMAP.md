@@ -310,12 +310,15 @@ Manual or automated remediation can be planned, but execution requires Dave's ex
 ### Phase 5 — Review cadence and leadership reporting
 **Goal:** Make AMC drive the periodic review process, not just record it.
 
-**Deliverables:**
-- Scheduled review notifications (controls past `next_review_due`)
-- Quarterly governance packet generator (auto-assembled from KB)
-- Leadership summary view (maturity dashboard by category)
-- Secure SketCH portal submission workflow — re-score with MCNA's current
-  evidence trail after each quarterly review
+**Status (2026-04-26):** Partial. Three tools built and registered.
+- `ssk_due` — lists controls past or approaching `next_review_due`; `include_never_reviewed` param added 2026-04-26.
+- `ssk_maturity_dashboard` — per-category rollup of review status, evidence coverage, and maturity levels.
+- `ssk_quarterly_packet` — auto-assembles quarterly governance review packet from KB; live Q2 2026 packet generated at `reports/governance-packets/2026-Q2.md`.
+- `_CATEGORY_NAMES` lookup added to `ssk_reviews.py`.
+
+**Remaining deliverables:**
+- Scheduled review notifications (controls past `next_review_due` — tooling exists; workflow automation TBD)
+- Secure SketCH portal submission workflow — re-score with MCNA's current evidence trail after each quarterly review
 
 ---
 
@@ -334,6 +337,7 @@ Manual or automated remediation can be planned, but execution requires Dave's ex
 ---
 
 ## Change log
+- 2026-04-26 — v4.3 — Phase 5 partial: `ssk_due` (`include_never_reviewed`), `ssk_maturity_dashboard`, `ssk_quarterly_packet` built and registered; live Q2 2026 packet generated. Test baseline 271.
 - 2026-04-26 — v4.2 — Purview endpoint fix (dual-attempt: app token + delegated /me/ fallback); App Gateway 403 root cause confirmed as unified labeling store not yet provisioned; first label + policy published to trigger initialization; 24hr propagation window in progress. Phase 4 matrix updated to 75/75 evidenced (policy docs closed all 49 manual gaps).
 - 2026-04-26 — v4.1 — Phase 4A-4B coverage/evidence foundation built: all 75 controls classified, durable coverage snapshots added, evidence/gap reports generated, and automated coverage expanded to Intune/Purview/EXO/Copilot.
 - 2026-04-25 — v4.0 — Phase 4 approval/closure foundation built: remediation plans/actions/events, exported approval queues, and closure evidence linkage without tenant writes.

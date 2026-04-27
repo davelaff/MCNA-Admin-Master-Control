@@ -3,6 +3,7 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-04-26 — START_HERE + ROADMAP brain update — Phase 5 partial progress recorded; test count 271; ssk_due/ssk_maturity_dashboard/ssk_quarterly_packet listed; Q2 packet referenced — START_HERE.md, ROADMAP.md
 2026-04-26 — PIM findings triage — MIS service account: 10 findings acknowledged (intentional). cloudadmin: pending DIS confirmation. Diana Kochever: pending meeting. — mcp-server/kb/mcna_amc.db
 2026-04-26 — entra_scan_app_regs: suppress Power Platform cert expiry false positives — threshold 20 key creds, 8/8 tests pass — mcp-server/tools/entra.py, mcp-server/tests/test_entra.py
 2026-04-26 — Entra app reg cleanup executed — 7 abandoned apps deleted from Entra portal; KB actions closed. Workflow spared (active, has valid certs); expired cert removal queued in plan 616b15cf — mcp-server/kb/mcna_amc.db

@@ -45,9 +45,10 @@ As of 2026-04-26:
 
 - Phase 3 is 9 of 9 planned work items built or partially implemented.
 - Final Phase 3 domain `mcp-server/tools/mail.py` is built and registered.
-- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 250 passed.
+- Full test suite last verified from `mcp-server/`: `rtk python -m pytest --tb=short -q` -> 271 passed.
 - Phase 4 approval/closure foundation is built: remediation plans, actions, events, approval queue export, and closure evidence linkage.
 - Phase 4A-4B coverage/evidence foundation is built: control matrix, evidence gap report, scan-evidence backfill tool, and durable coverage snapshots.
+- Phase 5 kicked off: review cadence and leadership reporting tools built and registered.
 - Tenant remediations executed 2026-04-26: 7 abandoned Entra app regs deleted; Workflow cert finding closed as false positive (Power Platform system app, PP suppression added to scanner).
 - Secure SketCH catalog repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`.
 - Catalog state: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls.
@@ -68,6 +69,13 @@ Implemented Phase 3 coverage:
 - `exo.py`
 - `copilot.py`
 - `mail.py`
+
+Implemented Phase 5 tools (partial):
+
+- `ssk_due` — controls past or approaching `next_review_due`; `include_never_reviewed` param added
+- `ssk_maturity_dashboard` — per-category maturity rollup (review status, evidence coverage, maturity levels)
+- `ssk_quarterly_packet` — auto-assembled quarterly governance review packet
+- Live Q2 2026 packet generated: `reports/governance-packets/2026-Q2.md`
 
 ## Active Operational Items
 
@@ -100,6 +108,7 @@ If Dave gives no specific task, recommend one of these before changing files:
 4. Raise DIS Global Admin on non-dedicated account with Nate Whitelaw.
 5. Acknowledge remaining structural PIM findings (admin break-glass, Dave's own roles, PowerBI service principals).
 6. Review/approve EXO shared mailbox approval queue (on hold).
+7. Phase 5 remaining: scheduled review notifications; Secure SketCH portal re-score submission workflow.
 
 ## Brain Update Check
 
