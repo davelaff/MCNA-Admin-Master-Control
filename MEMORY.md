@@ -1,5 +1,5 @@
 # MEMORY.md — MCNA Admin Master Control
-Version: v29 | Updated: 2026-04-25
+Version: v30 | Updated: 2026-04-27
 
 ## Purpose of this file
 
@@ -41,7 +41,9 @@ anything.
 - `ROADMAP.md` for strategic direction and phase history
 - `CLAUDE.md` for legacy Claude Code operational behavior
 
-Current state: Phase 3 is at 8 of 9 planned work items built or partially implemented. Remaining unbuilt domain is `mail.py`. Full test suite was verified 2026-04-25 with `rtk pytest --tb=short -q` from `mcp-server/`: 214 passed. Secure SketCH catalog was repaired/re-imported from `Secure_SketCH_Guidelines_2026-01-01.docx`: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls. KB open findings: 8 Critical, 123 High, 18 Medium, 1 Low.
+Current state: Phase 3 is complete and Phase 5 kickoff artifacts are built. Full test suite was last verified with `rtk python -m pytest --tb=short -q` from `mcp-server/`: 271 passed. Secure SketCH catalog state remains 75 real controls and 728 recommended actions with `02-3` and `02-4` present and no `98-*` test controls. Audit-defensible evidence coverage is 75 of 75 controls evidenced with 0 gaps. Latest live governance packet: `reports/governance-packets/2026-Q2.md`. KB open findings: 0 Critical, ~113 High, 18 Medium, 1 Low.
+
+Current operational note: DIS privileged access should be normalized by repurposing `dis@nofmetalcoatings.us` into a dedicated admin-only identity instead of creating a separate new account. Required characteristics: no mailbox/general routing, MFA enforced, display name `DIS Admin` or similar, privileged use only. Dave emailed Nate Whitelaw on 2026-04-27 asking DIS to make that change and provide written confirmation. Findings `b41b2c01` and `9ca3da77` stay open until Dave verifies account properties and re-runs `pim_scan_role_assignments`. For 08-7 evidence, Nate's written reply is part of the approval-on-record, not optional nice-to-have documentation.
 
 Default next task: build `mcp-server/tools/mail.py` as the Phase 3 notification/report-delivery agent. Keep v1 narrow and read-before-write in spirit: explicit `sendMail` only, no mailbox automation. Suggested scope:
 - `mail_send_summary(to, subject, body, cc=None, importance="normal", save_to_sent_items=True, dry_run=True)` using delegated admin-account Graph `/me/sendMail`.

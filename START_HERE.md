@@ -92,11 +92,37 @@ Implemented Phase 5 tools (partial):
   - `cloudadmin@nofmetalcoatings.us` — unknown owner, App Admin + Cloud App Admin, created 2026-03-12, signed in once, never again. Waiting on DIS (Nate/Tony) to confirm if break-glass.
   - Diana Kochever — HR Admin holding Teams Admin, User Admin, Exchange Admin. Over-scoped. Meeting scheduled to determine actual needs.
   - `admin@nofmetalcoatings.us` — confirmed break-glass. Acknowledge when ready.
-  - DIS Global Admin (`dis@nofmetalcoatings.us`) — permanent Global Admin on non-dedicated account. Raise with Nate Whitelaw.
+  - DIS Global Admin (`dis@nofmetalcoatings.us`) — permanent Global Admin on non-dedicated account. Decision: have DIS repurpose the existing account into a dedicated admin-only identity (`DIS Admin`, no mailbox/general routing, MFA enforced, privileged use only). Dave emailed Nate Whitelaw on 2026-04-27 and is waiting on written confirmation before verification/closure.
   - MIS service account — 10 findings acknowledged as intentional.
   - Your own roles + PowerBI service principals — structural (no P2); acknowledge when ready.
 - Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. First sensitivity label created and policy published 2026-04-26 to initialize the unified labeling store. Scan still returns `available:false` — Microsoft provisioning window is up to 24hr. Re-run `purview_scan_labels` on 2026-04-27; expect `available:true`. Full label taxonomy (Public / Internal / Confidential / Highly Confidential) still to be designed and published org-wide once the store is live.
 - Copilot settings scan: fixed 2026-04-26. Uses `CopilotSettings-LimitedMode.Read` via `/copilot/admin/settings/limitedMode` (v1.0). Last run returned `available:true`, 0 findings.
+
+## DIS Privileged Access Decision
+
+DIS privileged access will run through `dis@nofmetalcoatings.us` repurposed as an admin-only identity.
+
+Required characteristics:
+
+- Account: `dis@nofmetalcoatings.us`
+- Purpose: dedicated DIS admin-only account
+- No mailbox or general mail-routing behavior
+- MFA enforced with strong, independent authentication
+- Display name: `DIS Admin` or similar
+- Used only for privileged actions in the MCNA tenant
+
+Ownership:
+
+- DIS executes the change
+- Dave verifies after completion
+
+Completion criteria:
+
+- DIS confirms the change in writing by email reply
+- Global Admin remains assigned only after the account is admin-only
+- Evidence captured: account properties screenshot/export, role assignment evidence, and Nate confirmation
+- Re-run `pim_scan_role_assignments` after completion and attach the result
+- Findings `b41b2c01` and `9ca3da77` remain open until Dave verifies
 
 ## Best Next Moves
 
@@ -105,7 +131,7 @@ If Dave gives no specific task, recommend one of these before changing files:
 1. Re-run `purview_scan_labels` — still `available:false` as of 2026-04-26; retry 2026-04-27. Once live, design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
 2. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
 3. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
-4. Raise DIS Global Admin on non-dedicated account with Nate Whitelaw.
+4. Wait for Nate Whitelaw to confirm the `dis@nofmetalcoatings.us` repurpose in writing, then verify the account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
 5. Acknowledge remaining structural PIM findings (admin break-glass, Dave's own roles, PowerBI service principals).
 6. Review/approve EXO shared mailbox approval queue (on hold).
 7. Phase 5 remaining: scheduled review notifications; Secure SketCH portal re-score submission workflow.
