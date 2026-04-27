@@ -16,6 +16,30 @@ _COVERAGE_REPORT_DIR = _REPO_ROOT / "reports" / "ssk-control-coverage"
 _GAP_REPORT_DIR = _REPO_ROOT / "reports" / "ssk-evidence-gaps"
 _GOVERNANCE_PACKET_DIR = _REPO_ROOT / "reports" / "governance-packets"
 
+# Secure SketCH 2026 category names — not present in docx headings; hardcoded from framework spec.
+_CATEGORY_NAMES: dict[str, str] = {
+    "01": "Risk Management",
+    "02": "Threat Intelligence",
+    "03": "Third-Party Management",
+    "04": "Human Resources",
+    "05": "Physical Security",
+    "06": "Asset Management",
+    "07": "Vulnerability Management",
+    "08": "Identity and Access Management",
+    "09": "Data Protection",
+    "10": "Endpoint Protection",
+    "11": "Network Defense",
+    "12": "Remote Access",
+    "13": "Wireless",
+    "14": "Email Security",
+    "15": "Cloud Security",
+    "16": "Log Management",
+    "17": "Secure Development",
+    "18": "Business Continuity",
+    "19": "Incident Response",
+    "20": "Security Exercises",
+}
+
 _AUTOMATED_MODULES = [
     "tools.entra",
     "tools.ca",
@@ -553,7 +577,7 @@ def _dashboard_data() -> dict:
         if cat not in categories:
             categories[cat] = {
                 "category": cat,
-                "category_name": row["category_name"],
+                "category_name": row["category_name"] or _CATEGORY_NAMES.get(cat, cat),
                 "control_count": 0,
                 "maturity_breakdown": {},
                 "evidenced": 0,
@@ -648,7 +672,14 @@ def _due_for_packet(conn, now: str) -> list[dict]:
     return [dict(row) for row in rows]
 
 
-def _packet_markdown(now: str, dashboard: dict, due: list[dict], gaps: list[dict]) -> str:
+def _packet_markdown(
+    now: str,
+    dashboard: dict,
+    due: list[dict],
+    gaps: list[dict],
+    matrix_evidenced: int,
+    matrix_gaps: int,
+) -> str:
     dt = datetime.fromisoformat(now)
     quarter = _quarter_label(dt)
     s = dashboard["summary"]
@@ -667,8 +698,8 @@ def _packet_markdown(now: str, dashboard: dict, due: list[dict], gaps: list[dict
         "| Metric | Value |",
         "|---|---|",
         f"| Total controls | {s['total_controls']} |",
-        f"| Evidenced | {s['total_evidenced']} |",
-        f"| Evidence gaps | {s['total_evidence_gaps']} |",
+        f"| Evidenced | {matrix_evidenced} |",
+        f"| Evidence gaps | {matrix_gaps} |",
         f"| Regularly reviewed | {s['maturity_breakdown'].get('regularly_reviewed', 0)} |",
         f"| Never reviewed | {s['never_reviewed_count']} |",
         f"| Overdue for review | {s['overdue_count']} |",
@@ -729,8 +760,8 @@ def _packet_markdown(now: str, dashboard: dict, due: list[dict], gaps: list[dict
         actions.append(
             f"Conduct initial reviews for {s['never_reviewed_count']} control(s) that have never been reviewed."
         )
-    if s["total_evidence_gaps"]:
-        actions.append(f"Close {s['total_evidence_gaps']} evidence gap(s) before next audit.")
+    if matrix_gaps:
+        actions.append(f"Close {matrix_gaps} evidence gap(s) before next audit.")
     if not actions:
         actions.append("All controls are evidenced and no reviews are overdue. Maintain current cadence.")
     for i, action in enumerate(actions, 1):
@@ -748,22 +779,28 @@ def ssk_quarterly_packet(output_path: str | None = None) -> str:
     with get_connection() as conn:
         due = _due_for_packet(conn, now)
 
-    gap_rows = [row for row in _matrix_rows() if row["audit_status"] != "evidenced"]
+    all_matrix_rows = _matrix_rows()
+    gap_rows = [row for row in all_matrix_rows if row["audit_status"] != "evidenced"]
+    matrix_evidenced = len(all_matrix_rows) - len(gap_rows)
+    matrix_gaps = len(gap_rows)
 
     dt = datetime.fromisoformat(now)
     path = Path(output_path) if output_path else _default_packet_path(dt)
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(_packet_markdown(now, dashboard, due, gap_rows), encoding="utf-8")
+    path.write_text(
+        _packet_markdown(now, dashboard, due, gap_rows, matrix_evidenced, matrix_gaps),
+        encoding="utf-8",
+    )
 
     append_activity(
         "ssk_quarterly_packet",
         "success",
         {
             "total_controls": dashboard["summary"]["total_controls"],
-            "total_evidenced": dashboard["summary"]["total_evidenced"],
+            "matrix_evidenced": matrix_evidenced,
             "overdue_count": dashboard["summary"]["overdue_count"],
             "never_reviewed_count": dashboard["summary"]["never_reviewed_count"],
-            "evidence_gaps": dashboard["summary"]["total_evidence_gaps"],
+            "evidence_gaps": matrix_gaps,
             "output_path": str(path),
         },
     )
@@ -771,10 +808,10 @@ def ssk_quarterly_packet(output_path: str | None = None) -> str:
         {
             "output_path": str(path),
             "total_controls": dashboard["summary"]["total_controls"],
-            "total_evidenced": dashboard["summary"]["total_evidenced"],
+            "evidenced": matrix_evidenced,
             "overdue_count": dashboard["summary"]["overdue_count"],
             "never_reviewed_count": dashboard["summary"]["never_reviewed_count"],
-            "evidence_gaps": dashboard["summary"]["total_evidence_gaps"],
+            "evidence_gaps": matrix_gaps,
         }
     )
 
