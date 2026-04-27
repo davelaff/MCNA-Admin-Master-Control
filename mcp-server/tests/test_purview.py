@@ -1,4 +1,5 @@
 import json
+import uuid
 from unittest.mock import patch
 
 import pytest
@@ -58,7 +59,14 @@ def test_scan_labels_scope_gap_returns_not_available(db):
          patch("tools.purview.graph_get_all", side_effect=_raises_403):
         result = json.loads(purview_scan_labels())
     assert result["available"] is False
+    assert result["api_accessible"] is False
     assert result["labels_found"] == 0
+    assert result["error_reason"] == "api_inaccessible"
+    assert len(result["endpoint_attempts"]) == 2
+    assert result["endpoint_attempts"][0]["endpoint"] == "organization"
+    assert result["endpoint_attempts"][0]["status"] == 403
+    assert result["endpoint_attempts"][1]["endpoint"] == "me"
+    assert result["endpoint_attempts"][1]["status"] == 403
 
 
 def test_scan_labels_scope_gap_emits_finding(db):
@@ -70,6 +78,8 @@ def test_scan_labels_scope_gap_emits_finding(db):
     findings = json.loads(kb_get_findings(domain="purview"))
     assert any(f["finding_type"] == "purview_scope_gap" and f["severity"] == "Medium"
                for f in findings)
+    finding = next(f for f in findings if f["finding_type"] == "purview_scope_gap")
+    assert "may already exist" in finding["recommended_action"]
 
 
 def test_scan_labels_404_returns_not_available(db):
@@ -78,7 +88,9 @@ def test_scan_labels_404_returns_not_available(db):
          patch("tools.purview.graph_get_all", side_effect=_raises_http_404):
         result = json.loads(purview_scan_labels())
     assert result["available"] is False
+    assert result["api_accessible"] is False
     assert result["findings"] == 1
+    assert result["error_reason"] == "api_inaccessible"
 
 
 # ---------------------------------------------------------------------------
@@ -91,6 +103,7 @@ def test_scan_labels_none_defined_flagged_high(db):
          patch("tools.purview.graph_get_all", return_value=[]):
         result = json.loads(purview_scan_labels())
     assert result["available"] is True
+    assert result["api_accessible"] is True
     assert result["labels_found"] == 0
     assert result["findings"] == 1
     findings = json.loads(kb_get_findings(domain="purview"))
@@ -109,6 +122,7 @@ def test_scan_labels_defined_no_finding(db):
          patch("tools.purview.graph_get_all", return_value=labels):
         result = json.loads(purview_scan_labels())
     assert result["available"] is True
+    assert result["api_accessible"] is True
     assert result["labels_found"] == 2
     assert result["findings"] == 0
     findings = json.loads(kb_get_findings(domain="purview"))
@@ -132,8 +146,63 @@ def test_scan_labels_summary_shape(db):
         result = json.loads(purview_scan_labels())
     assert result["domain"] == "purview"
     assert result["available"] is True
+    assert result["api_accessible"] is True
     assert result["labels_found"] == 5
     assert result["findings"] == 0
+
+
+def test_scan_labels_falls_back_to_me_endpoint(db):
+    labels = [_label("l3", "Public")]
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+         patch(
+             "tools.purview.graph_get_all",
+             side_effect=[GraphError(403, "/org", "Forbidden"), labels],
+         ):
+        result = json.loads(purview_scan_labels())
+    assert result["available"] is True
+    assert result["api_accessible"] is True
+    assert result["labels_found"] == 1
+    assert result["endpoint_attempts"][0]["status"] == 403
+    assert result["endpoint_attempts"][1]["status"] == 200
+    assert result["endpoint_attempts"][1]["labels_found"] == 1
+
+
+def test_scan_labels_rewrites_stale_scope_gap_action(db):
+    finding_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, "purview.tenant.purview.purview_scope_gap"))
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO findings (
+                finding_id, domain, object_type, object_id, object_name, owner,
+                finding_type, severity, securesketch_control, recommended_action,
+                status, first_seen, last_seen
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?)
+            """,
+            (
+                finding_id,
+                "purview",
+                "tenant",
+                "purview",
+                "Microsoft Purview",
+                None,
+                "purview_scope_gap",
+                "Medium",
+                "PURVIEW-SCOPE-01",
+                "Old incorrect licensing guidance.",
+                "2026-04-26T00:00:00+00:00",
+                "2026-04-26T00:00:00+00:00",
+            ),
+        )
+
+    with patch("tools.purview.get_app_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.purview.graph_get_all", side_effect=_raises_403):
+        purview_scan_labels()
+
+    findings = json.loads(kb_get_findings(domain="purview"))
+    finding = next(f for f in findings if f["finding_id"] == finding_id)
+    assert "may already exist" in finding["recommended_action"]
 
 
 # ---------------------------------------------------------------------------

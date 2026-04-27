@@ -75,33 +75,57 @@ def _append_activity(conn, tool_name: str, outcome: str, detail: dict) -> None:
     )
 
 
-def _try_labels() -> tuple[list, bool, str]:
+def _try_labels() -> tuple[list, bool, bool, str, list[dict]]:
     """Fetch sensitivity labels. Tries application token against org-wide endpoint first
     (InformationProtectionPolicy.Read.All), then falls back to delegated token against
     /me endpoint (InformationProtectionPolicy.Read).
-    Returns (labels, available, reason)."""
+    Returns (labels, available, api_accessible, reason, endpoint_attempts)."""
     attempts = [
-        (get_app_token, LABELS_URL),
-        (get_token, LABELS_URL_ME),
+        ("organization", "application", get_app_token, LABELS_URL),
+        ("me", "delegated", get_token, LABELS_URL_ME),
     ]
-    last_reason = "api_unavailable"
-    for get_tok, url in attempts:
+    endpoint_attempts = []
+    last_reason = "api_inaccessible"
+    for endpoint_name, auth_mode, get_tok, url in attempts:
         try:
             token = get_tok()
-            return graph_get_all(url, token), True, ""
+            labels = graph_get_all(url, token)
+            endpoint_attempts.append(
+                {
+                    "endpoint": endpoint_name,
+                    "auth_mode": auth_mode,
+                    "status": 200,
+                    "labels_found": len(labels),
+                }
+            )
+            return labels, True, True, "", endpoint_attempts
         except GraphError as e:
-            if e.status == 403:
-                last_reason = "api_unavailable" if "Application-Gateway" in str(e) else "permission_denied"
-            elif e.status == 400:
-                last_reason = "api_unavailable"
+            endpoint_attempts.append(
+                {
+                    "endpoint": endpoint_name,
+                    "auth_mode": auth_mode,
+                    "status": e.status,
+                    "error": str(e),
+                }
+            )
+            if e.status in (400, 403):
+                last_reason = "api_inaccessible"
             else:
                 raise
         except requests.exceptions.HTTPError as e:
             if e.response is not None and e.response.status_code in (400, 404):
-                last_reason = "api_unavailable"
+                endpoint_attempts.append(
+                    {
+                        "endpoint": endpoint_name,
+                        "auth_mode": auth_mode,
+                        "status": e.response.status_code,
+                        "error": str(e),
+                    }
+                )
+                last_reason = "api_inaccessible"
             else:
                 raise
-    return [], False, last_reason
+    return [], False, False, last_reason, endpoint_attempts
 
 
 def purview_scan_labels() -> str:
@@ -109,26 +133,18 @@ def purview_scan_labels() -> str:
     classification baseline across M365. Requires InformationProtectionPolicy.Read
     (Delegated) or InformationProtectionPolicy.Read.All (Application).
     Tries application token against org-wide endpoint first, falls back to delegated /me path."""
-    labels, available, reason = _try_labels()
+    labels, available, api_accessible, reason, endpoint_attempts = _try_labels()
     findings_count = 0
 
     with get_connection() as conn:
         if not available:
-            if reason == "api_unavailable":
-                action = (
-                    "The sensitivity labels API endpoint is blocked at the Microsoft "
-                    "infrastructure level. This typically means Purview/AIP is not licensed "
-                    "or enabled for this tenant. Check Microsoft 365 subscription tier for "
-                    "Purview P1/P2 entitlement, or verify the unified labeling feature is "
-                    "activated in the Microsoft Purview compliance portal."
-                )
-            else:
-                action = (
-                    "Grant InformationProtectionPolicy.Read (Delegated) to the "
-                    "MCNA-TenantIntel-ReadOnly app registration and ensure the account "
-                    "running the scan has label viewer permissions, then re-run this scan. "
-                    "Note: .Read.All does not exist as a Delegated scope for this API."
-                )
+            action = (
+                "Purview sensitivity labels may already exist, but this scanner could not "
+                "read them through the Microsoft Graph sensitivity-label endpoints. Verify "
+                "the label and policy state in Purview, then investigate Graph endpoint "
+                "access for both the application and delegated paths before treating this "
+                "as a true labeling gap."
+            )
             _upsert_finding(
                 conn, "tenant", "purview", "Microsoft Purview",
                 "purview_scope_gap", "Medium",
@@ -139,7 +155,10 @@ def purview_scan_labels() -> str:
             result = {
                 "domain": DOMAIN,
                 "available": False,
+                "api_accessible": api_accessible,
                 "labels_found": 0,
+                "error_reason": reason,
+                "endpoint_attempts": endpoint_attempts,
                 "findings": findings_count,
             }
             _append_activity(conn, "purview_scan_labels", "success", result)
@@ -162,7 +181,10 @@ def purview_scan_labels() -> str:
         result = {
             "domain": DOMAIN,
             "available": True,
+            "api_accessible": api_accessible,
             "labels_found": len(labels),
+            "error_reason": "",
+            "endpoint_attempts": endpoint_attempts,
             "findings": findings_count,
         }
         _append_activity(conn, "purview_scan_labels", "success", result)
