@@ -95,7 +95,12 @@ Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
   - KB remediation plan: `d5d91bf4-9ca7-49cd-98b7-d2ea0e11e8d9`, 30 pending actions
   - Current decision: document and stage only; no tenant action yet.
 - 1 EXO finding `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` → `4402269019@vtext.com` (Verizon SMS): resolved 2026-04-26 as intentional SMS gateway, documented.
-- 40 open High Entra findings: `missing_owner`.
+- Entra app registration ownership cleanup changed materially on 2026-04-29:
+  - `entra_scan_app_regs` was corrected to hydrate owners from Graph before evaluating `missing_owner`
+  - live post-fix scan reduced the real active `missing_owner` set to 7 items
+  - Dave assigned owners to the 4 MCNA-owned apps that still lacked owners: `CopilotGraphConnector`, `CI Project Tracker`, `PowerBI-Usage-Reader`, `P2P Server`
+  - `MCNA_GPT` was deleted as dead/unused; do not rotate its secret
+  - the 3 remaining non-MCNA identities from the corrected scan are suppression/routing items, not owner-assignment work: `Report Message`, `MessageCenterFeedBot`, `ConnectSyncProvisioning_MCNA-DC_04a43dcfcd20`
 - PIM triage 2026-04-26 (pending follow-up next week):
   - `cloudadmin@nofmetalcoatings.us` — unknown owner, App Admin + Cloud App Admin, created 2026-03-12, signed in once, never again. Waiting on DIS (Nate/Tony) to confirm if break-glass.
   - Diana Kochever — keeps existing admin roles; no remediation needed.
@@ -137,14 +142,12 @@ Completion criteria:
 If Dave gives no specific task, recommend one of these before changing files:
 
 1. **Open MS support ticket** for Purview Graph API (`GET /beta/security/informationProtection/sensitivityLabels` returning 403 from Azure App Gateway for 3+ days post-label-publish). Details in `docs/governance/scope-additions/pending-gaps.md`. Once resolved: design and publish full label taxonomy (Public / Internal / Confidential / Highly Confidential).
-2. **MCNA_GPT secret rotation** — expires 2026-07-17 (~79 days). Rotate before 2026-07-10. Triage worksheet at `reports/entra-missing-owner-remediation/2026-04-29.md`.
-3. **Entra missing_owner bulk owner assignment** — 26 app regs need `nof-dlafferty@` as owner. Fastest: Entra portal or batch via Graph. 5 MS-system apps need suppression in scanner. Triage worksheet ready.
-4. **EXO shared mailbox approval queue** — 30 pending actions in KB plan `d5d91bf4`. Decision needed: bulk-via-DIS vs per-mailbox triage. Approval queue at `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`.
-5. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
-6. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
-7. Wait for Nate Whitelaw to confirm `dis@nofmetalcoatings.us` repurpose in writing, then verify account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
-8. Acknowledge remaining structural PIM findings (admin@ break-glass, Dave's own roles, PowerBI SPNs).
-9. Review batches 4+5 — 15 never-reviewed controls remain in families `15`, `16`, `17`, `18`, `20`.
+2. **EXO shared mailbox approval queue** — 30 pending actions in KB plan `d5d91bf4`. Decision needed: bulk-via-DIS vs per-mailbox triage. Approval queue at `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`.
+3. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
+4. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
+5. Wait for Nate Whitelaw to confirm `dis@nofmetalcoatings.us` repurpose in writing, then verify account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
+6. Acknowledge remaining structural PIM findings (admin@ break-glass, Dave's own roles, PowerBI SPNs).
+7. Review batches 4+5 — 15 never-reviewed controls remain in families `15`, `16`, `17`, `18`, `20`.
 
 ## Brain Update Check
 

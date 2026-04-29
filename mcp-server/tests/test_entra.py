@@ -51,6 +51,46 @@ def test_scan_returns_summary_json(db):
     assert "scanned" in result
     assert result["scanned"] == 1
 
+
+def test_owner_hydrated_from_graph_batch_prevents_false_missing_owner(db):
+    apps = [{
+        "id": "app1",
+        "displayName": "Owned App",
+        "passwordCredentials": [],
+        "keyCredentials": [],
+        "web": {"redirectUris": []},
+        "publicClient": {"redirectUris": []},
+        "requiredResourceAccess": [],
+    }]
+    batch_result = {
+        "1": {
+            "status": 200,
+            "body": {
+                "value": [{"id": "owner1", "displayName": "Dave Lafferty", "userPrincipalName": "nof-dlafferty@nofmetalcoatings.us"}]
+            },
+        }
+    }
+    with patch("tools.entra.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.entra.graph_get_all", return_value=apps), \
+         patch("tools.entra.graph_batch", return_value=batch_result):
+        entra_scan_app_regs()
+    findings = json.loads(__import__("tools.kb", fromlist=["kb_get_findings"]).kb_get_findings(domain="entra"))
+    assert not any(f["finding_type"] == "missing_owner" and f["object_id"] == "app1" for f in findings)
+
+
+def test_non_mcna_apps_are_suppressed_for_missing_owner(db):
+    apps = [
+        _app(aid="app1", name="Report Message", owners=[]),
+        _app(aid="app2", name="MessageCenterFeedBot", owners=[]),
+        _app(aid="app3", name="ConnectSyncProvisioning_MCNA-DC_04a43dcfcd20", owners=[]),
+    ]
+    with patch("tools.entra.get_token", return_value=FAKE_TOKEN), \
+         patch("tools.entra.graph_get_all", return_value=apps):
+        result = json.loads(entra_scan_app_regs())
+    findings = json.loads(__import__("tools.kb", fromlist=["kb_get_findings"]).kb_get_findings(domain="entra"))
+    assert result["findings"] == 0
+    assert not any(f["finding_type"] == "missing_owner" for f in findings)
+
 def test_dismissed_finding_not_recreated(db):
     from tools.kb import kb_dismiss
     apps = [_app(owners=[])]

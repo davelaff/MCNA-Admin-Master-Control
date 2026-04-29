@@ -2,7 +2,7 @@ import json
 import uuid
 from datetime import datetime, timezone, timedelta
 from auth import get_token
-from graph import graph_get_all, GraphError
+from graph import graph_get_all, graph_batch, GraphError
 from db import get_connection
 from tools.ssk_control_map import canonical_control_id
 
@@ -11,6 +11,13 @@ DOMAIN = "entra"
 # Power Platform system apps auto-rotate short-lived connection certs at high volume.
 # Apps exceeding this threshold are platform-managed; cert expiry findings are suppressed.
 _PP_CERT_THRESHOLD = 20
+_MISSING_OWNER_SUPPRESS_NAMES = {
+    "Report Message",
+    "MessageCenterFeedBot",
+}
+_MISSING_OWNER_SUPPRESS_PREFIXES = (
+    "ConnectSyncProvisioning_",
+)
 
 CONTRIBUTES_TO = {
     "__tool__": [
@@ -66,6 +73,36 @@ def _upsert_finding(conn, object_type: str, object_id: str, object_name: str,
           finding_type, severity, securesketch_control, recommended_action, now, now))
     return finding_id
 
+
+def _is_missing_owner_suppressed(app_name: str) -> bool:
+    if app_name in _MISSING_OWNER_SUPPRESS_NAMES:
+        return True
+    return any(app_name.startswith(prefix) for prefix in _MISSING_OWNER_SUPPRESS_PREFIXES)
+
+
+def _hydrate_app_owners(apps: list[dict], token: str) -> None:
+    apps_missing_owners = [app for app in apps if "owners" not in app]
+    if not apps_missing_owners:
+        return
+
+    requests = []
+    request_paths = {}
+    for index, app in enumerate(apps_missing_owners, start=1):
+        path = f"/applications/{app['id']}/owners?$select=id,displayName,userPrincipalName"
+        request_id = str(index)
+        requests.append({"id": request_id, "method": "GET", "url": path})
+        request_paths[request_id] = path
+
+    responses = graph_batch(requests, token)
+    for request in requests:
+        request_id = request["id"]
+        response = responses.get(request_id)
+        if not response:
+            raise RuntimeError(f"Missing Graph batch response for {request_paths[request_id]}")
+        if response["status"] != 200:
+            raise GraphError(response["status"], request_paths[request_id], json.dumps(response.get("body") or {})[:200])
+        apps_missing_owners[int(request_id) - 1]["owners"] = response["body"].get("value", [])
+
 def entra_scan_app_regs() -> str:
     """Scan all app registrations for governance issues: expired/expiring credentials, missing owners, risky redirect URIs."""
     token = get_token()
@@ -77,6 +114,7 @@ def entra_scan_app_regs() -> str:
         ",requiredResourceAccess,web,publicClient&$top=999",
         token,
     )
+    _hydrate_app_owners(apps, token)
 
     findings_count = 0
     with get_connection() as conn:
@@ -84,7 +122,7 @@ def entra_scan_app_regs() -> str:
             aid, name = app["id"], app.get("displayName", app["id"])
             _upsert_snapshot(conn, "app_registration", aid, name, app)
 
-            if not app.get("owners"):
+            if not app.get("owners") and not _is_missing_owner_suppressed(name):
                 _upsert_finding(conn, "app_registration", aid, name, "missing_owner", "High",
                                "Assign an owner to this app registration.",
                                securesketch_control="IAM-APP-01")

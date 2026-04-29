@@ -6,11 +6,30 @@ Primary worksheet: `reports/entra-missing-owner-remediation/2026-04-29.md`
 Finding type: `missing_owner`  
 Severity: High
 
+## 2026-04-29 Update
+
+This plan is now mostly historical.
+
+- `MCNA_GPT` was deleted as dead/unused, so it left the owner-assignment scope entirely.
+- `entra_scan_app_regs` was corrected on 2026-04-29 to hydrate owners from Graph before evaluating `missing_owner`.
+- The corrected live scan reduced the real active owner-gap set to 7 items.
+- Dave assigned owners to the 4 MCNA-owned apps that still needed them:
+	- `CopilotGraphConnector`
+	- `CI Project Tracker`
+	- `PowerBI-Usage-Reader`
+	- `P2P Server`
+- The remaining 3 active findings from that rescan were non-MCNA items and should be handled by scanner suppression / routing, not by MCNA owner assignment:
+	- `Report Message`
+	- `MessageCenterFeedBot`
+	- `ConnectSyncProvisioning_MCNA-DC_04a43dcfcd20`
+
+No broad MCNA-owned owner-assignment batch remains open from this worksheet after those actions.
+
 ## Decision
 
 MCNA-owned app registrations should get an explicit human owner.
 
-Default owner target is `nof-dlafferty@nofmetalcoatings.us` unless a specific app already has a better long-term operational owner. This plan covers only the 26 `MCNA-OWNED` app registrations from the triage worksheet.
+Default owner target is `nof-dlafferty@nofmetalcoatings.us` unless a specific app already has a better long-term operational owner. This plan originally covered the 26 `MCNA-OWNED` app registrations from the triage worksheet.
 
 This artifact is execution planning only. No tenant write action is approved by this document.
 
