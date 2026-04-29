@@ -41,7 +41,7 @@ Read these only on demand:
 
 ## Current State
 
-As of 2026-04-27:
+As of 2026-04-29:
 
 - Phase 3 is 9 of 9 planned work items built or partially implemented.
 - Final Phase 3 domain `mcp-server/tools/mail.py` is built and registered.
@@ -77,6 +77,8 @@ Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
 - `ssk_maturity_dashboard` — per-category maturity rollup (review status, evidence coverage, maturity levels)
 - `ssk_quarterly_packet` — auto-assembled quarterly governance review packet
 - `ssk_portal_submission_packet` — Secure SketCH portal re-score submission packet generator; markdown + JSON per control family at `reports/ssk-submissions/<quarter>/`
+- `ssk_auditor_package` — frozen quarterly auditor package generator at `reports/auditor-packages/<quarter>/` with PDF binder, HTML/Markdown index, manifest, and per-control pages
+- `ssk_run_control_check` — on-demand automated control check runner for mapped controls at `reports/control-checks/<control_id>/`
 - Live Q2 2026 packet: `reports/governance-packets/2026-Q2.md`
 - Review batches recorded (never-reviewed queue: 75 → 0):
   - Batch 1 (2026-04-27): families `08`, `09`, `14`, `19`, control `15-3`
@@ -85,6 +87,7 @@ Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
   - Batch 4 (2026-04-29): controls `15-1`, `15-2`, `15-4`, families `16`, `17`, `18`, `20` → all `ok`; memo at `docs/reviews/2026-04-29-ssk-review-batch-4.md`
   - Remaining never-reviewed: 0. All 75 Secure SketCH controls now have an initial review record.
 - Test count: 284/284 passing
+- Targeted auditor/evidence/matrix/binder verification on 2026-04-29: 64 related tests passing
 
 ## Active Operational Items
 

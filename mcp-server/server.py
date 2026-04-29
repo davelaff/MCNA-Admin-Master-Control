@@ -50,6 +50,7 @@ from tools.ssk_matrix import (
     ssk_quarterly_packet,
     ssk_portal_submission_packet,
 )
+from tools.ssk_auditor import ssk_auditor_package, ssk_run_control_check
 
 mcp = FastMCP(
     "mcna-amc",
@@ -151,6 +152,8 @@ mcp.tool()(ssk_control_coverage_detail)
 mcp.tool()(ssk_maturity_dashboard)
 mcp.tool()(ssk_quarterly_packet)
 mcp.tool()(ssk_portal_submission_packet)
+mcp.tool()(ssk_auditor_package)
+mcp.tool()(ssk_run_control_check)
 
 if __name__ == "__main__":
     init_db()

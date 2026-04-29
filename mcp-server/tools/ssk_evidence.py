@@ -240,6 +240,11 @@ def _verify_scan_run(source_pointer: str, source_metadata: dict | None) -> tuple
     return row is not None, {"run_id": run_id}
 
 
+def _verify_control_check(source_pointer: str, source_metadata: dict | None) -> tuple[bool, dict]:
+    path = Path(source_pointer)
+    return path.exists(), {"path": str(path)}
+
+
 def _verify_pointer(source_kind: str, source_pointer: str, source_metadata: dict | None) -> tuple[bool, dict]:
     if source_kind == "local_file":
         return _verify_local_file(source_pointer, source_metadata)
@@ -251,6 +256,8 @@ def _verify_pointer(source_kind: str, source_pointer: str, source_metadata: dict
         return _verify_kb_row(source_pointer, source_metadata)
     if source_kind == "scan_run":
         return _verify_scan_run(source_pointer, source_metadata)
+    if source_kind == "control_check":
+        return _verify_control_check(source_pointer, source_metadata)
     return False, {"reason": "unsupported_source_kind"}
 
 

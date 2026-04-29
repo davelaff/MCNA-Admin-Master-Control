@@ -7,6 +7,7 @@ from db import get_connection
 
 EVIDENCE_TYPES = {
     "scan_snapshot",
+    "control_check",
     "review_minutes",
     "signed_document",
     "attestation",
@@ -22,6 +23,7 @@ SOURCE_KINDS = {
     "sharepoint",
     "kb_row",
     "scan_run",
+    "control_check",
 }
 
 

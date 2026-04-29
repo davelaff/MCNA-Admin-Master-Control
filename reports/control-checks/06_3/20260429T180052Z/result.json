@@ -1,0 +1,121 @@
+{
+  "control_id": "06-3",
+  "title": "Management of software assets",
+  "generated_at": "2026-04-29T18:00:51.918648+00:00",
+  "generated_by": "Dave Lafferty",
+  "status": "warn",
+  "notes": null,
+  "tool_results": [
+    {
+      "tool_name": "copilot_scan_licenses",
+      "result": {
+        "domain": "copilot",
+        "scanned_users": 186,
+        "copilot_users": 25,
+        "findings": 0
+      }
+    },
+    {
+      "tool_name": "license_scan_skus",
+      "result": {
+        "scanned": 32,
+        "overconsumed": 0,
+        "unused": 1,
+        "findings": 1
+      }
+    },
+    {
+      "tool_name": "license_scan_users",
+      "result": {
+        "scanned_users": 186,
+        "scanned_skus": 32,
+        "licensed_disabled": 3,
+        "stacking": 6,
+        "findings": 9
+      }
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "d3099a03-6f79-547c-9395-a7347ea51662",
+      "finding_type": "sku_unused",
+      "severity": "Low",
+      "object_name": "ATA",
+      "status": "open",
+      "recommended_action": "SKU ATA: 1 prepaid, zero consumption. Confirm still needed or retire.",
+      "last_seen": "2026-04-29T18:00:55.758535+00:00",
+      "securesketch_control": "LIC-SKU-UNUSED-01"
+    },
+    {
+      "finding_id": "0046d981-932d-5fac-83d6-0a9018fe7a6c",
+      "finding_type": "productivity_sku_stacking",
+      "severity": "Medium",
+      "object_name": "Adam Stals",
+      "status": "open",
+      "recommended_action": "astals@nofmetalcoatings.us holds multiple productivity SKUs: SPB, EXCHANGEENTERPRISE. Retire the redundant license.",
+      "last_seen": "2026-04-29T18:00:57.697498+00:00",
+      "securesketch_control": "LIC-STACK-01"
+    },
+    {
+      "finding_id": "dfbe0aa7-df94-5638-893d-f8ea3c67c804",
+      "finding_type": "productivity_sku_stacking",
+      "severity": "Medium",
+      "object_name": "Barry Lynn",
+      "status": "open",
+      "recommended_action": "blynn@nofmetalcoatings.us holds multiple productivity SKUs: SPB, EXCHANGEENTERPRISE. Retire the redundant license.",
+      "last_seen": "2026-04-29T18:00:57.698008+00:00",
+      "securesketch_control": "LIC-STACK-01"
+    },
+    {
+      "finding_id": "b3efed60-cc3d-5638-abf4-6d079b83bb42",
+      "finding_type": "productivity_sku_stacking",
+      "severity": "Medium",
+      "object_name": "Chris Gayhart",
+      "status": "open",
+      "recommended_action": "cgayhart@nofmetalcoatings.us holds multiple productivity SKUs: SPB, EXCHANGEENTERPRISE. Retire the redundant license.",
+      "last_seen": "2026-04-29T18:00:57.698230+00:00",
+      "securesketch_control": "LIC-STACK-01"
+    },
+    {
+      "finding_id": "82c51054-352f-59b9-89a8-f3a7f3f2be60",
+      "finding_type": "productivity_sku_stacking",
+      "severity": "Medium",
+      "object_name": "Diana Kochever",
+      "status": "open",
+      "recommended_action": "dkochever@nofmetalcoatings.us holds multiple productivity SKUs: SPB, EXCHANGEENTERPRISE. Retire the redundant license.",
+      "last_seen": "2026-04-29T18:00:57.698719+00:00",
+      "securesketch_control": "LIC-STACK-01"
+    },
+    {
+      "finding_id": "15403ce1-3bf1-5362-ba3a-0c58dea69db1",
+      "finding_type": "productivity_sku_stacking",
+      "severity": "Medium",
+      "object_name": "Management Information Systems",
+      "status": "open",
+      "recommended_action": "MIS@nofmetalcoatings.us holds multiple productivity SKUs: SPB, EXCHANGEENTERPRISE. Retire the redundant license.",
+      "last_seen": "2026-04-29T18:00:57.699925+00:00",
+      "securesketch_control": "LIC-STACK-01"
+    },
+    {
+      "finding_id": "3a81c53e-316d-5759-9faf-6e663bc818cf",
+      "finding_type": "productivity_sku_stacking",
+      "severity": "Medium",
+      "object_name": "Marketing",
+      "status": "open",
+      "recommended_action": "marketing@nofmetalcoatings.us holds multiple productivity SKUs: EXCHANGESTANDARD, O365_BUSINESS_ESSENTIALS. Retire the redundant license.",
+      "last_seen": "2026-04-29T18:00:57.699732+00:00",
+      "securesketch_control": "LIC-STACK-01"
+    }
+  ],
+  "linked_finding_ids": [
+    "d3099a03-6f79-547c-9395-a7347ea51662",
+    "0046d981-932d-5fac-83d6-0a9018fe7a6c",
+    "dfbe0aa7-df94-5638-893d-f8ea3c67c804",
+    "b3efed60-cc3d-5638-abf4-6d079b83bb42",
+    "82c51054-352f-59b9-89a8-f3a7f3f2be60",
+    "15403ce1-3bf1-5362-ba3a-0c58dea69db1",
+    "3a81c53e-316d-5759-9faf-6e663bc818cf"
+  ],
+  "evidence_id": "91870792-56ce-4cd6-8545-8d26712d82ad",
+  "output_dir": "C:\\Users\\dlafferty.MCNA\\OneDrive - NOF\\DL OneDrive\\OneDrive - NOF\\Management Information Systems - Governance and Security Project 2026\\MCNA-Admin-Master-Control\\reports\\control-checks\\06_3\\20260429T180052Z"
+}
