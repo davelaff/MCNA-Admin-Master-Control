@@ -93,6 +93,7 @@ Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
   - Execution plan: `docs/operations/exo-shared-mailbox-remediation-plan.md`
   - Approval tooling: `mcp-server/tools/remediation.py`
   - Approval queue: `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`
+  - Batch 1 execution packet: `reports/remediation-queues/exo-shared-mailbox-batch-1-execution-2026-04-29.md`
   - KB remediation plan: `d5d91bf4-9ca7-49cd-98b7-d2ea0e11e8d9`, 30 pending actions
   - Current decision: document and stage only; no tenant action yet.
 - 1 EXO finding `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` → `4402269019@vtext.com` (Verizon SMS): resolved 2026-04-26 as intentional SMS gateway, documented.
@@ -143,7 +144,7 @@ Completion criteria:
 If Dave gives no specific task, recommend one of these before changing files:
 
 1. **Open MS support ticket** for Purview Graph API (`GET /beta/security/informationProtection/sensitivityLabels` returning 403 from Azure App Gateway for 3+ days post-label-publish). Details in `docs/governance/scope-additions/pending-gaps.md`. Once resolved: design and publish full label taxonomy (Public / Internal / Confidential / Highly Confidential).
-2. **EXO shared mailbox approval queue** — 30 pending actions in KB plan `d5d91bf4`. Decision needed: bulk-via-DIS vs per-mailbox triage. Approval queue at `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`.
+2. **EXO shared mailbox Batch 1 approval** — execution packet ready for the first 8 low-risk disables at `reports/remediation-queues/exo-shared-mailbox-batch-1-execution-2026-04-29.md`. Remaining queue stays at `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`.
 3. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
 4. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
 5. Wait for Nate Whitelaw to confirm `dis@nofmetalcoatings.us` repurpose in writing, then verify account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
