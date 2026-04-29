@@ -56,7 +56,7 @@ _AUTOMATED_MODULES = [
 
 _BLOCKED_SCOPE_ACTIONS = {
     "purview_scope_gap": "Verify existing Purview labels in the portal, then investigate why the Graph sensitivity-label endpoints are inaccessible to the scanner.",
-    "copilot_scope_gap": "Grant Microsoft365CopilotSettings.Read.All and rerun the Copilot settings scan.",
+    "copilot_scope_gap": "Grant CopilotSettings-LimitedMode.Read and rerun the Copilot settings scan.",
     "sharing_scope_gap": "Grant Sites.FullControl.All and rerun SharePoint permission/sharing expansion.",
     "sharing_permission_scope_gap": "Grant Sites.FullControl.All and rerun SharePoint permission/sharing expansion.",
 }

@@ -93,9 +93,9 @@ Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
   - Execution plan: `docs/operations/exo-shared-mailbox-remediation-plan.md`
   - Approval tooling: `mcp-server/tools/remediation.py`
   - Approval queue: `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`
-  - Batch 1 execution packet: `reports/remediation-queues/exo-shared-mailbox-batch-1-execution-2026-04-29.md`
+  - Batch 1 validation packet: `reports/remediation-queues/exo-shared-mailbox-batch-1-execution-2026-04-29.md`
   - KB remediation plan: `d5d91bf4-9ca7-49cd-98b7-d2ea0e11e8d9`, 30 pending actions
-  - Current decision: document and stage only; no tenant action yet.
+  - Current decision: Batch 1 was reclassified on 2026-04-29 as active operational shared mailboxes. Validate owner, delegates, rules, and direct sign-in dependency first; no tenant action yet.
 - 1 EXO finding `external_forwarding_rule` on `bstraka@nofmetalcoatings.us` → `4402269019@vtext.com` (Verizon SMS): resolved 2026-04-26 as intentional SMS gateway, documented.
 - Entra app registration ownership cleanup changed materially on 2026-04-29:
   - `entra_scan_app_regs` was corrected to hydrate owners from Graph before evaluating `missing_owner`
@@ -104,14 +104,14 @@ Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
   - `MCNA_GPT` was deleted as dead/unused; do not rotate its secret
   - the 3 remaining non-MCNA identities from the corrected scan are suppression/routing items, not owner-assignment work: `Report Message`, `MessageCenterFeedBot`, `ConnectSyncProvisioning_MCNA-DC_04a43dcfcd20`
 - PIM triage 2026-04-26 (pending follow-up next week):
-  - `cloudadmin@nofmetalcoatings.us` — unknown owner, App Admin + Cloud App Admin, created 2026-03-12, signed in once, never again. Waiting on DIS (Nate/Tony) to confirm if break-glass.
+  - `cloudadmin@nofmetalcoatings.us` — deleted. Live `pim_scan_role_assignments` rerun on 2026-04-29 no longer returned its role assignments; the four stale `cloudadmin` findings were resolved.
   - Diana Kochever — keeps existing admin roles; no remediation needed.
-  - `admin@nofmetalcoatings.us` — confirmed break-glass. Acknowledge when ready.
-  - DIS Global Admin (`dis@nofmetalcoatings.us`) — permanent Global Admin on non-dedicated account. Decision: have DIS repurpose the existing account into a dedicated admin-only identity (`DIS Admin`, no mailbox/general routing, MFA enforced, privileged use only). Dave emailed Nate Whitelaw on 2026-04-27 and is waiting on written confirmation before verification/closure.
+  - `admin@nofmetalcoatings.us` — confirmed break-glass and already acknowledged.
+  - DIS Global Admin (`dis@nofmetalcoatings.us`) — Tony Grady confirmed in writing on 2026-04-29 that it is intended to be an admin-only identity, but live verification the same day showed it is still mailbox-backed. Application-token `/mailboxSettings` returned `userPurpose:user` plus an automatic reply routing users to `support@discomputers.com`; the user object still has `mail`, SMTP proxy addresses, and `O365_BUSINESS_PREMIUM` assigned. MFA is registered (`SoftwareOTP`). Findings `b41b2c01` and `9ca3da77` stay open. Remediation is deferred for now.
   - MIS service account — 10 findings acknowledged as intentional.
-  - Your own roles + PowerBI service principals — structural (no P2); acknowledge when ready.
+  - Your own roles + PowerBI service principals — structural (no P2) and already acknowledged. Tenant-wide `pim_not_licensed` is now acknowledged as accepted Business Premium design risk with compensating controls.
 - Purview label scan: `InformationProtectionPolicy.Read.All` consented 2026-04-26. A real `Public` sensitivity label and published policy now exist in the tenant. Live `purview_scan_labels` still returns `available:false`, but now correctly reports dual 403 Microsoft-Azure-Application-Gateway blocks on both the org-wide and `/me` sensitivity-label endpoints. This is a scanner-access/platform issue, not evidence that labels are absent. Full label taxonomy (Public / Internal / Confidential / Highly Confidential) still to be designed and published org-wide once the platform path is usable.
-- Copilot settings scan: fixed 2026-04-26. Uses `CopilotSettings-LimitedMode.Read` via `/copilot/admin/settings/limitedMode` (v1.0). Last run returned `available:true`, 0 findings.
+- Copilot settings scan: validated again on 2026-04-29. Uses `CopilotSettings-LimitedMode.Read` via `/copilot/admin/settings/limitedMode` (v1.0). Live rerun returned `available:true`, `findings:0`; stale finding `3e01e396` was resolved and control `15-3` was re-reviewed to `regularly_reviewed`.
 
 ## DIS Privileged Access Decision
 
@@ -133,23 +133,20 @@ Ownership:
 
 Completion criteria:
 
-- DIS confirms the change in writing by email reply
+- DIS has confirmed the change in writing (Tony Grady, 2026-04-29)
 - Global Admin remains assigned only after the account is admin-only
-- Evidence captured: account properties screenshot/export, role assignment evidence, and Nate confirmation
-- Re-run `pim_scan_role_assignments` after completion and attach the result
-- Findings `b41b2c01` and `9ca3da77` remain open until Dave verifies
+- Evidence captured: account properties screenshot/export, role assignment evidence, and the written DIS confirmation
+- Re-run `pim_scan_role_assignments` after completion and attach the result: completed 2026-04-29
+- Findings `b41b2c01` and `9ca3da77` remain open because Dave's verification found the account still has mailbox/general-routing behavior
 
 ## Best Next Moves
 
 If Dave gives no specific task, recommend one of these before changing files:
 
 1. **Open MS support ticket** for Purview Graph API (`GET /beta/security/informationProtection/sensitivityLabels` returning 403 from Azure App Gateway for 3+ days post-label-publish). Details in `docs/governance/scope-additions/pending-gaps.md`. Once resolved: design and publish full label taxonomy (Public / Internal / Confidential / Highly Confidential).
-2. **EXO shared mailbox Batch 1 approval** — execution packet ready for the first 8 low-risk disables at `reports/remediation-queues/exo-shared-mailbox-batch-1-execution-2026-04-29.md`. Remaining queue stays at `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`.
-3. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
-4. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
-5. Wait for Nate Whitelaw to confirm `dis@nofmetalcoatings.us` repurpose in writing, then verify account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
-6. Acknowledge remaining structural PIM findings (admin@ break-glass, Dave's own roles, PowerBI SPNs).
-7. Revisit control `15-3` after the Copilot settings scope gap is resolved so family `15` can be fully promoted from mixed status.
+2. **EXO shared mailbox Batch 1 validation** — validate the first 8 active operational shared mailboxes at `reports/remediation-queues/exo-shared-mailbox-batch-1-execution-2026-04-29.md` before approving any sign-in disable. Remaining queue stays at `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`.
+3. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close any remaining PIM findings tied to that decision.
+4. Keep the acknowledged Business Premium / no-P2 posture in place unless the manual privileged-access review burden becomes unacceptable.
 
 ## Brain Update Check
 

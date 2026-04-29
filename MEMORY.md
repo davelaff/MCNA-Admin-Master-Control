@@ -374,8 +374,7 @@ Documented in repo:
 - 2026-04-24 EXO application scope record exists in `docs/governance/scope-additions/2026-04-24-exo-application-scope.md`
 
 Still outstanding:
-- `InformationProtectionPolicy.Read.All` for full Purview label scan
-- `Microsoft365CopilotSettings.Read.All` for Copilot settings scan
+- Purview sensitivity-label Graph endpoints still return 403 App Gateway despite consented scope and published label
 - `Sites.FullControl.All` if permission-level sharing checks become worth the scope breadth
 
 ---
@@ -391,7 +390,8 @@ Repo syncs to M365 Security and Governance library in MIS SharePoint site. Outpu
 ### CA policy and Entra identity (sessions 4-5, 2026-04-17)
 - Awaiting Tony response on 4 CA policy gaps (legacy auth, admin policy, service accounts, MCNA break-glass)
 - Identify owner of admin@nofmetalcoatings.us before touching
-- Confirm cloudadmin@nofmetalcoatings.us ownership
+- cloudadmin@nofmetalcoatings.us deleted 2026-04-29; stale PIM findings resolved after rerun confirmed no remaining assignments
+- dis@nofmetalcoatings.us is still mailbox-backed as of 2026-04-29 verification: `/mailboxSettings` returned `userPurpose:user` and automatic reply routes to support@discomputers.com; O365 Business Premium still assigned; MFA registered via SoftwareOTP. Keep DIS PIM findings open. Remediation deferred for now.
 - Decision: when to disable Security Defaults and enable CA policies
 - RESOLVED 2026-04-22: blynn@nofmetalcoatings.us is Barry Lynn (regular user). Role GUID d24aef57-1500-4070-84db-2666f29cf966 is built-in "Modern Commerce User" role (isBuiltIn=true), not custom. Benign — commerce billing role. Confirmed via pim_scan_role_definitions.
 

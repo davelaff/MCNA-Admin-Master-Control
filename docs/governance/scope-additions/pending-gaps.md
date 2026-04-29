@@ -20,17 +20,17 @@ Each entry requires explicit approval before adding. Update this file when conse
 
 ---
 
-## Microsoft365CopilotSettings.Read.All
+## CopilotSettings-LimitedMode.Read
 
 | Field | Value |
 |---|---|
 | **Type** | Delegated |
 | **Identified** | 2026-04-25 |
 | **Identified by** | D. Lafferty |
-| **Status** | Pending |
-| **Justification** | Required for `copilot_scan_settings` to inspect tenant Copilot settings. Without it, Copilot settings scans should record `copilot_scope_gap`. |
+| **Status** | Resolved / validated 2026-04-29 |
+| **Justification** | `copilot_scan_settings` uses `CopilotSettings-LimitedMode.Read` against `/copilot/admin/settings/limitedMode` (v1.0), not `Microsoft365CopilotSettings.Read.All`. Live validation on 2026-04-29 returned `available:true`, `findings:0`; the stale `copilot_scope_gap` finding was resolved and control `15-3` was re-reviewed to `regularly_reviewed`. |
 | **SSK mapping** | AI governance / Copilot governance evidence |
-| **Blocked by** | Admin consent not yet granted |
+| **Blocked by** | None |
 
 ---
 

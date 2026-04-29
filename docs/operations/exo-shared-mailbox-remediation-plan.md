@@ -10,7 +10,9 @@ Severity: High
 
 MCNA is not taking tenant action yet. The current stage is planning and evidence readiness.
 
-The remediation target is clear: shared mailboxes should not have enabled Entra accounts for direct interactive sign-in. Access should come through mailbox delegation, not shared credentials.
+The remediation target is still clear: shared mailboxes should not rely on direct interactive sign-in. Access should come through mailbox delegation, not shared credentials.
+
+What changed on 2026-04-29 is the classification of Batch 1. Those eight mailboxes are active operational team inboxes, not low-risk disable candidates. They need a validation pass first, not a blind sign-in disable.
 
 ## Source State
 
@@ -24,9 +26,9 @@ The worksheet groups them into:
 
 ## Execution Model When Approved
 
-Do not use a broad write run. Use small, reversible batches.
+Do not use a broad write run. First validate mailbox purpose and access model, then use small, reversible batches only where direct sign-in is proven unnecessary.
 
-### Batch 1: low-dependency shared/function mailboxes
+### Batch 1: active operational shared mailboxes
 
 - Accounts Payable
 - MCNA Careers
@@ -37,7 +39,7 @@ Do not use a broad write run. Use small, reversible batches.
 - Orders
 - Production
 
-Action when approved: disable Entra account sign-in only. Do not delete the user object. Do not remove mailbox delegation.
+Action when approved: validate business use, current delegates, mailbox rules, automation, direct sign-in dependency, and whether a group-backed address would actually satisfy the workflow. Default target state is to keep the shared mailbox and move usage to delegated access only. Do not delete the user object. Do not remove mailbox delegation. Do not disable sign-in until the validation pass proves there is no remaining direct sign-in dependency.
 
 ### Batch 2: remaining shared/function mailboxes
 
@@ -50,7 +52,7 @@ Action when approved: disable Entra account sign-in only. Do not delete the user
 - Shipping
 - Supply Chain
 
-Action when approved: disable Entra account sign-in only after Batch 1 verifies cleanly.
+Action when approved: apply the same validation model used in Batch 1 before scheduling any sign-in disable. Do not assume these are clean disable candidates until mailbox purpose and access pattern are confirmed.
 
 ### Batch 3: former-user style mailboxes
 
@@ -78,25 +80,27 @@ Action when approved: validate direct sign-in, SMTP, device, vendor, shop-floor,
 
 ## Verification
 
-After each approved batch:
+After each validation batch or approved change batch:
 
-1. Run `exo_scan_mailboxes`.
-2. Confirm each remediated mailbox snapshot remains `userPurpose=shared`.
-3. Confirm each remediated mailbox snapshot has `accountEnabled=false`.
-4. Check for user-reported access or workflow breakage before moving to the next batch.
-5. Resolve matching KB findings only after scan evidence confirms the account state.
+1. Confirm mailbox purpose, delegate model, and any direct sign-in dependency are documented for each target.
+2. If sign-in is disabled for a validated target, run `exo_scan_mailboxes`.
+3. Confirm each remediated mailbox snapshot remains `userPurpose=shared`.
+4. Confirm each remediated mailbox snapshot has `accountEnabled=false`.
+5. Check for user-reported access or workflow breakage before moving to the next batch.
+6. Resolve matching KB findings only after scan evidence confirms the account state.
 
 ## Evidence Handling
 
 Closure evidence should include:
 
 - the pre-change worksheet row
+- the validation notes for business use, delegates, and dependency classification
 - the batch approval note
-- the post-change `exo_scan_mailboxes` result
+- the post-change `exo_scan_mailboxes` result where a sign-in disable is actually executed
 - KB finding IDs resolved after verification
 
 The closure evidence should be linked to `EXO-SHARED-ENABLED-01`.
 
 ## Stage Gate
 
-This plan is ready for execution only after Dave explicitly approves a batch. Until then, it remains a planning artifact.
+This plan is ready for validation immediately. It is ready for execution only after Dave explicitly approves a mailbox or batch that has already passed validation. Until then, it remains a planning artifact.
