@@ -1,0 +1,48 @@
+{
+  "control_id": "08-6",
+  "title": "Implementing a process governing the use of privileged accounts",
+  "generated_at": "2026-04-29T18:09:46.785659+00:00",
+  "generated_by": "Dave Lafferty",
+  "status": "warn",
+  "notes": null,
+  "tool_results": [
+    {
+      "tool_name": "pim_scan_role_assignments",
+      "result": {
+        "pim_available": false,
+        "active_assignments": 43,
+        "eligible_assignments": 0,
+        "privileged_active": 20,
+        "findings": 28
+      }
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "b41b2c01-04a0-5b58-9d59-4013b1647ab6",
+      "finding_type": "permanent_privileged_assignment",
+      "severity": "High",
+      "object_name": "DIS Computers \u2192 Global Administrator",
+      "status": "open",
+      "recommended_action": "Permanent assignment of 'Global Administrator' to DIS Computers. No PIM available \u2014 verify compensating controls.",
+      "last_seen": "2026-04-29T18:09:50.646418+00:00",
+      "securesketch_control": "PIM-PERM-01"
+    },
+    {
+      "finding_id": "9ca3da77-7008-55c1-84c3-a7fc995da7b0",
+      "finding_type": "privileged_role_on_non_admin_account",
+      "severity": "High",
+      "object_name": "DIS Computers \u2192 Global Administrator",
+      "status": "open",
+      "recommended_action": "'Global Administrator' held by dis@nofmetalcoatings.us. Move privileged role to a dedicated admin account.",
+      "last_seen": "2026-04-29T18:09:50.646441+00:00",
+      "securesketch_control": "PIM-NON-ADMIN-01"
+    }
+  ],
+  "linked_finding_ids": [
+    "b41b2c01-04a0-5b58-9d59-4013b1647ab6",
+    "9ca3da77-7008-55c1-84c3-a7fc995da7b0"
+  ],
+  "evidence_id": "a838a74e-c3c0-4c1c-bbb9-aaa847612f11",
+  "output_dir": "C:\\Users\\dlafferty.MCNA\\OneDrive - NOF\\DL OneDrive\\OneDrive - NOF\\Management Information Systems - Governance and Security Project 2026\\MCNA-Admin-Master-Control\\reports\\control-checks\\08_6\\20260429T180946Z"
+}
