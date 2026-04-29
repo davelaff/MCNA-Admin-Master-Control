@@ -78,11 +78,12 @@ Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
 - `ssk_quarterly_packet` — auto-assembled quarterly governance review packet
 - `ssk_portal_submission_packet` — Secure SketCH portal re-score submission packet generator; markdown + JSON per control family at `reports/ssk-submissions/<quarter>/`
 - Live Q2 2026 packet: `reports/governance-packets/2026-Q2.md`
-- Review batches recorded (never-reviewed queue: 75 → 15):
+- Review batches recorded (never-reviewed queue: 75 → 0):
   - Batch 1 (2026-04-27): families `08`, `09`, `14`, `19`, control `15-3`
   - Batch 2 (2026-04-29): families `01`, `02`, `03`, `04` — all `ok`; memos at `docs/reviews/2026-04-29-ssk-review-batch-2.md`
   - Batch 3 (2026-04-29): families `05`, `10`, `11`, `12`, `13` → `ok`; families `06`, `07` → `action_required` (license/Purview findings, JWEDGE-2018 encryption gap); memo at `docs/reviews/2026-04-29-ssk-review-batch-3.md`
-  - Remaining never-reviewed: 15 controls in families `15`, `16`, `17`, `18`, `20`
+  - Batch 4 (2026-04-29): controls `15-1`, `15-2`, `15-4`, families `16`, `17`, `18`, `20` → all `ok`; memo at `docs/reviews/2026-04-29-ssk-review-batch-4.md`
+  - Remaining never-reviewed: 0. All 75 Secure SketCH controls now have an initial review record.
 - Test count: 284/284 passing
 
 ## Active Operational Items
@@ -147,7 +148,7 @@ If Dave gives no specific task, recommend one of these before changing files:
 4. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
 5. Wait for Nate Whitelaw to confirm `dis@nofmetalcoatings.us` repurpose in writing, then verify account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
 6. Acknowledge remaining structural PIM findings (admin@ break-glass, Dave's own roles, PowerBI SPNs).
-7. Review batches 4+5 — 15 never-reviewed controls remain in families `15`, `16`, `17`, `18`, `20`.
+7. Revisit control `15-3` after the Copilot settings scope gap is resolved so family `15` can be fully promoted from mixed status.
 
 ## Brain Update Check
 
