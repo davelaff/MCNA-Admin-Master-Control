@@ -70,14 +70,20 @@ Implemented Phase 3 coverage:
 - `copilot.py`
 - `mail.py`
 
-Implemented Phase 5 tools (partial):
+Implemented Phase 5 tools (COMPLETE as of 2026-04-29):
 
 - `ssk_due` — controls past or approaching `next_review_due`; `include_never_reviewed` param added
 - `ssk_review_notifications` — scheduled review digest generator with optional `mail_send_summary` dry-run/send handoff
 - `ssk_maturity_dashboard` — per-category maturity rollup (review status, evidence coverage, maturity levels)
 - `ssk_quarterly_packet` — auto-assembled quarterly governance review packet
-- Live Q2 2026 packet generated: `reports/governance-packets/2026-Q2.md`
-- Initial review batch recorded 2026-04-27: families `08`, `09`, `14`, `19` and control `15-3`; notification queue reduced from 75 never-reviewed controls to 58. `09`, `14`, and `19` are now `regularly_reviewed`; `08` and `15-3` were reviewed with `action_required` because open findings remain.
+- `ssk_portal_submission_packet` — Secure SketCH portal re-score submission packet generator; markdown + JSON per control family at `reports/ssk-submissions/<quarter>/`
+- Live Q2 2026 packet: `reports/governance-packets/2026-Q2.md`
+- Review batches recorded (never-reviewed queue: 75 → 15):
+  - Batch 1 (2026-04-27): families `08`, `09`, `14`, `19`, control `15-3`
+  - Batch 2 (2026-04-29): families `01`, `02`, `03`, `04` — all `ok`; memos at `docs/reviews/2026-04-29-ssk-review-batch-2.md`
+  - Batch 3 (2026-04-29): families `05`, `10`, `11`, `12`, `13` → `ok`; families `06`, `07` → `action_required` (license/Purview findings, JWEDGE-2018 encryption gap); memo at `docs/reviews/2026-04-29-ssk-review-batch-3.md`
+  - Remaining never-reviewed: 15 controls in families `15`, `16`, `17`, `18`, `20`
+- Test count: 284/284 passing
 
 ## Active Operational Items
 
@@ -130,13 +136,15 @@ Completion criteria:
 
 If Dave gives no specific task, recommend one of these before changing files:
 
-1. Re-run `purview_scan_labels` — still `available:false` as of 2026-04-26; retry 2026-04-27. Once live, design and publish full sensitivity label taxonomy (Public / Internal / Confidential / Highly Confidential) org-wide.
-2. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
-3. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
-4. Wait for Nate Whitelaw to confirm the `dis@nofmetalcoatings.us` repurpose in writing, then verify the account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
-5. Acknowledge remaining structural PIM findings (admin break-glass, Dave's own roles, PowerBI service principals).
-6. Review/approve EXO shared mailbox approval queue (on hold).
-7. Phase 5 remaining: Secure SketCH portal re-score submission workflow.
+1. **Open MS support ticket** for Purview Graph API (`GET /beta/security/informationProtection/sensitivityLabels` returning 403 from Azure App Gateway for 3+ days post-label-publish). Details in `docs/governance/scope-additions/pending-gaps.md`. Once resolved: design and publish full label taxonomy (Public / Internal / Confidential / Highly Confidential).
+2. **MCNA_GPT secret rotation** — expires 2026-07-17 (~79 days). Rotate before 2026-07-10. Triage worksheet at `reports/entra-missing-owner-remediation/2026-04-29.md`.
+3. **Entra missing_owner bulk owner assignment** — 26 app regs need `nof-dlafferty@` as owner. Fastest: Entra portal or batch via Graph. 5 MS-system apps need suppression in scanner. Triage worksheet ready.
+4. **EXO shared mailbox approval queue** — 30 pending actions in KB plan `d5d91bf4`. Decision needed: bulk-via-DIS vs per-mailbox triage. Approval queue at `reports/remediation-queues/exo-shared-mailbox-interactive-sign-in-2026-04-25.md`.
+5. Follow up with DIS on `cloudadmin@nofmetalcoatings.us` — disable if not a break-glass account.
+6. After Diana Kochever meeting — remove excess roles (Teams Admin, Exchange Admin), close PIM findings.
+7. Wait for Nate Whitelaw to confirm `dis@nofmetalcoatings.us` repurpose in writing, then verify account properties and re-run `pim_scan_role_assignments` before closing `b41b2c01` and `9ca3da77`.
+8. Acknowledge remaining structural PIM findings (admin@ break-glass, Dave's own roles, PowerBI SPNs).
+9. Review batches 4+5 — 15 never-reviewed controls remain in families `15`, `16`, `17`, `18`, `20`.
 
 ## Brain Update Check
 

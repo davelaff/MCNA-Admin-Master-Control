@@ -1,3 +1,6 @@
+# Agent handoff snapshots (ephemeral session state)
+HANDOFF.md
+
 # Secrets and credentials
 .env
 *.env

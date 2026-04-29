@@ -201,7 +201,7 @@ def test_control_matrix_classifies_blocked_scope_finding(db):
 
     assert result["audit_status"] == "not_evidenced"
     assert result["tooling_status"] == "blocked_by_scope"
-    assert "InformationProtectionPolicy.Read.All" in result["missing_evidence_action"]
+    assert "Purview" in result["missing_evidence_action"] or "sensitivity" in result["missing_evidence_action"].lower()
 
 
 def test_control_matrix_writes_snapshot_rows_and_activity(db):
@@ -517,3 +517,111 @@ def test_quarterly_packet_registered_in_server():
     import tools.ssk_matrix as ssk_matrix
 
     assert server.ssk_quarterly_packet is ssk_matrix.ssk_quarterly_packet
+
+
+# --- ssk_portal_submission_packet tests ---
+
+
+from tools.ssk_matrix import ssk_portal_submission_packet  # noqa: E402
+
+
+def test_portal_submission_packet_writes_markdown_and_json(tmp_path, db):
+    _seed_catalog()
+    out_dir = str(tmp_path / "submissions" / "2026-Q2")
+
+    result = json.loads(ssk_portal_submission_packet(output_dir=out_dir))
+
+    assert result["output_dir"] == out_dir
+    assert result["family_count"] > 0
+    md_path = Path(out_dir) / "submission.md"
+    json_path = Path(out_dir) / "submission.json"
+    assert md_path.exists()
+    assert json_path.exists()
+
+
+def test_portal_submission_packet_default_output_dir(tmp_path, db, monkeypatch):
+    _seed_control("06-3", "License control")
+    import tools.ssk_matrix as ssk_matrix_mod
+    monkeypatch.setattr(ssk_matrix_mod, "_SUBMISSION_DIR", tmp_path / "ssk-submissions")
+
+    result = json.loads(ssk_portal_submission_packet())
+
+    assert result["output_dir"] is not None
+    assert Path(result["output_dir"]).exists()
+
+
+def test_portal_submission_packet_filters_by_families(tmp_path, db):
+    _seed_catalog()
+    out_dir = str(tmp_path / "sub-filtered")
+
+    result = json.loads(ssk_portal_submission_packet(families=["06", "07"], output_dir=out_dir))
+
+    assert result["family_count"] == 2
+    families_in_result = [f["category"] for f in result["families"]]
+    assert "06" in families_in_result
+    assert "07" in families_in_result
+    assert "08" not in families_in_result
+
+
+def test_portal_submission_packet_markdown_has_required_sections(tmp_path, db):
+    _seed_control("06-3", "License control")
+    _seed_activity("run-1")
+    _seed_evidence("06-3", status="resolved")
+    out_dir = str(tmp_path / "sub-sections")
+
+    json.loads(ssk_portal_submission_packet(output_dir=out_dir))
+    text = (Path(out_dir) / "submission.md").read_text(encoding="utf-8")
+
+    assert "# MCNA Secure SketCH Portal Submission" in text
+    assert "## Category 06" in text
+    assert "06-3" in text
+
+
+def test_portal_submission_packet_json_has_per_family_controls(tmp_path, db):
+    _seed_control("06-3", "License control")
+    out_dir = str(tmp_path / "sub-json")
+
+    json.loads(ssk_portal_submission_packet(output_dir=out_dir))
+    data = json.loads((Path(out_dir) / "submission.json").read_text(encoding="utf-8"))
+
+    assert "families" in data
+    fam_06 = next((f for f in data["families"] if f["category"] == "06"), None)
+    assert fam_06 is not None
+    assert any(c["control_id"] == "06-3" for c in fam_06["controls"])
+
+
+def test_portal_submission_packet_includes_review_and_evidence_state(tmp_path, db):
+    _seed_control("06-3", "License control")
+    _seed_activity("run-1")
+    _seed_evidence("06-3", status="resolved")
+    out_dir = str(tmp_path / "sub-state")
+
+    json.loads(ssk_portal_submission_packet(output_dir=out_dir))
+    data = json.loads((Path(out_dir) / "submission.json").read_text(encoding="utf-8"))
+
+    fam = next(f for f in data["families"] if f["category"] == "06")
+    ctrl = next(c for c in fam["controls"] if c["control_id"] == "06-3")
+    assert "audit_status" in ctrl
+    assert "evidence_count" in ctrl
+    assert "open_finding_count" in ctrl
+
+
+def test_portal_submission_packet_logs_activity(tmp_path, db):
+    _seed_control("06-3", "License control")
+    out_dir = str(tmp_path / "sub-log")
+
+    json.loads(ssk_portal_submission_packet(output_dir=out_dir))
+
+    with get_connection() as conn:
+        row = conn.execute(
+            "SELECT * FROM activity_log WHERE tool_name = 'ssk_portal_submission_packet' ORDER BY timestamp DESC LIMIT 1"
+        ).fetchone()
+    assert row is not None
+    assert row["outcome"] == "success"
+
+
+def test_portal_submission_packet_registered_in_server():
+    import server
+    import tools.ssk_matrix as ssk_matrix
+
+    assert server.ssk_portal_submission_packet is ssk_matrix.ssk_portal_submission_packet

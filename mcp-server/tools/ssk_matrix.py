@@ -15,6 +15,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 _COVERAGE_REPORT_DIR = _REPO_ROOT / "reports" / "ssk-control-coverage"
 _GAP_REPORT_DIR = _REPO_ROOT / "reports" / "ssk-evidence-gaps"
 _GOVERNANCE_PACKET_DIR = _REPO_ROOT / "reports" / "governance-packets"
+_SUBMISSION_DIR = _REPO_ROOT / "reports" / "ssk-submissions"
 
 # Secure SketCH 2026 category names — not present in docx headings; hardcoded from framework spec.
 _CATEGORY_NAMES: dict[str, str] = {
@@ -847,5 +848,163 @@ def ssk_evidence_gaps(
             "gap_count": len(gaps),
             "output_path": str(path) if path else None,
             "controls": gaps,
+        }
+    )
+
+
+def _portal_submission_markdown(now: str, families: list[dict]) -> str:
+    lines = [
+        "# MCNA Secure SketCH Portal Submission",
+        "",
+        f"Generated: {now}",
+        "Purpose: Human-paste-ready control status for Secure SketCH portal re-score submission.",
+        "Each section below covers one control category. Copy the control rows into the portal.",
+        "",
+        "---",
+        "",
+    ]
+    for fam in families:
+        cat = fam["category"]
+        cat_name = fam["category_name"]
+        controls = fam["controls"]
+        lines += [
+            f"## Category {cat} — {cat_name}",
+            "",
+            f"Controls in scope: {len(controls)}",
+            "",
+            "| Control | Title | Audit Status | Evidence Count | Open Findings | Maturity | Last Reviewed | Next Due |",
+            "|---|---|---|---:|---:|---|---|---|",
+        ]
+        for ctrl in controls:
+            title = (ctrl.get("title") or "").replace("|", "\\|")
+            last = (ctrl.get("last_reviewed_at") or "—")[:10]
+            next_due = (ctrl.get("next_review_due") or "—")[:10]
+            maturity = ctrl.get("current_maturity") or "not_regularly_reviewed"
+            lines.append(
+                f"| {ctrl['control_id']} | {title} | {ctrl['audit_status']} "
+                f"| {ctrl['evidence_count']} | {ctrl['open_finding_count']} "
+                f"| {maturity} | {last} | {next_due} |"
+            )
+        lines.append("")
+
+    lines += [
+        "---",
+        "",
+        "## Submission Notes",
+        "",
+        "- `audit_status`: evidenced = verified evidence exists; partial = evidence present but unverified; not_evidenced = no linked evidence",
+        "- `maturity`: regularly_reviewed = reviewed within cadence; not_regularly_reviewed = not yet reviewed or overdue",
+        "- Evidence count reflects active (non-expired) evidence rows in the KB at generation time.",
+        "- Open findings are live KB findings mapped to each control.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def ssk_portal_submission_packet(
+    quarter: str | None = None,
+    families: list[str] | None = None,
+    output_dir: str | None = None,
+) -> str:
+    """Generate a Secure SketCH portal re-score submission packet (markdown + JSON) per control family.
+
+    Output is human-paste-ready for the Secure SketCH portal — no API integration exists.
+    quarter: optional label like '2026-Q2' used for default output directory naming.
+    families: optional list of category IDs to include (e.g. ['06', '07']). Defaults to all.
+    output_dir: override output directory. Defaults to reports/ssk-submissions/<quarter or date>/.
+    """
+    now = utc_now()
+
+    # Resolve output dir
+    if output_dir:
+        out_path = Path(output_dir)
+    else:
+        if quarter:
+            slug = quarter
+        else:
+            dt = datetime.fromisoformat(now)
+            q = (dt.month - 1) // 3 + 1
+            slug = f"{dt.year}-Q{q}"
+        out_path = _SUBMISSION_DIR / slug
+    out_path.mkdir(parents=True, exist_ok=True)
+
+    # Collect matrix rows, optionally filtered
+    all_rows = _matrix_rows()
+
+    # Collect review state per control
+    with get_connection() as conn:
+        status_rows = {
+            row["control_id"]: row
+            for row in conn.execute(
+                "SELECT control_id, current_maturity, last_reviewed_at, next_review_due FROM ssk_control_status"
+            ).fetchall()
+        }
+
+    # Enrich each matrix row with review state
+    def _enrich(row: dict) -> dict:
+        st = status_rows.get(row["control_id"])
+        return {
+            **row,
+            "current_maturity": st["current_maturity"] if st else None,
+            "last_reviewed_at": st["last_reviewed_at"] if st else None,
+            "next_review_due": st["next_review_due"] if st else None,
+        }
+
+    enriched = [_enrich(r) for r in all_rows]
+
+    # Group by category
+    category_map: dict[str, list[dict]] = {}
+    for row in enriched:
+        cat = row["category"]
+        category_map.setdefault(cat, [])
+        category_map[cat].append(row)
+
+    # Filter families if requested
+    selected_cats = sorted(
+        cat for cat in category_map
+        if families is None or cat in families
+    )
+
+    family_payloads = [
+        {
+            "category": cat,
+            "category_name": _CATEGORY_NAMES.get(cat, cat),
+            "control_count": len(category_map[cat]),
+            "controls": [
+                {k: v for k, v in ctrl.items() if k not in ("open_findings", "evidence", "automated_modules")}
+                for ctrl in category_map[cat]
+            ],
+        }
+        for cat in selected_cats
+    ]
+
+    # Write markdown
+    md_path = out_path / "submission.md"
+    md_path.write_text(_portal_submission_markdown(now, family_payloads), encoding="utf-8")
+
+    # Write JSON
+    json_payload = {
+        "generated_at": now,
+        "quarter": quarter,
+        "families": family_payloads,
+    }
+    json_path = out_path / "submission.json"
+    json_path.write_text(json.dumps(json_payload, indent=2, default=str), encoding="utf-8")
+
+    append_activity(
+        "ssk_portal_submission_packet",
+        "success",
+        {
+            "output_dir": str(out_path),
+            "family_count": len(family_payloads),
+            "control_count": sum(f["control_count"] for f in family_payloads),
+            "families": selected_cats,
+        },
+    )
+    return json_ok(
+        {
+            "output_dir": str(out_path),
+            "family_count": len(family_payloads),
+            "families": family_payloads,
         }
     )

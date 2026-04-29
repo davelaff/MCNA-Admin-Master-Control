@@ -41,16 +41,22 @@ anything.
 - `ROADMAP.md` for strategic direction and phase history
 - `CLAUDE.md` for legacy Claude Code operational behavior
 
-Current state: Phase 3 is complete and Phase 5 kickoff artifacts are built. Full test suite was last verified with `rtk python -m pytest --tb=short -q` from `mcp-server/`: 271 passed. Secure SketCH catalog state remains 75 real controls and 728 recommended actions with `02-3` and `02-4` present and no `98-*` test controls. Audit-defensible evidence coverage is 75 of 75 controls evidenced with 0 gaps. Latest live governance packet: `reports/governance-packets/2026-Q2.md`. KB open findings: 0 Critical, ~113 High, 18 Medium, 1 Low.
+Current state: Phases 3, 4, and 5 complete. Full test suite last verified 2026-04-29: **284 passed**. Secure SketCH catalog: 75 real controls, 728 recommended actions, `02-3` and `02-4` present, no `98-*` test controls. Audit-defensible evidence coverage: 75 of 75 controls evidenced, 0 gaps. Never-reviewed queue: **15 controls remaining** (families `15`, `16`, `17`, `18`, `20`) — down from 75; review batches 1-3 recorded 2026-04-27 and 2026-04-29. Latest governance packet: `reports/governance-packets/2026-Q2.md`. KB open findings: 0 Critical, ~113 High, 18 Medium, 1 Low.
 
-Current operational note: DIS privileged access should be normalized by repurposing `dis@nofmetalcoatings.us` into a dedicated admin-only identity instead of creating a separate new account. Required characteristics: no mailbox/general routing, MFA enforced, display name `DIS Admin` or similar, privileged use only. Dave emailed Nate Whitelaw on 2026-04-27 asking DIS to make that change and provide written confirmation. Findings `b41b2c01` and `9ca3da77` stay open until Dave verifies account properties and re-runs `pim_scan_role_assignments`. For 08-7 evidence, Nate's written reply is part of the approval-on-record, not optional nice-to-have documentation.
+Phase 5 tools complete: `ssk_due`, `ssk_review_notifications`, `ssk_maturity_dashboard`, `ssk_quarterly_packet`, `ssk_portal_submission_packet`. Portal submission packet writes to `reports/ssk-submissions/<quarter>/submission.md` + `submission.json`.
 
-Default next task: build `mcp-server/tools/mail.py` as the Phase 3 notification/report-delivery agent. Keep v1 narrow and read-before-write in spirit: explicit `sendMail` only, no mailbox automation. Suggested scope:
-- `mail_send_summary(to, subject, body, cc=None, importance="normal", save_to_sent_items=True, dry_run=True)` using delegated admin-account Graph `/me/sendMail`.
-- `dry_run=True` by default; actual send requires `dry_run=False` and non-empty recipient, subject, and body.
-- Log every attempted send to KB `activity_log` with outcome `dry_run`, `sent`, or `failed`.
-- Return JSON with recipients, subject, dry_run, sent status, and Graph error detail if failed.
-- Tests first, following existing domain patterns. Register tool in `server.py` after implementation.
+Current operational note: DIS privileged access — repurpose `dis@nofmetalcoatings.us` into admin-only identity. Dave emailed Nate Whitelaw 2026-04-27. Findings `b41b2c01` and `9ca3da77` open until verified + `pim_scan_role_assignments` re-run.
+
+**URGENT — time-sensitive:** `MCNA_GPT` app reg has secret expiring **2026-07-17**. Rotate before 2026-07-10. Triage worksheet: `reports/entra-missing-owner-remediation/2026-04-29.md`.
+
+**Purview escalation:** `purview_scan_labels` still returns 403 from Microsoft-Azure-Application-Gateway 3+ days post-label-publish (2026-04-26). Not a propagation delay. Open MS support ticket from `nof-dlafferty@`. Details: `docs/governance/scope-additions/pending-gaps.md`.
+
+Default next tasks (priority order):
+1. Open MS Purview support ticket (unblocks label taxonomy and 06-1 evidence).
+2. Rotate `MCNA_GPT` secret (time-sensitive, expires 2026-07-17).
+3. Entra missing_owner bulk owner assignment — 26 app regs need `nof-dlafferty@`; 5 MS-system apps need scanner suppression. Worksheet: `reports/entra-missing-owner-remediation/2026-04-29.md`.
+4. EXO shared mailbox approval queue decision (bulk-via-DIS vs per-mailbox triage). KB plan `d5d91bf4`, 30 pending actions.
+5. Review batches 4+5 — families `15`, `16`, `17`, `18`, `20`.
 
 Do not add broader mail read/write behavior unless Dave explicitly asks. Do not suggest EXO ApplicationImpersonation; it is deprecated. If Graph returns 401/403, stop and report it.
 
