@@ -1,0 +1,553 @@
+{
+  "control_id": "08-1",
+  "title": "Creating and provisioning access and accounts, and conducting access inventory",
+  "generated_at": "2026-04-29T18:56:45.077063+00:00",
+  "generated_by": "Dave Lafferty",
+  "status": "warn",
+  "notes": null,
+  "tool_results": [
+    {
+      "tool_name": "ca_scan_coverage_gaps",
+      "result": {
+        "warning": "No enabled CA policies found. All users are uncovered.",
+        "uncovered_count": "unknown"
+      }
+    },
+    {
+      "tool_name": "ca_scan_policies",
+      "result": {
+        "scanned": 2,
+        "findings": 2,
+        "enabled": 0,
+        "report_only": 2,
+        "disabled": 0
+      }
+    },
+    {
+      "tool_name": "entra_scan_app_regs",
+      "result": {
+        "scanned": 30,
+        "findings": 0
+      }
+    },
+    {
+      "tool_name": "entra_scan_guests",
+      "result": {
+        "scanned": 11,
+        "findings": 9
+      }
+    },
+    {
+      "tool_name": "exo_scan_mailboxes",
+      "result": {
+        "domain": "exo",
+        "users_scanned": 186,
+        "user_mailboxes": 82,
+        "shared_mailboxes": 68,
+        "resource_mailboxes": 8,
+        "shared_interactive": 30,
+        "findings": 30
+      }
+    },
+    {
+      "tool_name": "license_scan_users",
+      "result": {
+        "scanned_users": 186,
+        "scanned_skus": 32,
+        "licensed_disabled": 3,
+        "stacking": 6,
+        "findings": 9
+      }
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "8d9fa479-edd3-51c7-8ad9-b75c0d2b222a",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Accounts Payable",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Accounts Payable' (ap@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:02.347208+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "44fb33e2-c638-5c1b-aae7-77e3584d356a",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Bob Bellow",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Bob Bellow' (bbellow@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:09.292722+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "6427edff-59e5-5668-b1cf-88b01df909e6",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Cassandra Gosche",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Cassandra Gosche' (cgosche@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:17.249547+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "13358932-3bf9-5f64-a7bc-b76d1e50bf82",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Chris Riddle",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Chris Riddle' (criddle@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:21.016409+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "de0f126f-746f-5451-a70f-a3a1a7d48065",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "DIS No Reply",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'DIS No Reply' (dis_noreply@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:32.381047+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "330107fe-83c4-5825-969f-7defdd9cc3a4",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Erik Larson",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Erik Larson' (elarson@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:43.165217+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "946aef11-5126-543d-b44f-cf24294ddf93",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Jason Lestock",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Jason Lestock' (jlestock@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:59.498278+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "fbce1564-83b3-53df-b335-8cf03a231fba",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Jason Zmijewski",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Jason Zmijewski' (jzmijewski@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:06.627598+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "6121ece9-57e9-59a5-9d86-fa3103050451",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Kelli Leonetti",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Kelli Leonetti' (kleonetti@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:07.829358+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "b7041292-2dc5-5797-9e09-5b91242e3c12",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "MCNA Careers",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'MCNA Careers' (careers@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:14.584619+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "f18488c8-a5b4-5222-9ce4-e700ad0564c0",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "MCNA Export Group",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'MCNA Export Group' (mcnaexportgroup@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:34.707651+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "41140720-51b5-5a48-b616-1fee3dd3ba5e",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "MCNA Human Resources",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'MCNA Human Resources' (humanresources@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:51.577438+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "7960ec8c-d4c4-5c6e-9638-6aee9bc360e8",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "MCNA IT Support",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'MCNA IT Support' (mcnaitsupport@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:37.047709+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "ac117b75-a710-5dcc-9bdc-743a70ccd244",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "MCNA Import Group",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'MCNA Import Group' (mcnaimportgroup@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:35.610391+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "0ed90736-04cf-563e-8258-7a3dfd24031a",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "MCNA Inquiries",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'MCNA Inquiries' (Contact@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:19.871720+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "ce264e81-994a-5ee2-8bbf-29950bc94504",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "MCNA Safety",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'MCNA Safety' (MCNASafety@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:38.069941+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "de440c3e-2fbf-5144-8631-fc8239a3a3cb",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Manufacturing",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Manufacturing' (manufacturing@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:23.509048+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "2050c177-053c-5913-a786-3ade0db7b4dc",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Manufacturing2",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Manufacturing2' (manufacturing2@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:25.362492+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "3d607b26-11de-5834-95c3-5751ba3e5647",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Marketing",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Marketing' (marketing@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:26.281705+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "5a339e7b-9451-546a-b878-10e67e5da8b6",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Monthly Flash Report",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Monthly Flash Report' (monthlyflashreport@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:44.952770+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "f07161af-e85f-5151-950a-3498d7a6bad4",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "NOF Quality",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'NOF Quality' (quality@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:59:19.947891+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "b0b16c58-e11a-5542-b6fd-031e53aa25f1",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "NOF iPad",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'NOF iPad' (ipad2@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:53.436748+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "89c7de73-f874-586e-b653-986d86885142",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Network Services",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Network Services' (network@mcna.onmicrosoft.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:58:51.624165+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "27939408-479f-5f29-bb19-9f7705618ddf",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Orders",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Orders' (orders@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:59:15.920794+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "d61c8feb-dd37-5d7b-9f14-5bb93783b3bb",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Production",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Production' (production@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:59:19.140028+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "bb101177-d268-5481-bf36-dd57f0ffa362",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Ring",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Ring' (ring@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:59:23.371564+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "e613f05e-a708-5915-9ae5-0eb4a5fa4194",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Sales",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Sales' (sales@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:59:26.943059+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "24f43ab1-163f-5b15-bbc4-be4a7b10ec78",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Shipping",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Shipping' (shipping@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:59:30.539273+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "d6febb42-6140-56e5-8d89-a6559c71e63b",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Supply Chain",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Supply Chain' (supplychain@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:59:36.053643+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "3db84100-12c4-583d-9aa6-0bbc6224abc8",
+      "finding_type": "shared_mailbox_interactive",
+      "severity": "High",
+      "object_name": "Visitor iPad",
+      "status": "open",
+      "recommended_action": "Shared mailbox 'Visitor iPad' (ipad@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users > select user > Edit properties > Account status = Disabled.",
+      "last_seen": "2026-04-29T18:57:52.601782+00:00",
+      "securesketch_control": "EXO-SHARED-ENABLED-01"
+    },
+    {
+      "finding_id": "4aae7366-feb4-5719-abf7-5e2928899201",
+      "finding_type": "recently_added_guest",
+      "severity": "Low",
+      "object_name": "Tony Grady",
+      "status": "open",
+      "recommended_action": "Guest added 2026-04-13T17:33:47Z. Verify invitation was authorized.",
+      "last_seen": "2026-04-29T18:56:52.485449+00:00",
+      "securesketch_control": "IAM-GUEST-01"
+    },
+    {
+      "finding_id": "512170b3-0e60-52a4-9371-d30fa5823ac6",
+      "finding_type": "inactive_guest",
+      "severity": "Medium",
+      "object_name": "Alex Ratowsky",
+      "status": "open",
+      "recommended_action": "Guest last signed in 2021-03-26T11:01:33Z. Review and remove if no longer needed.",
+      "last_seen": "2026-04-29T18:56:52.485254+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "ef426138-0936-5825-9009-573cb7fe0a84",
+      "finding_type": "inactive_guest",
+      "severity": "Medium",
+      "object_name": "Brent Rozar",
+      "status": "open",
+      "recommended_action": "Guest last signed in 2021-03-17T15:13:12Z. Review and remove if no longer needed.",
+      "last_seen": "2026-04-29T18:56:52.485377+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "274e9d98-2010-5b9d-bc7e-44572cc214b4",
+      "finding_type": "inactive_guest",
+      "severity": "Medium",
+      "object_name": "Bright, Thomas Gary",
+      "status": "open",
+      "recommended_action": "Guest last signed in 2022-06-22T20:17:19Z. Review and remove if no longer needed.",
+      "last_seen": "2026-04-29T18:56:52.485290+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "db0ff578-ed1e-5f32-88c3-cb3a7165cd1b",
+      "finding_type": "inactive_guest",
+      "severity": "Medium",
+      "object_name": "Jeffrey Campbell",
+      "status": "open",
+      "recommended_action": "Guest last signed in 2021-03-17T13:31:51Z. Review and remove if no longer needed.",
+      "last_seen": "2026-04-29T18:56:52.485350+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "e22b0afd-4105-5530-b5db-23827cb8cf9e",
+      "finding_type": "inactive_guest",
+      "severity": "Medium",
+      "object_name": "Mike Black",
+      "status": "open",
+      "recommended_action": "Guest last signed in 2021-03-30T18:58:12Z. Review and remove if no longer needed.",
+      "last_seen": "2026-04-29T18:56:52.485211+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "3e468a13-682e-5aa8-a420-13ab5ac8536f",
+      "finding_type": "inactive_guest",
+      "severity": "Medium",
+      "object_name": "Steve Varelmann, AIA",
+      "status": "open",
+      "recommended_action": "Guest last signed in 2021-03-15T21:44:57Z. Review and remove if no longer needed.",
+      "last_seen": "2026-04-29T18:56:52.485321+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "878454f7-340a-58e4-a4ed-5c44280658ce",
+      "finding_type": "inactive_guest",
+      "severity": "Medium",
+      "object_name": "William Hendrock",
+      "status": "open",
+      "recommended_action": "Guest last signed in 2022-06-16T14:08:59Z. Review and remove if no longer needed.",
+      "last_seen": "2026-04-29T18:56:52.485406+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "f529b7f2-e808-5b94-8c65-11505d0c1584",
+      "finding_type": "licensed_disabled_account",
+      "severity": "Medium",
+      "object_name": "Cameron Heinz",
+      "status": "open",
+      "recommended_action": "Disabled account cheinz@nofmetalcoatings.us holds 2 license(s): POWER_BI_STANDARD, O365_BUSINESS_PREMIUM. Remove licenses.",
+      "last_seen": "2026-04-29T18:59:59.587450+00:00",
+      "securesketch_control": "LIC-DISABLED-01"
+    },
+    {
+      "finding_id": "01248215-7e0a-5d10-9923-3569264e4b57",
+      "finding_type": "licensed_disabled_account",
+      "severity": "Medium",
+      "object_name": "Damian Schultz",
+      "status": "open",
+      "recommended_action": "Disabled account dschultz@nofmetalcoatings.us holds 1 license(s): O365_BUSINESS_PREMIUM. Remove licenses.",
+      "last_seen": "2026-04-29T18:59:59.587743+00:00",
+      "securesketch_control": "LIC-DISABLED-01"
+    },
+    {
+      "finding_id": "93fd5b40-abf4-5367-9206-1d870cdec92d",
+      "finding_type": "licensed_disabled_account",
+      "severity": "Medium",
+      "object_name": "Shawn Kemp",
+      "status": "open",
+      "recommended_action": "Disabled account skemp@nofmetalcoatings.us holds 1 license(s): O365_BUSINESS_PREMIUM. Remove licenses.",
+      "last_seen": "2026-04-29T18:59:59.588858+00:00",
+      "securesketch_control": "LIC-DISABLED-01"
+    },
+    {
+      "finding_id": "2c5f32f9-9021-5247-9cef-3af699b67b68",
+      "finding_type": "never_signed_in_guest",
+      "severity": "Medium",
+      "object_name": "mruane@discomputers.com",
+      "status": "open",
+      "recommended_action": "Guest has never signed in and account is over 90 days old.",
+      "last_seen": "2026-04-29T18:56:52.485118+00:00",
+      "securesketch_control": "IAM-GUEST-02"
+    },
+    {
+      "finding_id": "f621fdfb-1d67-5200-88ad-c6353e75932d",
+      "finding_type": "report_only_policy",
+      "severity": "Medium",
+      "object_name": "Block Legacy Auth",
+      "status": "open",
+      "recommended_action": "Policy is report-only and not enforced. Enable or remove.",
+      "last_seen": "2026-04-29T18:56:47.901868+00:00",
+      "securesketch_control": "CA-POL-01"
+    },
+    {
+      "finding_id": "1948e143-20f3-53d7-b4d9-c2dd0565b1fe",
+      "finding_type": "report_only_policy",
+      "severity": "Medium",
+      "object_name": "Require MFA for every log in",
+      "status": "open",
+      "recommended_action": "Policy is report-only and not enforced. Enable or remove.",
+      "last_seen": "2026-04-29T18:56:47.901766+00:00",
+      "securesketch_control": "CA-POL-01"
+    }
+  ],
+  "linked_finding_ids": [
+    "8d9fa479-edd3-51c7-8ad9-b75c0d2b222a",
+    "44fb33e2-c638-5c1b-aae7-77e3584d356a",
+    "6427edff-59e5-5668-b1cf-88b01df909e6",
+    "13358932-3bf9-5f64-a7bc-b76d1e50bf82",
+    "de0f126f-746f-5451-a70f-a3a1a7d48065",
+    "330107fe-83c4-5825-969f-7defdd9cc3a4",
+    "946aef11-5126-543d-b44f-cf24294ddf93",
+    "fbce1564-83b3-53df-b335-8cf03a231fba",
+    "6121ece9-57e9-59a5-9d86-fa3103050451",
+    "b7041292-2dc5-5797-9e09-5b91242e3c12",
+    "f18488c8-a5b4-5222-9ce4-e700ad0564c0",
+    "41140720-51b5-5a48-b616-1fee3dd3ba5e",
+    "7960ec8c-d4c4-5c6e-9638-6aee9bc360e8",
+    "ac117b75-a710-5dcc-9bdc-743a70ccd244",
+    "0ed90736-04cf-563e-8258-7a3dfd24031a",
+    "ce264e81-994a-5ee2-8bbf-29950bc94504",
+    "de440c3e-2fbf-5144-8631-fc8239a3a3cb",
+    "2050c177-053c-5913-a786-3ade0db7b4dc",
+    "3d607b26-11de-5834-95c3-5751ba3e5647",
+    "5a339e7b-9451-546a-b878-10e67e5da8b6",
+    "f07161af-e85f-5151-950a-3498d7a6bad4",
+    "b0b16c58-e11a-5542-b6fd-031e53aa25f1",
+    "89c7de73-f874-586e-b653-986d86885142",
+    "27939408-479f-5f29-bb19-9f7705618ddf",
+    "d61c8feb-dd37-5d7b-9f14-5bb93783b3bb",
+    "bb101177-d268-5481-bf36-dd57f0ffa362",
+    "e613f05e-a708-5915-9ae5-0eb4a5fa4194",
+    "24f43ab1-163f-5b15-bbc4-be4a7b10ec78",
+    "d6febb42-6140-56e5-8d89-a6559c71e63b",
+    "3db84100-12c4-583d-9aa6-0bbc6224abc8",
+    "4aae7366-feb4-5719-abf7-5e2928899201",
+    "512170b3-0e60-52a4-9371-d30fa5823ac6",
+    "ef426138-0936-5825-9009-573cb7fe0a84",
+    "274e9d98-2010-5b9d-bc7e-44572cc214b4",
+    "db0ff578-ed1e-5f32-88c3-cb3a7165cd1b",
+    "e22b0afd-4105-5530-b5db-23827cb8cf9e",
+    "3e468a13-682e-5aa8-a420-13ab5ac8536f",
+    "878454f7-340a-58e4-a4ed-5c44280658ce",
+    "f529b7f2-e808-5b94-8c65-11505d0c1584",
+    "01248215-7e0a-5d10-9923-3569264e4b57",
+    "93fd5b40-abf4-5367-9206-1d870cdec92d",
+    "2c5f32f9-9021-5247-9cef-3af699b67b68",
+    "f621fdfb-1d67-5200-88ad-c6353e75932d",
+    "1948e143-20f3-53d7-b4d9-c2dd0565b1fe"
+  ],
+  "evidence_id": "2509d0d3-2bb5-409d-9f57-4c2c358a6d55",
+  "output_dir": "C:\\Users\\dlafferty.MCNA\\OneDrive - NOF\\DL OneDrive\\OneDrive - NOF\\Management Information Systems - Governance and Security Project 2026\\MCNA-Admin-Master-Control\\reports\\control-checks\\08_1\\20260429T185645Z"
+}

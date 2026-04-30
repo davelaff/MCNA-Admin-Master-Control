@@ -1,0 +1,13 @@
+{
+  "control_id": "14-1",
+  "title": "Security check on incoming mail",
+  "generated_at": "2026-04-29T19:01:47.595869+00:00",
+  "generated_by": "Dave Lafferty",
+  "status": "manual_required",
+  "notes": null,
+  "tool_results": [],
+  "findings": [],
+  "linked_finding_ids": [],
+  "evidence_id": null,
+  "output_dir": "C:\\Users\\dlafferty.MCNA\\OneDrive - NOF\\DL OneDrive\\OneDrive - NOF\\Management Information Systems - Governance and Security Project 2026\\MCNA-Admin-Master-Control\\reports\\control-checks\\14_1\\20260429T190147Z"
+}

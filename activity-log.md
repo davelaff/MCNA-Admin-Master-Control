@@ -145,3 +145,8 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-29 18:09 — SSK control check 08-6 — completed with `warn` status; evidence recorded and control-check artifact written — reports/control-checks/08_6/20260429T180946Z
 2026-04-29 23:47 — `ssk_run_control_check` skill design — documented local skill wrapper plan with `.docx` companion artifact contract — docs/superpowers/specs/2026-04-29-ssk-run-control-check-skill-design.md
 2026-04-29 23:55 — `ssk_run_control_check` skill implementation plan — documented local skill + `.docx` renderer execution plan — docs/superpowers/plans/2026-04-29-ssk-run-control-check-skill.md
+2026-04-29 19:05 — ssk_run_control_check — warn — reports/control-checks/08_1/20260429T185645Z/result.json
+2026-04-29 15:08 — SSK control check 14-1 manual memo — created auditor-facing manual evidence memo for manual-required control check — reports/control-checks/14_1/20260429T190147Z/manual-evidence-memo.md
+2026-04-29 19:08 — ssk-run-control-check skill — built local skill and .docx renderer — .agents/skills/ssk-run-control-check/
+2026-04-29 19:08 — ssk_run_control_check — render docx — reports/control-checks/08_1/20260429T185645Z/08-1-2026-04-29.docx
+2026-04-29 19:20 — SSK initial review index — mapped all 75 controls to initial review memo and review-record ID — docs/reviews/2026-04-29-ssk-initial-review-index.md
