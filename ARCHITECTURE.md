@@ -2,9 +2,7 @@
 
 ## Purpose
 
-This file holds the longer-form architectural thinking for Master Control.
-
-`CONTEXT.md` stays short.
+This file holds the architectural thinking for Master Control.
 
 This file is where the detail lives:
 

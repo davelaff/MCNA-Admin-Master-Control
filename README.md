@@ -5,4 +5,4 @@ Owned by D. Lafferty (Director of IT & MIS).
 
 Read AGENTS.md first.
 Use START_HERE.md for the low-token startup path.
-Read CONTEXT.md, MEMORY.md, ROADMAP.md, or ARCHITECTURE.md only when the task needs them.
+Read MEMORY.md, ROADMAP.md, or ARCHITECTURE.md only when the task needs them.

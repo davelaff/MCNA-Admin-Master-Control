@@ -11,8 +11,8 @@ Master Control runs as Codex augmented by two MCP server layers:
 - **MCNA-AMC MCP Server** (local Python, `mcp-server/`) — all other domains
   plus the persistent knowledge base (SQLite)
 
-For fresh sessions, use `START_HERE.md` first. See CONTEXT.md for architecture
-orientation only when needed. See ARCHITECTURE.md for full design.
+For fresh sessions, use `START_HERE.md` first. See ARCHITECTURE.md for architecture
+orientation and full design.
 
 This folder is OneDrive-synced to the M365 Security and Governance document
 library in the Management Information Systems SharePoint site. Anything written

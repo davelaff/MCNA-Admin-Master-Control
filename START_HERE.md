@@ -21,7 +21,6 @@ Do not read the full brain stack unless the task needs it.
 Read these only on demand:
 
 - `MEMORY.md` - current-state details, prior decisions, unresolved findings
-- `CONTEXT.md` - short architecture orientation
 - `ARCHITECTURE.md` - schema, MCP server, and domain-agent design details
 - `ROADMAP.md` - strategic direction and phase history
 - `CLAUDE.md` - legacy Claude Code operational brain; mostly mirrors `AGENTS.md`

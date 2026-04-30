@@ -33,6 +33,7 @@ __pycache__/
 .pytest-basetemp-*/
 .pytest-tmp/
 mcp-server/.pytest-tmp/
+.tmp-*/
 .tmp-pytest/
 .tmp-pytest-current/
 .venv/

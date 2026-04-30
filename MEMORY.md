@@ -26,7 +26,7 @@ Read `START_HERE.md` first. Everything below is reference.
 You are in `C:\Users\dlafferty.MCNA\OneDrive - NOF\DL OneDrive\OneDrive - NOF\Management Information Systems - Governance and Security Project 2026\MCNA-Admin-Master-Control`.
 
 Read `AGENTS.md`, `START_HERE.md`, and the last 40 lines of `activity-log.md`.
-Do not read `MEMORY.md`, `CONTEXT.md`, `ROADMAP.md`, `ARCHITECTURE.md`, or
+Do not read `MEMORY.md`, `ROADMAP.md`, `ARCHITECTURE.md`, or
 `CLAUDE.md` unless the task requires them. Use `rtk` for terminal commands.
 This repo is OneDrive-synced governance content: no scratch files, no silent
 failures, append one line to `activity-log.md` for every produced artifact.
@@ -36,8 +36,7 @@ anything.
 
 **Escalate to the full brain stack only when needed:**
 - `MEMORY.md` for current-state details, prior decisions, unresolved findings
-- `CONTEXT.md` for short architecture orientation
-- `ARCHITECTURE.md` for schema/MCP/domain-agent design
+- `ARCHITECTURE.md` for schema/MCP/domain-agent design and architecture orientation
 - `ROADMAP.md` for strategic direction and phase history
 - `CLAUDE.md` for legacy Claude Code operational behavior
 
@@ -139,8 +138,7 @@ Spec: `docs/superpowers/specs/2026-04-22-securesketch-tracking-design.md`.
 
 Core docs:
 - `CLAUDE.md` — operational brain
-- `CONTEXT.md` — short architecture orientation
-- `ARCHITECTURE.md` — full AMC design reference
+- `ARCHITECTURE.md` — full AMC design reference and architecture orientation
 - `MEMORY.md` — this file
 - `ROADMAP.md` — strategic direction
 - `README.md` — 5-line orientation
