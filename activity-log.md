@@ -150,3 +150,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-29 19:08 — ssk-run-control-check skill — built local skill and .docx renderer — .agents/skills/ssk-run-control-check/
 2026-04-29 19:08 — ssk_run_control_check — render docx — reports/control-checks/08_1/20260429T185645Z/08-1-2026-04-29.docx
 2026-04-29 19:20 — SSK initial review index — mapped all 75 controls to initial review memo and review-record ID — docs/reviews/2026-04-29-ssk-initial-review-index.md
+2026-04-30 00:00 — repo cleanup — removed tracked PNGs, deleted CONTEXT.md, moved SSK skill doc, added mcp-server/README.md + superpowers/INDEX.md + reviews/INDEX.md + reports/RETENTION.md, pruned archive/ — commit chore: repo cleanup
