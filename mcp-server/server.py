@@ -1,10 +1,13 @@
+import functools
+import json as _json
 from mcp.server.fastmcp import FastMCP
 from db import init_db
 from tools.kb import (
     kb_get_findings, kb_update_finding, kb_dismiss,
     kb_get_snapshot, kb_diff_snapshot,
 )
-from tools.entra import entra_scan_app_regs, entra_scan_guests
+from tools.entra import entra_scan_app_regs, entra_scan_guests, entra_generate_html_report
+from tools.reporting import generate_html_report
 from tools.ca import ca_scan_policies, ca_scan_coverage_gaps
 from tools.pp import pp_scan_environments, pp_scan_apps
 from tools.pim import pim_scan_role_assignments, pim_scan_role_definitions
@@ -52,6 +55,21 @@ from tools.ssk_matrix import (
 )
 from tools.ssk_auditor import ssk_auditor_package, ssk_run_control_check
 
+def _scan(fn, domain: str):
+    """Wrap a scan tool to auto-generate the domain HTML report after each run."""
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        result = fn(*args, **kwargs)
+        try:
+            html = _json.loads(generate_html_report(domain=domain))
+            r = _json.loads(result)
+            r["report"] = html.get("path", "")
+            return _json.dumps(r)
+        except Exception:
+            return result
+    return wrapper
+
+
 mcp = FastMCP(
     "mcna-amc",
     instructions=(
@@ -68,44 +86,48 @@ mcp.tool()(kb_dismiss)
 mcp.tool()(kb_get_snapshot)
 mcp.tool()(kb_diff_snapshot)
 
-# Entra tools
-mcp.tool()(entra_scan_app_regs)
-mcp.tool()(entra_scan_guests)
+# Entra tools — HTML report auto-generated after each scan
+mcp.tool()(_scan(entra_scan_app_regs, "entra"))
+mcp.tool()(_scan(entra_scan_guests, "entra"))
+mcp.tool()(entra_generate_html_report)
+
+# Generic HTML report (on-demand, any domain)
+mcp.tool()(generate_html_report)
 
 # CA tools
-mcp.tool()(ca_scan_policies)
-mcp.tool()(ca_scan_coverage_gaps)
+mcp.tool()(_scan(ca_scan_policies, "ca"))
+mcp.tool()(_scan(ca_scan_coverage_gaps, "ca"))
 
 # PP tools
-mcp.tool()(pp_scan_environments)
-mcp.tool()(pp_scan_apps)
+mcp.tool()(_scan(pp_scan_environments, "pp"))
+mcp.tool()(_scan(pp_scan_apps, "pp"))
 
 # PIM tools
-mcp.tool()(pim_scan_role_assignments)
-mcp.tool()(pim_scan_role_definitions)
+mcp.tool()(_scan(pim_scan_role_assignments, "pim"))
+mcp.tool()(_scan(pim_scan_role_definitions, "pim"))
 
 # License tools
-mcp.tool()(license_scan_skus)
-mcp.tool()(license_scan_users)
+mcp.tool()(_scan(license_scan_skus, "license"))
+mcp.tool()(_scan(license_scan_users, "license"))
 
 # Sharing tools
-mcp.tool()(sharing_scan_sites)
+mcp.tool()(_scan(sharing_scan_sites, "sharing"))
 
 # Intune tools
-mcp.tool()(intune_scan_devices)
-mcp.tool()(intune_scan_compliance_policies)
+mcp.tool()(_scan(intune_scan_devices, "intune"))
+mcp.tool()(_scan(intune_scan_compliance_policies, "intune"))
 
 # Purview tools
-mcp.tool()(purview_scan_labels)
-mcp.tool()(purview_scan_audit)
+mcp.tool()(_scan(purview_scan_labels, "purview"))
+mcp.tool()(_scan(purview_scan_audit, "purview"))
 
 # Exchange Online tools
-mcp.tool()(exo_scan_mailboxes)
-mcp.tool()(exo_scan_forwarding)
+mcp.tool()(_scan(exo_scan_mailboxes, "exo"))
+mcp.tool()(_scan(exo_scan_forwarding, "exo"))
 
 # Copilot tools
-mcp.tool()(copilot_scan_licenses)
-mcp.tool()(copilot_scan_settings)
+mcp.tool()(_scan(copilot_scan_licenses, "copilot"))
+mcp.tool()(_scan(copilot_scan_settings, "copilot"))
 
 # Mail tools
 mcp.tool()(mail_send_summary)

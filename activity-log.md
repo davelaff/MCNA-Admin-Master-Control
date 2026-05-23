@@ -3,6 +3,8 @@ Append-only. One line per task run.
 Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 
 ---
+2026-05-23 — Generic HTML report engine extracted — reporting.py created; entra.py slimmed to thin wrapper; generate_html_report tool registered; EXO test: 30 findings, 128 clean — mcp-server/tools/reporting.py, reports/exo-governance/2026-05-23.html
+---
 2026-04-26 — START_HERE + ROADMAP brain update — Phase 5 partial progress recorded; test count 271; ssk_due/ssk_maturity_dashboard/ssk_quarterly_packet listed; Q2 packet referenced — START_HERE.md, ROADMAP.md
 2026-04-26 — PIM findings triage — MIS service account: 10 findings acknowledged (intentional). cloudadmin: pending DIS confirmation. Diana Kochever: pending meeting. — mcp-server/kb/mcna_amc.db
 2026-04-26 — entra_scan_app_regs: suppress Power Platform cert expiry false positives — threshold 20 key creds, 8/8 tests pass — mcp-server/tools/entra.py, mcp-server/tests/test_entra.py
@@ -10,6 +12,8 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-26 — Entra Critical findings triage — 8 abandoned app regs resolved; remediation plan dff0f29f created, 8 deletion actions queued pending approval — mcp-server/kb/mcna_amc.db
 2026-04-26 — bstraka external_forwarding_rule resolved — intentional Verizon SMS gateway, documented — mcp-server/kb/mcna_amc.db
 2026-04-26 — purview_scan_labels retry — still available:false; Microsoft provisioning incomplete — mcp-server/kb/mcna_amc.db
+2026-05-23 — entra_generate_html_report tool added — styled HTML report alongside MD output; collapsible app cards, severity sections, sidebar nav — mcp-server/tools/entra.py, mcp-server/server.py
+2026-05-23 — entra-app-scan skill created — SKILL.md covers Claude Code invocation + Copilot Studio path analysis — .agents/skills/entra-app-scan/SKILL.md
 2026-04-26 — START_HERE brain update — Copilot scan stale note removed, Best Next Moves renumbered — START_HERE.md
 2026-04-26 — copilot_scan_settings fix — corrected Graph endpoint and permission name; scan now returns available:true, 0 findings — mcp-server/tools/copilot.py
 2026-04-25 — Brain file sync — MEMORY.md v25, ROADMAP.md v3.6, ARCHITECTURE.md updated (exo+purview built, 202 tests), 02-3/02-4 catalog gap noted — MEMORY.md, ROADMAP.md, ARCHITECTURE.md, activity-log.md
@@ -153,3 +157,4 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-04-30 00:00 — repo cleanup — removed tracked PNGs, deleted CONTEXT.md, moved SSK skill doc, added mcp-server/README.md + superpowers/INDEX.md + reviews/INDEX.md + reports/RETENTION.md, pruned archive/ — commit chore: repo cleanup
 2026-05-01 — system inventory verification — live tenant scan against MIS Technical Configuration Evidence v2026.1; 20 systems confirmed, 6 discrepancies (CA policies not enforcing, only 2 exist vs. 4 claimed, BitLocker unverified, ATA stale, Purview Graph lag, PP app scan blind spot), 17 systems not verifiable via available tools — reports/system-inventory-verification/2026-05-01.md
 2026-05-07 12:50 — SSK 05-3 endpoint physical management evidence — generated partial auditor-facing evidence memo from local policy, review, and KB Intune scan records; residual encryption validation item documented — reports/control-checks/05_3/20260507T165000Z/05-3-endpoint-physical-management-evidence.md
+2026-05-22 21:49 — Entra enterprise app scan — 100 SPs scanned, 5 HIGH-risk AllPrincipals grants identified — reports/entra-enterprise-app-scan-2026-05-22.md
