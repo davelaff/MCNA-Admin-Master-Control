@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Exchange Online Governance Scan — 2026-05-23 18:19</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#A40A02;--pink:#F5D7D5;--grey:#F2F2F2;
+  --text:#404040;--rule:#BFBFBF;--white:#FFFFFF;
+  --font:'Segoe UI','Segoe UI Web (West European)',system-ui,sans-serif;
+  --font-sb:'Segoe UI Semibold','Segoe UI',system-ui,sans-serif;
+}
+html{font-size:14px}
+body{background:var(--grey);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+
+/* ── Running header (Word 3-line header analogue) ─────────────────── */
+.doc-header{
+  background:var(--white);border-bottom:2px solid var(--red);
+  padding:6px 28px 4px;position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 6px rgba(0,0,0,.07);
+}
+.doc-header-line{display:flex;justify-content:space-between;align-items:baseline;font-size:.62rem;color:var(--text);line-height:1.65}
+.doc-header-line .left{font-weight:700}
+.doc-header-line .right{opacity:.75}
+.doc-header-spacer{height:3px}
+
+/* ── Page body wrapper ────────────────────────────────────────────── */
+.page-body{display:flex;flex:1;background:var(--white);max-width:1120px;margin:18px auto 18px;width:calc(100% - 36px);box-shadow:0 2px 16px rgba(0,0,0,.1)}
+
+/* ── Sidebar (document contents index) ───────────────────────────── */
+#sidebar{
+  width:188px;min-width:188px;background:var(--grey);
+  border-right:1px solid var(--rule);padding:22px 13px;
+  position:sticky;top:52px;height:calc(100vh - 52px);
+  overflow-y:auto;display:flex;flex-direction:column;gap:16px;
+  align-self:flex-start;
+}
+.sb-label{font-size:.58rem;font-weight:700;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.severity-nav{display:flex;flex-direction:column;gap:1px}
+.severity-nav a{display:flex;align-items:baseline;gap:6px;padding:4px 6px;text-decoration:none;font-size:.7rem;color:var(--text)}
+.severity-nav a:hover{background:var(--pink)}
+.nav-sev{flex:1}
+.nav-count{font-size:.68rem;font-weight:700;color:var(--red)}
+.nav-count.dim{color:var(--text);font-weight:400}
+.sb-meta{font-size:.6rem;color:var(--text);line-height:1.85;border-top:1px solid var(--rule);padding-top:12px}
+.sb-meta strong{display:block;font-size:.57rem;font-weight:700;color:var(--red);letter-spacing:.07em;text-transform:uppercase;margin-top:8px}
+
+/* ── Main content ─────────────────────────────────────────────────── */
+#main{flex:1;padding:28px 32px 36px}
+
+/* H1 title block */
+.report-title{font-size:1.5rem;font-weight:700;color:var(--red);line-height:1.15;margin-bottom:4px}
+.report-org{font-size:.75rem;color:var(--text);margin-bottom:18px;opacity:.8}
+
+/* Metadata summary table (label-value pattern) */
+table.meta-t{border-collapse:collapse;font-size:.73rem;margin-bottom:26px;width:auto}
+table.meta-t td{padding:4px 10px;border:1px solid var(--rule);vertical-align:top}
+table.meta-t td.lbl{background:var(--grey);font-weight:600;white-space:nowrap;min-width:110px}
+table.meta-t td.val{background:var(--white);min-width:220px}
+table.meta-t td.val.crit{background:var(--pink);color:var(--red);font-weight:700}
+
+/* Section headings (H3 analogue) */
+.severity-section{margin-bottom:34px}
+.section-h{font-size:1rem;font-weight:700;color:var(--red);
+  border-bottom:1.5px solid var(--red);padding-bottom:5px;margin-bottom:10px;
+  display:flex;align-items:baseline;gap:10px;letter-spacing:.01em}
+.section-h .cnt{font-size:.62rem;color:var(--text);font-weight:400;opacity:.7}
+
+/* Findings table */
+table.ft{width:100%;border-collapse:collapse;font-size:.72rem;margin-bottom:4px}
+table.ft th{
+  background:var(--red);color:var(--white);
+  padding:5px 9px;text-align:left;font-weight:600;
+  font-size:.63rem;letter-spacing:.04em;white-space:nowrap;
+  border:1px solid var(--red);
+}
+table.ft td{padding:5px 9px;border:1px solid var(--rule);color:var(--text);vertical-align:top}
+table.ft td.app{background:var(--grey);font-weight:600;min-width:130px;max-width:176px}
+table.ft td.app.crit{background:var(--pink)}
+table.ft td.meta{font-size:.63rem;opacity:.8;white-space:nowrap}
+table.ft td.ftype{font-family:var(--font-sb);font-style:italic;white-space:nowrap;font-size:.69rem}
+table.ft td.detail{max-width:300px}
+table.ft td.ctrl span{
+  display:inline-block;padding:1px 5px;
+  border:1px solid var(--rule);font-size:.59rem;
+  background:var(--grey);white-space:nowrap;
+}
+
+/* Clean objects section */
+.clean-section{margin-bottom:34px}
+.clean-h{font-size:1rem;font-weight:700;color:var(--text);opacity:.55;
+  border-bottom:1px solid var(--rule);padding-bottom:5px;margin-bottom:10px;
+  display:flex;align-items:baseline;gap:10px;letter-spacing:.01em}
+.clean-h .cnt{font-size:.62rem;font-weight:400;opacity:.7}
+table.ct{width:100%;border-collapse:collapse;font-size:.7rem}
+table.ct td{padding:4px 9px;border:1px solid var(--rule);color:var(--text)}
+table.ct td.chk{width:22px;text-align:center;background:var(--grey);color:var(--red);font-weight:700}
+
+/* CONFIDENTIAL footer */
+.doc-footer{
+  background:var(--white);border-top:1px solid var(--rule);
+  text-align:center;padding:8px;
+  font-size:.62rem;font-weight:700;color:var(--text);
+  letter-spacing:.14em;max-width:1120px;margin:0 auto 18px;
+  width:calc(100% - 36px);box-shadow:0 2px 16px rgba(0,0,0,.1);
+}
+
+/* ── Export PDF button ────────────────────────────────────────────── */
+.pdf-btn{
+  position:fixed;bottom:24px;right:24px;z-index:200;
+  background:var(--red);color:var(--white);
+  border:none;padding:8px 18px;font-family:var(--font);
+  font-size:.72rem;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;box-shadow:0 2px 8px rgba(164,10,2,.35);
+}
+.pdf-btn:hover{background:#8a0802}
+.pdf-btn:active{background:#6e0602}
+
+@media print{
+  @page{size:letter portrait;margin:1in}
+  body{background:var(--white)}
+  .doc-header{position:static;box-shadow:none;border-bottom:1.5pt solid #A40A02}
+  .page-body{max-width:100%;margin:0;width:100%;box-shadow:none;display:block}
+  #sidebar{display:none}
+  #main{padding:0}
+  .doc-footer{max-width:100%;margin:0;width:100%;box-shadow:none;border-top:0.5pt solid #BFBFBF}
+  .pdf-btn{display:none}
+  .severity-section{page-break-inside:avoid}
+  .clean-section{page-break-inside:avoid}
+  .section-h,.clean-h{page-break-after:avoid}
+  table.ft tr{page-break-inside:avoid}
+  table.meta-t{page-break-inside:avoid}
+}
+</style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:TitleofDocument msdt:dt="string">Exchange Online Governance Scan — 2026-05-23 18:19</mso:TitleofDocument>
+<mso:primaryEvidenceArtifact msdt:dt="string">Exchange Online Governance Scan Report</mso:primaryEvidenceArtifact>
+<mso:secondaryArtifactDescription msdt:dt="string">A log documenting actions taken to disable Entra user accounts for shared mailboxes as recommended in the scan report</mso:secondaryArtifactDescription>
+<mso:primaryEvidenceArtifact0 msdt:dt="string">Exchange Online Governance Scan Report</mso:primaryEvidenceArtifact0>
+<mso:Review_x0020_status msdt:dt="string">Approved</mso:Review_x0020_status>
+<mso:PolicyNo. msdt:dt="string">Not found</mso:PolicyNo.>
+<mso:secondaryEvidenceArtifact0 msdt:dt="string">Mailbox Remediation Log</mso:secondaryEvidenceArtifact0>
+<mso:primaryArtifactDescription msdt:dt="string">A report listing shared mailboxes with enabled Entra user accounts and recommended actions for compliance</mso:primaryArtifactDescription>
+<mso:secondaryEvidenceArtifact msdt:dt="string">Mailbox Remediation Log</mso:secondaryEvidenceArtifact>
+<mso:Policy_x0020_area msdt:dt="string">Access control</mso:Policy_x0020_area>
+<mso:Purpose msdt:dt="string">To report and document the findings of an Exchange Online governance scan, specifically identifying shared mailboxes with enabled Entra user accounts that should be disabled to prevent interactive sign-in.</mso:Purpose>
+<mso:primaryArtifactDescription0 msdt:dt="string">A report listing shared mailboxes with enabled Entra user accounts and recommended actions for compliance</mso:primaryArtifactDescription0>
+<mso:primaryEvidenceArtifact1 msdt:dt="string">Exchange Online Governance Scan Report</mso:primaryEvidenceArtifact1>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>
+<body>
+<header class="doc-header"><div class="doc-header-line"><span class="left">NOF Metal Coatings North America</span><span class="right">IT and Information Systems</span></div><div class="doc-header-line"><span class="left">IT &amp; Management Information Systems</span><span class="right">Exchange Online Governance</span></div><div class="doc-header-spacer"></div></header>
+<div class="page-body"><aside id="sidebar"><div><div class="sb-label">Contents</div><nav class="severity-nav"><a href="#sev-high"><span class="nav-sev">1. High</span><span class="nav-count dim">30</span></a><a href="#sev-clean"><span class="nav-sev">2. Clean</span><span class="nav-count dim">128</span></a></nav></div><div class="sb-meta"><strong>Generated</strong>2026-05-23 18:19<strong>Last Scan</strong>2026-05-01 21:02:36<strong>Tenant</strong>NOF Metal Coatings NA<strong>Domain</strong>IT &amp; MIS</div></aside><main id="main"><h1 class="report-title">Exchange Online Governance Scan</h1><p class="report-org">NOF Metal Coatings North America &nbsp;&middot;&nbsp; IT &amp; Management Information Systems</p><table class="meta-t"><tbody><tr><td class="lbl">Report</td><td class="val">Exchange Online Governance Scan</td></tr><tr><td class="lbl">Generated</td><td class="val">2026-05-23 18:19</td></tr><tr><td class="lbl">Last Scan</td><td class="val">2026-05-01 21:02:36</td></tr><tr><td class="lbl">Tenant</td><td class="val">NOF Metal Coatings North America</td></tr><tr><td class="lbl">Findings</td><td class="val">30 total — 30 High</td></tr><tr><td class="lbl">Objects</td><td class="val">30 with findings · 128 clean</td></tr><tr><td class="lbl">Controls</td><td class="val">EXO-SHARED-ENABLED-01</td></tr></tbody></table><div class="severity-section" id="sev-high"><div class="section-h">1. High Findings<span class="cnt">30 · 30 findings</span></div><table class="ft"><thead><tr><th>Mailbox</th><th>Category</th><th>Created</th><th>Owners</th><th>Finding</th><th>Detail / Action</th><th>Control</th></tr></thead><tbody><tr><td class="app" rowspan="1">Accounts Payable</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Accounts Payable&#x27; (ap@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Bob Bellow</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Bob Bellow&#x27; (bbellow@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Cassandra Gosche</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Cassandra Gosche&#x27; (cgosche@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Chris Riddle</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Chris Riddle&#x27; (criddle@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">DIS No Reply</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;DIS No Reply&#x27; (dis_noreply@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Erik Larson</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Erik Larson&#x27; (elarson@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Jason Lestock</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Jason Lestock&#x27; (jlestock@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Jason Zmijewski</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Jason Zmijewski&#x27; (jzmijewski@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Kelli Leonetti</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Kelli Leonetti&#x27; (kleonetti@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Manufacturing</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Manufacturing&#x27; (manufacturing@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Manufacturing2</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Manufacturing2&#x27; (manufacturing2@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Marketing</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Marketing&#x27; (marketing@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">MCNA Careers</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;MCNA Careers&#x27; (careers@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">MCNA Export Group</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;MCNA Export Group&#x27; (mcnaexportgroup@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">MCNA Human Resources</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;MCNA Human Resources&#x27; (humanresources@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">MCNA Import Group</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;MCNA Import Group&#x27; (mcnaimportgroup@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">MCNA Inquiries</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;MCNA Inquiries&#x27; (Contact@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">MCNA IT Support</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;MCNA IT Support&#x27; (mcnaitsupport@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">MCNA Safety</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;MCNA Safety&#x27; (MCNASafety@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Monthly Flash Report</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Monthly Flash Report&#x27; (monthlyflashreport@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Network Services</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Network Services&#x27; (network@mcna.onmicrosoft.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">NOF iPad</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;NOF iPad&#x27; (ipad2@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">NOF Quality</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;NOF Quality&#x27; (quality@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Orders</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Orders&#x27; (orders@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Production</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Production&#x27; (production@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Ring</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Ring&#x27; (ring@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Sales</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Sales&#x27; (sales@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Shipping</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Shipping&#x27; (shipping@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Supply Chain</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Supply Chain&#x27; (supplychain@metal-coatings.com) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr>
+<tr><td class="app" rowspan="1">Visitor iPad</td><td class="meta" rowspan="1">Mailbox</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Shared Mailbox Interactive</td><td class="detail">Shared mailbox &#x27;Visitor iPad&#x27; (ipad@nofmetalcoatings.us) has an enabled Entra user account. Shared mailboxes should have their underlying account disabled to prevent interactive sign-in. Disable the account in Entra ID: Users &gt; select user &gt; Edit properties &gt; Account status = Disabled.</td><td class="ctrl"><span>EXO-SHARED-ENABLED-01</span></td></tr></tbody></table></div><div class="clean-section" id="sev-clean"><div class="clean-h">2. Clean Objects<span class="cnt">128 · no open findings</span></div><table class="ct"><tbody><tr><td class="chk">&#10003;</td><td>345 Coldroom</td><td class="chk">&#10003;</td><td>ADTC Conference</td></tr><tr><td class="chk">&#10003;</td><td>ADTC Facilities</td><td class="chk">&#10003;</td><td>ADTC Quality War Room</td></tr><tr><td class="chk">&#10003;</td><td>ADTC Training Room</td><td class="chk">&#10003;</td><td>Aaron Cunningham</td></tr><tr><td class="chk">&#10003;</td><td>Adam Jordan</td><td class="chk">&#10003;</td><td>Adam Stals</td></tr><tr><td class="chk">&#10003;</td><td>Aidan Boss</td><td class="chk">&#10003;</td><td>Allen Riddle</td></tr><tr><td class="chk">&#10003;</td><td>Anna Schlageter</td><td class="chk">&#10003;</td><td>Anthony Scott</td></tr><tr><td class="chk">&#10003;</td><td>April Dawn Peterson</td><td class="chk">&#10003;</td><td>Atlantis Conference Room</td></tr><tr><td class="chk">&#10003;</td><td>Atlantis Confroom</td><td class="chk">&#10003;</td><td>Austin Blevins</td></tr><tr><td class="chk">&#10003;</td><td>Barracuda NDR</td><td class="chk">&#10003;</td><td>Barry Lynn</td></tr><tr><td class="chk">&#10003;</td><td>Batch Sheets</td><td class="chk">&#10003;</td><td>Ben Oja</td></tr><tr><td class="chk">&#10003;</td><td>Bill Arotin</td><td class="chk">&#10003;</td><td>Brett Swain</td></tr><tr><td class="chk">&#10003;</td><td>Brian Straka</td><td class="chk">&#10003;</td><td>Cameron Heinz</td></tr><tr><td class="chk">&#10003;</td><td>Cameron Kavan</td><td class="chk">&#10003;</td><td>Chad Stehlik</td></tr><tr><td class="chk">&#10003;</td><td>Chemical Operators</td><td class="chk">&#10003;</td><td>Chris Gayhart</td></tr><tr><td class="chk">&#10003;</td><td>Chris Szorik</td><td class="chk">&#10003;</td><td>Christopher Cook</td></tr><tr><td class="chk">&#10003;</td><td>Christopher Jones</td><td class="chk">&#10003;</td><td>DIS Computers</td></tr><tr><td class="chk">&#10003;</td><td>DIS Manager</td><td class="chk">&#10003;</td><td>DIS Test</td></tr><tr><td class="chk">&#10003;</td><td>Damian Schultz</td><td class="chk">&#10003;</td><td>Dan Dilisio</td></tr><tr><td class="chk">&#10003;</td><td>Dave Lafferty</td><td class="chk">&#10003;</td><td>David Chladek</td></tr><tr><td class="chk">&#10003;</td><td>Dawn LaRiccia</td><td class="chk">&#10003;</td><td>Dean Colantonio</td></tr><tr><td class="chk">&#10003;</td><td>Deen Bankole</td><td class="chk">&#10003;</td><td>Deon Taylor</td></tr><tr><td class="chk">&#10003;</td><td>Diana Kochever</td><td class="chk">&#10003;</td><td>Don Dopierala</td></tr><tr><td class="chk">&#10003;</td><td>Duhua Wang</td><td class="chk">&#10003;</td><td>Fishbowl Conference Room</td></tr><tr><td class="chk">&#10003;</td><td>Florian Cocomazzi</td><td class="chk">&#10003;</td><td>GC Lab</td></tr><tr><td class="chk">&#10003;</td><td>Gary Dillon</td><td class="chk">&#10003;</td><td>Gerry Truax</td></tr><tr><td class="chk">&#10003;</td><td>Hiroshi Hayakawa</td><td class="chk">&#10003;</td><td>Jacob Simonic</td></tr><tr><td class="chk">&#10003;</td><td>Jeff Harbin</td><td class="chk">&#10003;</td><td>Jesse Prince</td></tr><tr><td class="chk">&#10003;</td><td>Joe Gdovichin</td><td class="chk">&#10003;</td><td>Joel Wedge</td></tr><tr><td class="chk">&#10003;</td><td>John Hess</td><td class="chk">&#10003;</td><td>John Pacosky</td></tr><tr><td class="chk">&#10003;</td><td>John Walker</td><td class="chk">&#10003;</td><td>Jordan Anthony Stone</td></tr><tr><td class="chk">&#10003;</td><td>Josh James Krause</td><td class="chk">&#10003;</td><td>Joy Lombardi</td></tr><tr><td class="chk">&#10003;</td><td>Jude Connors</td><td class="chk">&#10003;</td><td>Kathleen Parrish</td></tr><tr><td class="chk">&#10003;</td><td>Kevin McCarthy</td><td class="chk">&#10003;</td><td>Kyle Noch</td></tr><tr><td class="chk">&#10003;</td><td>Label Master</td><td class="chk">&#10003;</td><td>Lakeview Conference Room</td></tr><tr><td class="chk">&#10003;</td><td>LeOra Cannon</td><td class="chk">&#10003;</td><td>Lean 6Sigma</td></tr><tr><td class="chk">&#10003;</td><td>Linda Gazdak</td><td class="chk">&#10003;</td><td>Lindsey Verzella</td></tr><tr><td class="chk">&#10003;</td><td>Lorie Murphy</td><td class="chk">&#10003;</td><td>Lucie Cocomazzi</td></tr><tr><td class="chk">&#10003;</td><td>Luis Uribe</td><td class="chk">&#10003;</td><td>MCNA Automated  Response</td></tr><tr><td class="chk">&#10003;</td><td>MCNA Logistics</td><td class="chk">&#10003;</td><td>MCNA Scanner</td></tr><tr><td class="chk">&#10003;</td><td>MCNA-Conference Room</td><td class="chk">&#10003;</td><td>Mail Master</td></tr><tr><td class="chk">&#10003;</td><td>Management Information Systems</td><td class="chk">&#10003;</td><td>Matt Shields</td></tr><tr><td class="chk">&#10003;</td><td>Micaela Wooten</td><td class="chk">&#10003;</td><td>Michael Zavrl</td></tr><tr><td class="chk">&#10003;</td><td>Miranda Ruth McLaughlin</td><td class="chk">&#10003;</td><td>Monica Lauer</td></tr><tr><td class="chk">&#10003;</td><td>Motor City Room</td><td class="chk">&#10003;</td><td>Motown Room</td></tr><tr><td class="chk">&#10003;</td><td>NOF Dave Lafferty</td><td class="chk">&#10003;</td><td>NOF MCNA</td></tr><tr><td class="chk">&#10003;</td><td>NOF METAL COATINGS NORTH AMERICA INC</td><td class="chk">&#10003;</td><td>NOF METAL COATINGS NORTH AMERICA INC - Talent Acquisition Dept.</td></tr><tr><td class="chk">&#10003;</td><td>NOF Scan</td><td class="chk">&#10003;</td><td>Nick Romero</td></tr><tr><td class="chk">&#10003;</td><td>Nick Spracale</td><td class="chk">&#10003;</td><td>Norm Gertz</td></tr><tr><td class="chk">&#10003;</td><td>PLC</td><td class="chk">&#10003;</td><td>Patience Burkholder</td></tr><tr><td class="chk">&#10003;</td><td>Reggie Fryerson</td><td class="chk">&#10003;</td><td>Richard Linck</td></tr><tr><td class="chk">&#10003;</td><td>Ryan Fuller</td><td class="chk">&#10003;</td><td>Ryan Hayes</td></tr><tr><td class="chk">&#10003;</td><td>Ryan McBrayer</td><td class="chk">&#10003;</td><td>Safety</td></tr><tr><td class="chk">&#10003;</td><td>Satoru Tamaki</td><td class="chk">&#10003;</td><td>Scott Rourke</td></tr><tr><td class="chk">&#10003;</td><td>Sharon Freeman</td><td class="chk">&#10003;</td><td>Sharon Freeman</td></tr><tr><td class="chk">&#10003;</td><td>Shawn Kemp</td><td class="chk">&#10003;</td><td>Shin Masuda</td></tr><tr><td class="chk">&#10003;</td><td>Stacy Allen</td><td class="chk">&#10003;</td><td>Steve Cala</td></tr><tr><td class="chk">&#10003;</td><td>Tameka Alexander</td><td class="chk">&#10003;</td><td>Thomas Lavisky</td></tr><tr><td class="chk">&#10003;</td><td>Thomas Nicholson</td><td class="chk">&#10003;</td><td>Timekeeping and Payroll Andministration</td></tr><tr><td class="chk">&#10003;</td><td>Tony Santoro</td><td class="chk">&#10003;</td><td>Touch Panel</td></tr><tr><td class="chk">&#10003;</td><td>Toya Treece</td><td class="chk">&#10003;</td><td>Tracy Bowling</td></tr><tr><td class="chk">&#10003;</td><td>Tyler Peters</td><td class="chk">&#10003;</td><td>VLSC NOF</td></tr><tr><td class="chk">&#10003;</td><td>Virginia Rychnovsky</td><td class="chk">&#10003;</td><td>Walt Kacher</td></tr><tr><td class="chk">&#10003;</td><td>Walt Stark</td><td class="chk">&#10003;</td><td>William Annick</td></tr><tr><td class="chk">&#10003;</td><td>William Pritchett</td><td class="chk">&#10003;</td><td>Yoichiro Sawada</td></tr></tbody></table></div></main></div>
+<footer class="doc-footer">CONFIDENTIAL</footer>
+<button class="pdf-btn" onclick="window.print()">Export PDF</button>
+</body>
+</html>
