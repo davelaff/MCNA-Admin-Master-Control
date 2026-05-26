@@ -166,7 +166,7 @@ def parse_catalog(docx_path: Path, source_version: str) -> dict:
                 current["cadence"] = (current["cadence"] + " " + text).strip()
             elif review_sub == "reviewer" and not is_list:
                 current["reviewer"] = (current["reviewer"] + " " + text).strip()
-            elif review_sub == "audit_evidence" and is_list:
+            elif review_sub == "audit_evidence":
                 current["audit_evidence_items"].append({
                     "sequence": len(current["audit_evidence_items"]),
                     "item_text": text,
