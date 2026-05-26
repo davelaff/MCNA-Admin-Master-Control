@@ -217,7 +217,7 @@ table.ct td.chk{width:22px;text-align:center;background:var(--grey);color:var(--
 .pdf-btn:active{background:#6e0602}
 
 @media print{
-  @page{size:letter portrait;margin:1in}
+  @page{size:letter landscape;margin:0.5in}
   body{background:var(--white)}
   .doc-header{position:static;box-shadow:none;border-bottom:1.5pt solid #A40A02}
   .page-body{max-width:100%;margin:0;width:100%;box-shadow:none;display:block}

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Intune Device Governance Scan — 2026-05-26 08:58</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --red:#A40A02;--pink:#F5D7D5;--grey:#F2F2F2;
+  --text:#404040;--rule:#BFBFBF;--white:#FFFFFF;
+  --font:'Segoe UI','Segoe UI Web (West European)',system-ui,sans-serif;
+  --font-sb:'Segoe UI Semibold','Segoe UI',system-ui,sans-serif;
+}
+html{font-size:14px}
+body{background:var(--grey);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+
+/* ── Running header (Word 3-line header analogue) ─────────────────── */
+.doc-header{
+  background:var(--white);border-bottom:2px solid var(--red);
+  padding:6px 28px 4px;position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 6px rgba(0,0,0,.07);
+}
+.doc-header-line{display:flex;justify-content:space-between;align-items:baseline;font-size:.62rem;color:var(--text);line-height:1.65}
+.doc-header-line .left{font-weight:700}
+.doc-header-line .right{opacity:.75}
+.doc-header-spacer{height:3px}
+
+/* ── Page body wrapper ────────────────────────────────────────────── */
+.page-body{display:flex;flex:1;background:var(--white);max-width:1120px;margin:18px auto 18px;width:calc(100% - 36px);box-shadow:0 2px 16px rgba(0,0,0,.1)}
+
+/* ── Sidebar (document contents index) ───────────────────────────── */
+#sidebar{
+  width:188px;min-width:188px;background:var(--grey);
+  border-right:1px solid var(--rule);padding:22px 13px;
+  position:sticky;top:52px;height:calc(100vh - 52px);
+  overflow-y:auto;display:flex;flex-direction:column;gap:16px;
+  align-self:flex-start;
+}
+.sb-label{font-size:.58rem;font-weight:700;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.severity-nav{display:flex;flex-direction:column;gap:1px}
+.severity-nav a{display:flex;align-items:baseline;gap:6px;padding:4px 6px;text-decoration:none;font-size:.7rem;color:var(--text)}
+.severity-nav a:hover{background:var(--pink)}
+.nav-sev{flex:1}
+.nav-count{font-size:.68rem;font-weight:700;color:var(--red)}
+.nav-count.dim{color:var(--text);font-weight:400}
+.sb-meta{font-size:.6rem;color:var(--text);line-height:1.85;border-top:1px solid var(--rule);padding-top:12px}
+.sb-meta strong{display:block;font-size:.57rem;font-weight:700;color:var(--red);letter-spacing:.07em;text-transform:uppercase;margin-top:8px}
+
+/* ── Main content ─────────────────────────────────────────────────── */
+#main{flex:1;padding:28px 32px 36px}
+
+/* H1 title block */
+.report-title{font-size:1.5rem;font-weight:700;color:var(--red);line-height:1.15;margin-bottom:4px}
+.report-org{font-size:.75rem;color:var(--text);margin-bottom:18px;opacity:.8}
+
+/* Metadata summary table (label-value pattern) */
+table.meta-t{border-collapse:collapse;font-size:.73rem;margin-bottom:26px;width:auto}
+table.meta-t td{padding:4px 10px;border:1px solid var(--rule);vertical-align:top}
+table.meta-t td.lbl{background:var(--grey);font-weight:600;white-space:nowrap;min-width:110px}
+table.meta-t td.val{background:var(--white);min-width:220px}
+table.meta-t td.val.crit{background:var(--pink);color:var(--red);font-weight:700}
+
+/* Section headings (H3 analogue) */
+.severity-section{margin-bottom:34px}
+.section-h{font-size:1rem;font-weight:700;color:var(--red);
+  border-bottom:1.5px solid var(--red);padding-bottom:5px;margin-bottom:10px;
+  display:flex;align-items:baseline;gap:10px;letter-spacing:.01em}
+.section-h .cnt{font-size:.62rem;color:var(--text);font-weight:400;opacity:.7}
+
+/* Findings table */
+table.ft{width:100%;border-collapse:collapse;font-size:.72rem;margin-bottom:4px}
+table.ft th{
+  background:var(--red);color:var(--white);
+  padding:5px 9px;text-align:left;font-weight:600;
+  font-size:.63rem;letter-spacing:.04em;white-space:nowrap;
+  border:1px solid var(--red);
+}
+table.ft td{padding:5px 9px;border:1px solid var(--rule);color:var(--text);vertical-align:top}
+table.ft td.app{background:var(--grey);font-weight:600;min-width:130px;max-width:176px}
+table.ft td.app.crit{background:var(--pink)}
+table.ft td.meta{font-size:.63rem;opacity:.8;white-space:nowrap}
+table.ft td.ftype{font-family:var(--font-sb);font-style:italic;white-space:nowrap;font-size:.69rem}
+table.ft td.detail{max-width:300px}
+table.ft td.ctrl span{
+  display:inline-block;padding:1px 5px;
+  border:1px solid var(--rule);font-size:.59rem;
+  background:var(--grey);white-space:nowrap;
+}
+
+/* Clean objects section */
+.clean-section{margin-bottom:34px}
+.clean-h{font-size:1rem;font-weight:700;color:var(--text);opacity:.55;
+  border-bottom:1px solid var(--rule);padding-bottom:5px;margin-bottom:10px;
+  display:flex;align-items:baseline;gap:10px;letter-spacing:.01em}
+.clean-h .cnt{font-size:.62rem;font-weight:400;opacity:.7}
+table.ct{width:100%;border-collapse:collapse;font-size:.7rem}
+table.ct td{padding:4px 9px;border:1px solid var(--rule);color:var(--text)}
+table.ct td.chk{width:22px;text-align:center;background:var(--grey);color:var(--red);font-weight:700}
+
+/* CONFIDENTIAL footer */
+.doc-footer{
+  background:var(--white);border-top:1px solid var(--rule);
+  text-align:center;padding:8px;
+  font-size:.62rem;font-weight:700;color:var(--text);
+  letter-spacing:.14em;max-width:1120px;margin:0 auto 18px;
+  width:calc(100% - 36px);box-shadow:0 2px 16px rgba(0,0,0,.1);
+}
+
+/* ── Export PDF button ────────────────────────────────────────────── */
+.pdf-btn{
+  position:fixed;bottom:24px;right:24px;z-index:200;
+  background:var(--red);color:var(--white);
+  border:none;padding:8px 18px;font-family:var(--font);
+  font-size:.72rem;font-weight:600;letter-spacing:.04em;
+  cursor:pointer;box-shadow:0 2px 8px rgba(164,10,2,.35);
+}
+.pdf-btn:hover{background:#8a0802}
+.pdf-btn:active{background:#6e0602}
+
+@media print{
+  @page{size:letter landscape;margin:0.5in}
+  body{background:var(--white)}
+  .doc-header{position:static;box-shadow:none;border-bottom:1.5pt solid #A40A02}
+  .page-body{max-width:100%;margin:0;width:100%;box-shadow:none;display:block}
+  #sidebar{display:none}
+  #main{padding:0}
+  .doc-footer{max-width:100%;margin:0;width:100%;box-shadow:none;border-top:0.5pt solid #BFBFBF}
+  .pdf-btn{display:none}
+  .severity-section{page-break-inside:avoid}
+  .clean-section{page-break-inside:avoid}
+  .section-h,.clean-h{page-break-after:avoid}
+  table.ft tr{page-break-inside:avoid}
+  table.meta-t{page-break-inside:avoid}
+}
+</style>
+
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:TitleofDocument msdt:dt="string">Intune Device Governance Scan � 2026-05-26 08:58</mso:TitleofDocument>
+<mso:secondaryArtifactDescription msdt:dt="string">A log showing which devices have encryption enabled or disabled, supporting compliance verification.</mso:secondaryArtifactDescription>
+<mso:Purpose msdt:dt="string">To report on the status of Intune device enrollment and encryption compliance for NOF Metal Coatings North America IT &amp; Management Information Systems.</mso:Purpose>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>
+<body>
+<header class="doc-header"><div class="doc-header-line"><span class="left">NOF Metal Coatings North America</span><span class="right">IT and Information Systems</span></div><div class="doc-header-line"><span class="left">IT &amp; Management Information Systems</span><span class="right">Intune Governance</span></div><div class="doc-header-spacer"></div></header>
+<div class="page-body"><aside id="sidebar"><div><div class="sb-label">Contents</div><nav class="severity-nav"><a href="#sev-high"><span class="nav-sev">1. High</span><span class="nav-count dim">2</span></a></nav></div><div class="sb-meta"><strong>Generated</strong>2026-05-26 08:58<strong>Last Scan</strong>2026-05-26 12:46:10<strong>Tenant</strong>NOF Metal Coatings NA<strong>Domain</strong>IT &amp; MIS</div></aside><main id="main"><h1 class="report-title">Intune Device Governance Scan</h1><p class="report-org">NOF Metal Coatings North America &nbsp;&middot;&nbsp; IT &amp; Management Information Systems</p><table class="meta-t"><tbody><tr><td class="lbl">Report</td><td class="val">Intune Device Governance Scan</td></tr><tr><td class="lbl">Generated</td><td class="val">2026-05-26 08:58</td></tr><tr><td class="lbl">Last Scan</td><td class="val">2026-05-26 12:46:10</td></tr><tr><td class="lbl">Tenant</td><td class="val">NOF Metal Coatings North America</td></tr><tr><td class="lbl">Findings</td><td class="val">2 total — 2 High</td></tr><tr><td class="lbl">Objects</td><td class="val">2 with findings · 0 clean</td></tr><tr><td class="lbl">Controls</td><td class="val">07-2 · INTUNE-ENCRYPT-01</td></tr></tbody></table><div class="severity-section" id="sev-high"><div class="section-h">1. High Findings<span class="cnt">2 · 2 findings</span></div><table class="ft"><thead><tr><th>Device</th><th>Category</th><th>Created</th><th>Owners</th><th>Finding</th><th>Detail / Action</th><th>Control</th></tr></thead><tbody><tr><td class="app" rowspan="1">Intune Device Enrollment</td><td class="meta" rowspan="1">Tenant</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Incomplete Enrollment</td><td class="detail">Intune enrollment is in early stages — 1 device enrolled. Full endpoint population not yet onboarded. Expand enrollment to all MCNA-managed Windows endpoints before compliance baselines can be enforced at scale.</td><td class="ctrl"><span>07-2</span></td></tr>
+<tr><td class="app" rowspan="1">JWEDGE-2018</td><td class="meta" rowspan="1">Managed Device</td><td class="meta" rowspan="1">—</td><td class="meta" rowspan="1">—</td><td class="ftype">Encryption Not Enabled</td><td class="detail">Device &#x27;JWEDGE-2018&#x27; (Windows) is not encrypted. Enable BitLocker (Windows) or FileVault (macOS) via an Intune device configuration profile or add disk encryption to the active compliance policy.</td><td class="ctrl"><span>INTUNE-ENCRYPT-01</span></td></tr></tbody></table></div></main></div>
+<footer class="doc-footer">CONFIDENTIAL</footer>
+<button class="pdf-btn" onclick="window.print()">Export PDF</button>
+</body>
+</html>
