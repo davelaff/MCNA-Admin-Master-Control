@@ -104,13 +104,26 @@ def _reviews_for_control(conn, control_id: str) -> list[dict]:
     return [dict(row) for row in rows]
 
 
-def _actions_for_control(conn, control_id: str) -> list[dict]:
+def _clauses_for_control(conn, control_id: str) -> list[dict]:
     rows = conn.execute(
         """
-        SELECT action_id, action_text, implementation_status, owner
-        FROM ssk_recommended_actions
+        SELECT clause_id, group_name, clause_text
+        FROM ssk_clauses
         WHERE control_id = ?
-        ORDER BY sequence, action_id
+        ORDER BY sequence
+        """,
+        (control_id,),
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def _audit_evidence_items_for_control(conn, control_id: str) -> list[dict]:
+    rows = conn.execute(
+        """
+        SELECT item_id, item_text
+        FROM ssk_audit_evidence_items
+        WHERE control_id = ?
+        ORDER BY sequence
         """,
         (control_id,),
     ).fetchall()
@@ -246,14 +259,21 @@ def _render_control_markdown(payload: dict) -> str:
     else:
         lines.append("_No reviews recorded._")
 
-    lines += ["", "## Recommended Actions", ""]
-    if payload["actions"]:
-        for item in payload["actions"]:
-            lines.append(
-                f"- {item['action_text']} [{item['implementation_status']}]"
-            )
+    lines += ["", "## Standards Clauses", ""]
+    if payload["clauses"]:
+        lines.append("| Clause | Group | Requirement |")
+        lines.append("|--------|-------|-------------|")
+        for item in payload["clauses"]:
+            lines.append(f"| {item['clause_id']} | {item['group_name'] or '—'} | {item['clause_text']} |")
     else:
-        lines.append("_No recommended actions._")
+        lines.append("_No clauses._")
+
+    lines += ["", "## Audit Evidence Requirements", ""]
+    if payload["audit_evidence_items"]:
+        for item in payload["audit_evidence_items"]:
+            lines.append(f"- {item['item_text']}")
+    else:
+        lines.append("_No audit evidence requirements defined._")
 
     return "\n".join(lines).rstrip() + "\n"
 
@@ -271,10 +291,14 @@ def _render_control_html(payload: dict) -> str:
         f"<tr><td>{html.escape(item['review_id'])}</td><td>{html.escape(item['reviewer'])}</td><td>{html.escape((item['reviewed_at'] or '')[:10])}</td><td>{html.escape(item['outcome'])}</td><td>{html.escape((item['next_review_due'] or '—')[:10] if item['next_review_due'] else '—')}</td></tr>"
         for item in payload["reviews"]
     ) or "<tr><td colspan='5'>No reviews recorded.</td></tr>"
-    action_items = "".join(
-        f"<li>{html.escape(item['action_text'])} [{html.escape(item['implementation_status'])}]</li>"
-        for item in payload["actions"]
-    ) or "<li>No recommended actions.</li>"
+    clause_rows_html = "".join(
+        f"<tr><td>{html.escape(item['clause_id'])}</td><td>{html.escape(item['group_name'] or '—')}</td><td>{html.escape(item['clause_text'])}</td></tr>"
+        for item in payload["clauses"]
+    ) or "<tr><td colspan='3'>No clauses.</td></tr>"
+    audit_evidence_items_html = "".join(
+        f"<li>{html.escape(item['item_text'])}</li>"
+        for item in payload["audit_evidence_items"]
+    ) or "<li>No audit evidence requirements defined.</li>"
 
     return f"""<!doctype html>
 <html lang="en">
@@ -301,8 +325,10 @@ def _render_control_html(payload: dict) -> str:
   <table><thead><tr><th>Finding ID</th><th>Type</th><th>Severity</th><th>Object</th><th>Last Seen</th></tr></thead><tbody>{finding_rows}</tbody></table>
   <h2>Review History</h2>
   <table><thead><tr><th>Review ID</th><th>Reviewer</th><th>Reviewed At</th><th>Outcome</th><th>Next Due</th></tr></thead><tbody>{review_rows}</tbody></table>
-  <h2>Recommended Actions</h2>
-  <ul>{action_items}</ul>
+  <h2>Standards Clauses</h2>
+  <table><thead><tr><th>Clause</th><th>Group</th><th>Requirement</th></tr></thead><tbody>{clause_rows_html}</tbody></table>
+  <h2>Audit Evidence Requirements</h2>
+  <ul>{audit_evidence_items_html}</ul>
 </body>
 </html>
 """
@@ -463,7 +489,8 @@ def _control_payloads(generated_at: str) -> list[dict]:
                     "findings": findings,
                     "open_finding_count": len(findings),
                     "reviews": _reviews_for_control(conn, control_id),
-                    "actions": _actions_for_control(conn, control_id),
+                    "clauses": _clauses_for_control(conn, control_id),
+                    "audit_evidence_items": _audit_evidence_items_for_control(conn, control_id),
                     "generated_at": generated_at,
                 }
             )
