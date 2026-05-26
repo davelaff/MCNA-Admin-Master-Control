@@ -208,6 +208,235 @@ def _check_markdown(payload: dict) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
+_SEV_ORDER = ["Critical", "High", "Medium", "Low"]
+_SEV_LABEL = {"warn": "⚠ Warn", "pass": "✓ Pass", "manual_required": "Manual Required"}
+
+_CHECK_HTML_CSS = """
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#A40A02;--pink:#F5D7D5;--grey:#F2F2F2;--text:#404040;--rule:#BFBFBF;--white:#FFFFFF;--font:'Segoe UI','Segoe UI Web (West European)',system-ui,sans-serif;--font-sb:'Segoe UI Semibold','Segoe UI',system-ui,sans-serif}
+html{font-size:14px}
+body{background:var(--grey);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+.doc-header{background:var(--white);border-bottom:2px solid var(--red);padding:6px 28px 4px;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.doc-header-line{display:flex;justify-content:space-between;align-items:baseline;font-size:.62rem;color:var(--text);line-height:1.65}
+.doc-header-line .left{font-weight:700}
+.doc-header-line .right{opacity:.75}
+.doc-header-spacer{height:3px}
+.page-body{display:flex;flex:1;background:var(--white);max-width:1120px;margin:18px auto 18px;width:calc(100% - 36px);box-shadow:0 2px 16px rgba(0,0,0,.1)}
+#sidebar{width:188px;min-width:188px;background:var(--grey);border-right:1px solid var(--rule);padding:22px 13px;position:sticky;top:52px;height:calc(100vh - 52px);overflow-y:auto;display:flex;flex-direction:column;gap:16px;align-self:flex-start}
+.sb-label{font-size:.58rem;font-weight:700;color:var(--red);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.severity-nav{display:flex;flex-direction:column;gap:1px}
+.severity-nav a{display:flex;align-items:baseline;gap:6px;padding:4px 6px;text-decoration:none;font-size:.7rem;color:var(--text)}
+.severity-nav a:hover{background:var(--pink)}
+.nav-sev{flex:1}
+.nav-count{font-size:.68rem;font-weight:700;color:var(--red)}
+.nav-count.dim{color:var(--text);font-weight:400}
+.sb-meta{font-size:.6rem;color:var(--text);line-height:1.85;border-top:1px solid var(--rule);padding-top:12px}
+.sb-meta strong{display:block;font-size:.57rem;font-weight:700;color:var(--red);letter-spacing:.07em;text-transform:uppercase;margin-top:8px}
+#main{flex:1;padding:28px 32px 36px}
+.report-title{font-size:1.5rem;font-weight:700;color:var(--red);line-height:1.15;margin-bottom:4px}
+.report-org{font-size:.75rem;color:var(--text);margin-bottom:18px;opacity:.8}
+table.meta-t{border-collapse:collapse;font-size:.73rem;margin-bottom:26px;width:auto}
+table.meta-t td{padding:4px 10px;border:1px solid var(--rule);vertical-align:top}
+table.meta-t td.lbl{background:var(--grey);font-weight:600;white-space:nowrap;min-width:110px}
+table.meta-t td.val{background:var(--white);min-width:220px}
+.severity-section{margin-bottom:34px}
+.section-h{font-size:1rem;font-weight:700;color:var(--red);border-bottom:1.5px solid var(--red);padding-bottom:5px;margin-bottom:10px;display:flex;align-items:baseline;gap:10px;letter-spacing:.01em}
+.section-h .cnt{font-size:.62rem;color:var(--text);font-weight:400;opacity:.7}
+table.ft{width:100%;border-collapse:collapse;font-size:.72rem;margin-bottom:4px}
+table.ft th{background:var(--red);color:var(--white);padding:5px 9px;text-align:left;font-weight:600;font-size:.63rem;letter-spacing:.04em;white-space:nowrap;border:1px solid var(--red)}
+table.ft td{padding:5px 9px;border:1px solid var(--rule);color:var(--text);vertical-align:top}
+table.ft td.obj{background:var(--grey);font-weight:600;min-width:130px;max-width:176px}
+table.ft td.obj-hi{background:var(--pink)}
+table.ft td.meta{font-size:.63rem;opacity:.8;white-space:nowrap}
+table.ft td.ftype{font-style:italic;white-space:nowrap;font-size:.69rem}
+table.ft td.detail{max-width:340px}
+details{margin-bottom:6px;border:1px solid var(--rule)}
+summary{padding:6px 10px;font-size:.72rem;font-weight:600;cursor:pointer;background:var(--grey);user-select:none}
+summary:hover{background:var(--pink)}
+pre{padding:12px;font-size:.63rem;overflow-x:auto;background:#fafafa;line-height:1.45}
+.doc-footer{background:var(--white);border-top:1px solid var(--rule);text-align:center;padding:8px;font-size:.62rem;font-weight:700;color:var(--text);letter-spacing:.14em;max-width:1120px;margin:0 auto 18px;width:calc(100% - 36px);box-shadow:0 2px 16px rgba(0,0,0,.1)}
+.pdf-btn{position:fixed;bottom:24px;right:24px;z-index:200;background:var(--red);color:var(--white);border:none;padding:8px 18px;font-family:var(--font);font-size:.72rem;font-weight:600;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 8px rgba(164,10,2,.35)}
+.pdf-btn:hover{background:#8a0802}
+@media print{
+  @page{size:letter landscape;margin:0.5in}
+  body{background:var(--white)}
+  .doc-header{position:static;box-shadow:none;border-bottom:1.5pt solid #A40A02}
+  .page-body{max-width:100%;margin:0;width:100%;box-shadow:none;display:block}
+  #sidebar{display:none}
+  #main{padding:0}
+  .doc-footer{max-width:100%;margin:0;width:100%;box-shadow:none;border-top:0.5pt solid #BFBFBF}
+  .pdf-btn{display:none}
+  .severity-section{page-break-inside:avoid}
+  .section-h{page-break-after:avoid}
+  table.ft tr{page-break-inside:avoid}
+  table.meta-t{page-break-inside:avoid}
+}
+"""
+
+
+def _render_check_html(payload: dict) -> str:
+    control_id = payload["control_id"]
+    title = payload["title"]
+    date_str = payload["generated_at"][:10]
+    generated_by = payload.get("generated_by", "")
+    status = payload["status"]
+    findings = payload.get("findings", [])
+    tool_results = payload.get("tool_results", [])
+    evidence_id = payload.get("evidence_id") or ""
+    notes = payload.get("notes") or ""
+
+    status_label = _SEV_LABEL.get(status, status)
+    status_color = "var(--red)" if status == "warn" else ("green" if status == "pass" else "var(--text)")
+
+    # Group findings by severity
+    by_sev: dict[str, list] = {}
+    for f in findings:
+        sev = (f.get("severity") or "Unknown").capitalize()
+        by_sev.setdefault(sev, []).append(f)
+
+    # Sidebar nav
+    nav_items = []
+    sec_idx = 1
+    for sev in _SEV_ORDER:
+        group = by_sev.get(sev, [])
+        if group:
+            nav_items.append(
+                f'<a href="#sev-{sev.lower()}"><span class="nav-sev">{sec_idx}. {sev}</span>'
+                f'<span class="nav-count">{len(group)}</span></a>'
+            )
+            sec_idx += 1
+    if tool_results:
+        nav_items.append(
+            f'<a href="#tools-run"><span class="nav-sev">{sec_idx}. Tools Run</span>'
+            f'<span class="nav-count dim">{len(tool_results)}</span></a>'
+        )
+        sec_idx += 1
+        nav_items.append(
+            f'<a href="#raw-results"><span class="nav-sev">{sec_idx}. Raw Results</span>'
+            f'<span class="nav-count dim">{len(tool_results)}</span></a>'
+        )
+    nav_html = "\n".join(nav_items) or '<span style="font-size:.68rem;opacity:.6">No findings</span>'
+
+    # Meta table
+    meta_rows_html = "".join([
+        f'<tr><td class="lbl">Control</td><td class="val">{html.escape(control_id)}</td></tr>',
+        f'<tr><td class="lbl">Title</td><td class="val">{html.escape(title)}</td></tr>',
+        f'<tr><td class="lbl">Status</td><td class="val"><span style="font-weight:700;color:{status_color}">{html.escape(status_label)}</span></td></tr>',
+        f'<tr><td class="lbl">Generated</td><td class="val">{html.escape(date_str)}</td></tr>',
+        f'<tr><td class="lbl">Generated By</td><td class="val">{html.escape(generated_by)}</td></tr>',
+        f'<tr><td class="lbl">Findings</td><td class="val">{len(findings)}</td></tr>',
+        f'<tr><td class="lbl">Tools Run</td><td class="val">{len(tool_results)}</td></tr>',
+        f'<tr><td class="lbl">Evidence ID</td><td class="val">{html.escape(evidence_id[:8]) if evidence_id else "—"}</td></tr>',
+    ])
+
+    # Findings sections
+    sev_sections = []
+    sec_idx = 1
+    for sev in _SEV_ORDER:
+        group = by_sev.get(sev, [])
+        if not group:
+            continue
+        hi_class = " obj-hi" if sev in ("Critical", "High") else ""
+        rows = "".join(
+            f'<tr>'
+            f'<td class="obj{hi_class}">{html.escape(f.get("object_name") or "—")}</td>'
+            f'<td class="ftype">{html.escape(f.get("finding_type") or "")}</td>'
+            f'<td class="detail">{html.escape(f.get("recommended_action") or "")}</td>'
+            f'<td class="meta">{html.escape((f.get("last_seen") or "")[:10])}</td>'
+            f'</tr>'
+            for f in group
+        )
+        sev_sections.append(
+            f'<div class="severity-section" id="sev-{sev.lower()}">'
+            f'<div class="section-h">{sec_idx}. {html.escape(sev)} Findings'
+            f'<span class="cnt">{len(group)} finding{"s" if len(group) != 1 else ""}</span></div>'
+            f'<table class="ft"><thead><tr>'
+            f'<th>Object</th><th>Finding Type</th><th>Recommended Action</th><th>Last Seen</th>'
+            f'</tr></thead><tbody>{rows}</tbody></table></div>'
+        )
+        sec_idx += 1
+
+    findings_html = "\n".join(sev_sections) if sev_sections else (
+        '<p style="font-size:.8rem;color:green;padding:8px 0">&#10003; No open findings after this check.</p>'
+    )
+
+    # Tools run + raw results
+    if tool_results:
+        tools_list = "".join(f"<li style='padding:3px 0'><code>{html.escape(t['tool_name'])}</code></li>" for t in tool_results)
+        tools_section = (
+            f'<div class="severity-section" id="tools-run">'
+            f'<div class="section-h">{sec_idx}. Tools Run<span class="cnt">{len(tool_results)}</span></div>'
+            f'<ul style="font-size:.8rem;padding-left:1.4rem;line-height:1.8">{tools_list}</ul>'
+            f'</div>'
+        )
+        sec_idx += 1
+        raw_items = "".join(
+            f'<details><summary><code>{html.escape(t["tool_name"])}</code></summary>'
+            f'<pre>{html.escape(json.dumps(t["result"], indent=2, default=str))}</pre></details>'
+            for t in tool_results
+        )
+        raw_section = (
+            f'<div class="severity-section" id="raw-results">'
+            f'<div class="section-h">{sec_idx}. Raw Tool Results</div>'
+            f'{raw_items}</div>'
+        )
+    else:
+        _manual_notes = (
+            f'<p style="font-size:.8rem;margin-top:8px"><strong>Notes:</strong> {html.escape(notes)}</p>'
+            if notes else ""
+        )
+        tools_section = (
+            f'<div class="severity-section" id="tools-run">'
+            f'<div class="section-h">1. Assessment</div>'
+            f'<p style="font-size:.8rem">No automated checks mapped to this control. Manual review required.</p>'
+            f'{_manual_notes}'
+            f'</div>'
+        )
+        raw_section = ""
+
+    notes_html = (
+        f'<p style="font-size:.8rem;margin-bottom:16px;padding:6px 8px;background:var(--grey);border-left:3px solid var(--red)">'
+        f'<strong>Notes:</strong> {html.escape(notes)}</p>'
+    ) if notes and tool_results else ""
+
+    eid_short = html.escape(evidence_id[:8]) if evidence_id else "—"
+
+    return (
+        f'<!doctype html>\n<html lang="en">\n<head>\n'
+        f'<meta charset="utf-8">\n'
+        f'<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+        f'<title>Control Check {html.escape(control_id)} — {html.escape(date_str)}</title>\n'
+        f'<style>{_CHECK_HTML_CSS}</style>\n'
+        f'</head>\n<body>\n'
+        f'<header class="doc-header">'
+        f'<div class="doc-header-line"><span class="left">NOF Metal Coatings North America</span><span class="right">IT and Information Systems</span></div>'
+        f'<div class="doc-header-line"><span class="left">IT &amp; Management Information Systems</span><span class="right">Control Check</span></div>'
+        f'<div class="doc-header-spacer"></div></header>\n'
+        f'<div class="page-body">'
+        f'<aside id="sidebar">'
+        f'<div><div class="sb-label">Contents</div><nav class="severity-nav">{nav_html}</nav></div>'
+        f'<div class="sb-meta">'
+        f'<strong>Control</strong>{html.escape(control_id)}'
+        f'<strong>Status</strong>{html.escape(status_label)}'
+        f'<strong>Generated</strong>{html.escape(date_str)}'
+        f'<strong>Findings</strong>{len(findings)}'
+        f'<strong>Evidence ID</strong>{eid_short}'
+        f'</div></aside>'
+        f'<main id="main">'
+        f'<h1 class="report-title">Control Check — {html.escape(control_id)}</h1>'
+        f'<p class="report-org">NOF Metal Coatings North America &nbsp;&middot;&nbsp; IT &amp; Management Information Systems</p>'
+        f'<table class="meta-t"><tbody>{meta_rows_html}</tbody></table>'
+        f'{notes_html}'
+        f'{findings_html}'
+        f'{tools_section}'
+        f'{raw_section}'
+        f'</main></div>\n'
+        f'<footer class="doc-footer">CONFIDENTIAL</footer>\n'
+        f'<button class="pdf-btn" onclick="window.print()">Export PDF</button>\n'
+        f'</body>\n</html>\n'
+    )
+
+
 def _render_control_markdown(payload: dict) -> str:
     status = payload["status"] or {}
     lines = [
@@ -520,6 +749,7 @@ def ssk_run_control_check(
     out_dir = _control_check_dir(normalized, output_dir=output_dir)
     result_path = out_dir / "result.json"
     check_path = out_dir / "check.md"
+    html_path = out_dir / "check.html"
 
     if not tool_functions:
         payload = {
@@ -536,6 +766,7 @@ def ssk_run_control_check(
             "output_dir": str(out_dir),
         }
         check_path.write_text(_check_markdown(payload), encoding="utf-8")
+        html_path.write_text(_render_check_html(payload), encoding="utf-8")
         result_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         append_activity(
             "ssk_run_control_check",
@@ -613,7 +844,9 @@ def ssk_run_control_check(
 
     payload["evidence_id"] = evidence_id
     payload["output_dir"] = str(out_dir)
+    payload["html_path"] = str(html_path)
     result_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    html_path.write_text(_render_check_html(payload), encoding="utf-8")
     append_activity(
         "ssk_run_control_check",
         "success",
