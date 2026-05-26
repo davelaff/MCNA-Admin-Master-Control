@@ -161,3 +161,6 @@ Format: YYYY-MM-DD HH:MM — {task name} — {outcome} — {artifact path}
 2026-05-26 09:09 — Entra Device Scan Expansion — Drafted and implemented new entra_scan_devices comparative tool, resolving 3 new integration tests — mcp-server/tools/entra.py, mcp-server/tests/test_entra_devices.py
 2026-05-26 09:20 — Created Dedicated Devices Scanner — Built tools/devices.py and tests/test_devices.py; updated reporting.py with dynamic headers — mcp-server/tools/devices.py, mcp-server/tests/test_devices.py
 2026-05-26 09:27 — Expanded Devices Scanner Context — Added trustType, OS version, and category extraction into devices.py and updated mock tests — mcp-server/tools/devices.py, mcp-server/tests/test_devices.py
+
+2026-05-26 16:00 — consolidated-ssk-parser-migration — complete — mcp-server/tools/ssk_parser.py, ssk_loader.py, ssk.py, db.py; 75 controls/685 clauses/287 evidence items imported to mcna_amc.db2026-05-26 16:13 — fix(ssk): audit evidence capture for Normal-style list items — 16 missed items restored (03-1–03-4), evidence count 287→303 — mcp-server/tools/ssk_parser.py
+2026-05-26 16:16 — ssk batch import from 75 individual canonical files — 75 controls, 685 clauses, 303 evidence items (was 287); operational data preserved — mcp-server/kb/mcna_amc.db

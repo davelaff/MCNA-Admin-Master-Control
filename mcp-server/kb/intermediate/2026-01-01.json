@@ -1,0 +1,90 @@
+{
+  "source_version": "2026-01-01",
+  "controls": [
+    {
+      "control_id": "20-2",
+      "source_version": "2026-01-01",
+      "category": "20",
+      "category_name": "Incident Response Training Standards",
+      "title": "Cross-Functional Incident Response Training",
+      "effective_date": null,
+      "review_date": null,
+      "approver": null,
+      "overview": "This standard defines how MCNA conducts incident-response training that extends beyond the incident-response team to all relevant departments and to involved external parties \u2014 building the cross-functional cooperation that real incidents demand.",
+      "cadence": "At least annually, with out-of-cycle reviews triggered by the events listed below.",
+      "reviewer": "IT-MIS Director, with input from HR (Legal) and DIS Computers, and approval from the CFO.",
+      "status_description": "At least annually, with out-of-cycle reviews triggered by the events listed below.",
+      "insufficient_measures_risks": "Failure to implement and maintain this standard exposes MCNA to: Cross-functional handoffs that break down during real incidents because non-IT departments have not rehearsed their role. External partners and vendors that are not aligned with MCNA's response procedures. Communications, legal, and finance decisions that delay containment because they were not exercised in advance. Audit findings against Secure SketCH 20-2 and the parent IT and Information Systems Security Policy.",
+      "clauses": [
+        {
+          "clause_id": "20-2.1",
+          "group_name": "Cross-Functional Scope and Scenario Design",
+          "sequence": 0,
+          "clause_text": "Cross-functional reviews are conducted with participants from teams, functions, and departments beyond the incident-response team, and involve organizational leadership in scenario walkthroughs."
+        },
+        {
+          "clause_id": "20-2.2",
+          "group_name": "Cross-Functional Scope and Scenario Design",
+          "sequence": 1,
+          "clause_text": "Incident-response training is conducted for internal departments and staff in addition to the incident-response team, and the training content is documented."
+        },
+        {
+          "clause_id": "20-2.3",
+          "group_name": "Cross-Functional Scope and Scenario Design",
+          "sequence": 2,
+          "clause_text": "Tabletop exercises or live/hands-on trainings for incident response are conducted for each risk scenario, scoped to the cross-functional audience."
+        },
+        {
+          "clause_id": "20-2.4",
+          "group_name": "Training Execution and Improvement",
+          "sequence": 3,
+          "clause_text": "A training environment is prepared as needed to minimize the impact on production operations."
+        },
+        {
+          "clause_id": "20-2.5",
+          "group_name": "Training Execution and Improvement",
+          "sequence": 4,
+          "clause_text": "Recorded training content is reviewed, and incident-response policies and procedures are revised based on findings."
+        },
+        {
+          "clause_id": "20-2.6",
+          "group_name": "Training Execution and Improvement",
+          "sequence": 5,
+          "clause_text": "When shortcomings are identified, findings are not limited to the incident-response team \u2014 improvements involving all concerned teams (including teams that should be added to the response roster, or whose handoffs need clarification) are recorded and tracked."
+        },
+        {
+          "clause_id": "20-2.7",
+          "group_name": "Training Execution and Improvement",
+          "sequence": 6,
+          "clause_text": "Training is conducted involving important external vendors, contractors, and other relevant third parties (including DIS Computers and key suppliers) as needed."
+        },
+        {
+          "clause_id": "20-2.8",
+          "group_name": "Training Execution and Improvement",
+          "sequence": 7,
+          "clause_text": "Training content is reviewed and regular training is conducted to account for the latest threats \u2014 at minimum annually, with additional sessions when the threat landscape or organizational structure changes materially."
+        }
+      ],
+      "audit_evidence_items": [
+        {
+          "sequence": 0,
+          "item_text": "Cross-functional training calendar and participant rosters."
+        },
+        {
+          "sequence": 1,
+          "item_text": "After-action reports identifying cross-functional improvements."
+        },
+        {
+          "sequence": 2,
+          "item_text": "Records of training sessions involving external vendors and contractors."
+        },
+        {
+          "sequence": 3,
+          "item_text": "Revisions to incident-response policies traceable to training findings."
+        }
+      ]
+    }
+  ],
+  "parse_failures": [],
+  "warnings": []
+}
