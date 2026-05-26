@@ -150,8 +150,9 @@ def test_ssk_export_binder_md_contains_required_sections(db, tmp_path):
     for section in [
         "MCNA Position",
         "Control Statement",
+        "Standards Clauses",
+        "Audit Evidence Requirements",
         "Evidence",
-        "Recommended Actions",
         "Review History",
         "Active Findings",
         "Insufficient Measures Risks",

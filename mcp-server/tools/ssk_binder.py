@@ -169,10 +169,18 @@ def _control_markdown(conn, control_id: str) -> str:
         (control_id,),
     ).fetchall()
 
-    action_rows = conn.execute(
+    clause_rows = conn.execute(
         """
-        SELECT action_id, action_text, implementation_status, owner
-        FROM ssk_recommended_actions WHERE control_id = ? ORDER BY sequence
+        SELECT clause_id, group_name, clause_text
+        FROM ssk_clauses WHERE control_id = ? ORDER BY sequence
+        """,
+        (control_id,),
+    ).fetchall()
+
+    audit_evidence_rows = conn.execute(
+        """
+        SELECT item_text
+        FROM ssk_audit_evidence_items WHERE control_id = ? ORDER BY sequence
         """,
         (control_id,),
     ).fetchall()
@@ -250,19 +258,28 @@ def _control_markdown(conn, control_id: str) -> str:
         lines.append("_No evidence linked._")
     lines.append("")
 
-    # Recommended actions
-    lines.append("## Recommended Actions")
+    # Standards clauses
+    lines.append("## Standards Clauses")
     lines.append("")
-    if action_rows:
-        lines.append("| ID | Action | Status | Owner |")
-        lines.append("|----|--------|--------|-------|")
-        for a in action_rows:
+    if clause_rows:
+        lines.append("| Clause | Group | Requirement |")
+        lines.append("|--------|-------|-------------|")
+        for c in clause_rows:
             lines.append(
-                f"| {a['action_id']} | {a['action_text']} "
-                f"| {a['implementation_status']} | {a['owner'] or '—'} |"
+                f"| {c['clause_id']} | {c['group_name'] or '—'} | {c['clause_text']} |"
             )
     else:
-        lines.append("_No recommended actions._")
+        lines.append("_No clauses._")
+    lines.append("")
+
+    # Audit evidence requirements
+    lines.append("## Audit Evidence Requirements")
+    lines.append("")
+    if audit_evidence_rows:
+        for item in audit_evidence_rows:
+            lines.append(f"- {item['item_text']}")
+    else:
+        lines.append("_No audit evidence requirements defined._")
     lines.append("")
 
     # Review history
