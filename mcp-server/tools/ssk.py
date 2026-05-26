@@ -33,6 +33,8 @@ def ssk_import_catalog(
         "intermediate_json_path": str(intermediate_path),
         "written_controls": 0,
         "written_actions": 0,
+        "written_clauses": 0,
+        "written_evidence_items": 0,
         "history_moved": 0,
     }
 
@@ -42,7 +44,9 @@ def ssk_import_catalog(
     load_result = load_catalog(parsed)
     response.update({
         "written_controls": load_result["written_controls"],
-        "written_actions": load_result["written_actions"],
+        "written_actions": load_result.get("written_clauses", 0),
+        "written_clauses": load_result.get("written_clauses", 0),
+        "written_evidence_items": load_result.get("written_evidence_items", 0),
         "history_moved": load_result["history_moved"],
     })
     return json.dumps(response, indent=2)
@@ -130,15 +134,20 @@ def ssk_get_control(control_id: str) -> str:
         ).fetchone()
         if control is None:
             return json.dumps({"error": f"control '{control_id}' not found"})
-        actions = conn.execute(
-            "SELECT action_id, sequence, action_text, implementation_status, "
-            " implementation_notes, owner "
-            "FROM ssk_recommended_actions WHERE control_id = ? ORDER BY sequence",
+        clauses = conn.execute(
+            "SELECT clause_id, group_name, sequence, clause_text "
+            "FROM ssk_clauses WHERE control_id = ? ORDER BY sequence",
+            (control_id,),
+        ).fetchall()
+        audit_evidence_items = conn.execute(
+            "SELECT sequence, item_text "
+            "FROM ssk_audit_evidence_items WHERE control_id = ? ORDER BY sequence",
             (control_id,),
         ).fetchall()
 
     payload = dict(control)
     if payload.get("status_descriptions"):
         payload["status_descriptions"] = json.loads(payload["status_descriptions"])
-    payload["recommended_actions"] = [dict(a) for a in actions]
+    payload["clauses"] = [dict(c) for c in clauses]
+    payload["audit_evidence_items"] = [dict(e) for e in audit_evidence_items]
     return json.dumps(payload, indent=2)

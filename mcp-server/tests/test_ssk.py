@@ -7,16 +7,35 @@ from tools.ssk_reviews import ssk_record_review, ssk_review_history
 from tools.ssk_binder import ssk_coverage, ssk_export_binder
 
 def _build_minimal_docx(tmp_path):
+    """Single control, 1 clause, 1 audit evidence item — used for basic import tests."""
     path = tmp_path / "minimal.docx"
     doc = Document()
-    doc.add_paragraph("04-1 Sample control")
-    doc.add_paragraph("Overview")
+    doc.add_heading("MCNA Cyber Security Standards", level=1)
+    doc.add_heading(
+        "04-1: Sample controlSSK Group 04: Human Resources StandardsNOF MCNA...", level=1
+    )
+    for key, val in [
+        ("Effective Date", "2026-05-15"),
+        ("Review Date", "2027-05-15"),
+        ("Approver", "CFO / Executive Sponsor"),
+    ]:
+        doc.add_paragraph(key)
+        doc.add_paragraph(val)
+    doc.add_heading("1. Purpose", level=3)
     doc.add_paragraph("Overview text.")
-    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_heading("4. Standards", level=3)
+    doc.add_paragraph("The obligations below apply to MCNA.")
+    doc.add_heading("Governance", level=4)
+    doc.add_paragraph("04-1.1Action one.")
+    doc.add_heading("6. Review & Compliance", level=3)
+    doc.add_heading("Cadence", level=4)
     doc.add_paragraph("Status text.")
-    doc.add_paragraph("Recommended Actions")
-    doc.add_paragraph("Action one.")
-    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_heading("Reviewer", level=4)
+    doc.add_paragraph("IT-MIS Director.")
+    doc.add_heading("Audit evidence", level=4)
+    p = doc.add_paragraph("Audit evidence item.")
+    p.style = doc.styles["List Paragraph"]
+    doc.add_heading("7. Risks of Non-compliance", level=3)
     doc.add_paragraph("Risk text.")
     doc.save(path)
     return path
@@ -60,7 +79,8 @@ def test_ssk_import_catalog_commit_writes_db(db, tmp_path):
     result = json.loads(result_json)
     assert result["dry_run"] is False
     assert result["written_controls"] == 1
-    assert result["written_actions"] == 1
+    assert result["written_clauses"] == 1
+    assert result["written_evidence_items"] == 1
 
     with get_connection() as conn:
         rows = conn.execute("SELECT COUNT(*) AS c FROM ssk_controls").fetchone()
@@ -68,29 +88,60 @@ def test_ssk_import_catalog_commit_writes_db(db, tmp_path):
 
 
 def _seed_two_controls(db, tmp_path):
-    docx_path = tmp_path / "two.docx"
+    path = tmp_path / "two.docx"
     doc = Document()
-    doc.add_paragraph("04-1 HR control")
-    doc.add_paragraph("Overview")
+    doc.add_heading("MCNA Cyber Security Standards", level=1)
+    # Control 04-1
+    doc.add_heading(
+        "04-1: HR controlSSK Group 04: Human Resources StandardsNOF MCNA...", level=1
+    )
+    for key, val in [("Effective Date", "2026-05-15"), ("Review Date", "2027-05-15"),
+                     ("Approver", "CFO / Executive Sponsor")]:
+        doc.add_paragraph(key)
+        doc.add_paragraph(val)
+    doc.add_heading("1. Purpose", level=3)
     doc.add_paragraph("HR overview.")
-    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_heading("4. Standards", level=3)
+    doc.add_paragraph("The obligations below apply to MCNA.")
+    doc.add_heading("G", level=4)
+    doc.add_paragraph("04-1.1HR action.")
+    doc.add_heading("6. Review & Compliance", level=3)
+    doc.add_heading("Cadence", level=4)
     doc.add_paragraph("HR status.")
-    doc.add_paragraph("Recommended Actions")
-    doc.add_paragraph("HR action.")
-    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_heading("Reviewer", level=4)
+    doc.add_paragraph("IT-MIS Director.")
+    doc.add_heading("Audit evidence", level=4)
+    p = doc.add_paragraph("HR evidence.")
+    p.style = doc.styles["List Paragraph"]
+    doc.add_heading("7. Risks of Non-compliance", level=3)
     doc.add_paragraph("HR risk.")
-    doc.add_paragraph("06-3 Asset control")
-    doc.add_paragraph("Overview")
+    # Control 06-3
+    doc.add_heading(
+        "06-3: Asset controlSSK Group 06: Asset Management StandardsNOF MCNA...", level=1
+    )
+    for key, val in [("Effective Date", "2026-05-15"), ("Review Date", "2027-05-15"),
+                     ("Approver", "CFO / Executive Sponsor")]:
+        doc.add_paragraph(key)
+        doc.add_paragraph(val)
+    doc.add_heading("1. Purpose", level=3)
     doc.add_paragraph("Asset overview.")
-    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_heading("4. Standards", level=3)
+    doc.add_paragraph("The obligations below apply to MCNA.")
+    doc.add_heading("G", level=4)
+    doc.add_paragraph("06-3.1Asset clause one.")
+    doc.add_paragraph("06-3.2Asset clause two.")
+    doc.add_heading("6. Review & Compliance", level=3)
+    doc.add_heading("Cadence", level=4)
     doc.add_paragraph("Asset status.")
-    doc.add_paragraph("Recommended Actions")
-    doc.add_paragraph("Asset action one.")
-    doc.add_paragraph("Asset action two.")
-    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_heading("Reviewer", level=4)
+    doc.add_paragraph("IT-MIS Director.")
+    doc.add_heading("Audit evidence", level=4)
+    p = doc.add_paragraph("Asset evidence.")
+    p.style = doc.styles["List Paragraph"]
+    doc.add_heading("7. Risks of Non-compliance", level=3)
     doc.add_paragraph("Asset risk.")
-    doc.save(docx_path)
-    ssk_import_catalog(str(docx_path), version="seed", dry_run=False,
+    doc.save(path)
+    ssk_import_catalog(str(path), version="seed", dry_run=False,
                        intermediate_dir=str(tmp_path / "i"))
 
 
@@ -108,14 +159,16 @@ def test_ssk_list_controls_filters_by_category(db, tmp_path):
     assert result[0]["control_id"] == "06-3"
 
 
-def test_ssk_get_control_includes_recommended_actions(db, tmp_path):
+def test_ssk_get_control_includes_clauses(db, tmp_path):
     _seed_two_controls(db, tmp_path)
     result = json.loads(ssk_get_control("06-3"))
     assert result["control_id"] == "06-3"
     assert result["title"] == "Asset control"
-    assert len(result["recommended_actions"]) == 2
-    assert result["recommended_actions"][0]["action_text"] == "Asset action one."
-    assert result["recommended_actions"][0]["action_id"] == "06-3-a"
+    assert len(result["clauses"]) == 2
+    assert result["clauses"][0]["clause_text"] == "Asset clause one."
+    assert result["clauses"][0]["clause_id"] == "06-3.1"
+    assert len(result["audit_evidence_items"]) == 1
+    assert result["audit_evidence_items"][0]["item_text"] == "Asset evidence."
 
 
 def test_ssk_get_control_unknown_returns_error(db):

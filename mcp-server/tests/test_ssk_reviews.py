@@ -19,14 +19,31 @@ def _seed_control_via_import(tmp_path, control_id: str = "06-3") -> None:
     category, suffix = control_id.split("-", 1)
     docx_path = tmp_path / f"{control_id}.docx"
     doc = Document()
-    doc.add_paragraph(f"{control_id} Imported control {suffix}")
-    doc.add_paragraph("Overview")
+    doc.add_heading("MCNA Cyber Security Standards", level=1)
+    doc.add_heading(
+        f"{control_id}: Imported control {suffix}"
+        f"SSK Group {category}: Test StandardsNOF MCNA...",
+        level=1,
+    )
+    for key, val in [("Effective Date", "2026-05-15"), ("Review Date", "2027-05-15"),
+                     ("Approver", "CFO / Executive Sponsor")]:
+        doc.add_paragraph(key)
+        doc.add_paragraph(val)
+    doc.add_heading("1. Purpose", level=3)
     doc.add_paragraph("Overview text.")
-    doc.add_paragraph("Regularly Reviewed status")
+    doc.add_heading("4. Standards", level=3)
+    doc.add_paragraph("The obligations below apply to MCNA.")
+    doc.add_heading("G", level=4)
+    doc.add_paragraph(f"{control_id}.1Action one.")
+    doc.add_heading("6. Review & Compliance", level=3)
+    doc.add_heading("Cadence", level=4)
     doc.add_paragraph("Status text.")
-    doc.add_paragraph("Recommended Actions")
-    doc.add_paragraph("Action one.")
-    doc.add_paragraph("Insufficient Measures Risks")
+    doc.add_heading("Reviewer", level=4)
+    doc.add_paragraph("IT-MIS Director.")
+    doc.add_heading("Audit evidence", level=4)
+    p = doc.add_paragraph("Evidence item.")
+    p.style = doc.styles["List Paragraph"]
+    doc.add_heading("7. Risks of Non-compliance", level=3)
     doc.add_paragraph("Risk text.")
     doc.save(docx_path)
     ssk_import_catalog(

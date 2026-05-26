@@ -12,18 +12,34 @@ from tools.ssk_binder import ssk_coverage, ssk_export_binder
 # --------------------------------------------------------------------------- #
 
 def _build_control_docx(tmp_path, controls):
-    """Build a .docx with one or more controls seeded."""
+    """Build a .docx with one or more controls in MCNA consolidated format."""
     p = tmp_path / "controls.docx"
     doc = Document()
+    doc.add_heading("MCNA Cyber Security Standards", level=1)
     for ctrl_id, title in controls:
-        doc.add_paragraph(f"{ctrl_id} {title}")
-        doc.add_paragraph("Overview")
+        gnum = ctrl_id.split("-")[0]
+        doc.add_heading(
+            f"{ctrl_id}: {title}SSK Group {gnum}: Test StandardsNOF MCNA...", level=1
+        )
+        for key, val in [("Effective Date", "2026-05-15"), ("Review Date", "2027-05-15"),
+                         ("Approver", "CFO / Executive Sponsor")]:
+            doc.add_paragraph(key)
+            doc.add_paragraph(val)
+        doc.add_heading("1. Purpose", level=3)
         doc.add_paragraph(f"{title} overview text.")
-        doc.add_paragraph("Regularly Reviewed status")
+        doc.add_heading("4. Standards", level=3)
+        doc.add_paragraph("The obligations below apply to MCNA.")
+        doc.add_heading("G", level=4)
+        doc.add_paragraph(f"{ctrl_id}.1{title} action one.")
+        doc.add_heading("6. Review & Compliance", level=3)
+        doc.add_heading("Cadence", level=4)
         doc.add_paragraph(f"{title} status text.")
-        doc.add_paragraph("Recommended Actions")
-        doc.add_paragraph(f"{title} action one.")
-        doc.add_paragraph("Insufficient Measures Risks")
+        doc.add_heading("Reviewer", level=4)
+        doc.add_paragraph("IT-MIS Director.")
+        doc.add_heading("Audit evidence", level=4)
+        p2 = doc.add_paragraph(f"{title} evidence.")
+        p2.style = doc.styles["List Paragraph"]
+        doc.add_heading("7. Risks of Non-compliance", level=3)
         doc.add_paragraph(f"{title} risk text.")
     doc.save(p)
     return p
