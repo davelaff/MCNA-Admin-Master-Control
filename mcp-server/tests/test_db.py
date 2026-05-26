@@ -22,6 +22,7 @@ def test_init_creates_all_tables(tmp_db):
         "ssk_recommended_actions", "ssk_control_status",
         "ssk_evidence", "ssk_reviews", "ssk_registries",
         "ssk_control_coverage_snapshots",
+        "ssk_clauses", "ssk_audit_evidence_items",
         "remediation_plans", "remediation_actions", "remediation_events",
     }
 
@@ -29,7 +30,7 @@ def test_init_is_idempotent(tmp_db):
     init_db(tmp_db)  # second call must not raise
     with sqlite3.connect(tmp_db) as conn:
         tables = conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-    assert len(tables) == 17
+    assert len(tables) == 19
 
 def test_get_connection_commits(tmp_db, monkeypatch):
     import db as db_mod
@@ -112,3 +113,22 @@ def test_ssk_control_coverage_snapshot_table_exists(db):
         "metadata",
         "created_at",
     } <= col_names
+
+
+def test_ssk_new_tables_exist(tmp_db):
+    with sqlite3.connect(tmp_db) as conn:
+        tables = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+    assert "ssk_clauses" in tables
+    assert "ssk_audit_evidence_items" in tables
+
+
+def test_ssk_controls_has_new_columns(tmp_db):
+    with sqlite3.connect(tmp_db) as conn:
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(ssk_controls)").fetchall()}
+    assert {"effective_date", "review_date", "approver", "cadence", "reviewer"} <= cols
+
+
+def test_ssk_controls_history_has_new_columns(tmp_db):
+    with sqlite3.connect(tmp_db) as conn:
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(ssk_controls_history)").fetchall()}
+    assert {"effective_date", "review_date", "approver", "cadence", "reviewer"} <= cols

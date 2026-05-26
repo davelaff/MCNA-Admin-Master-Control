@@ -173,6 +173,23 @@ CREATE TABLE IF NOT EXISTS ssk_control_coverage_snapshots (
 );
 CREATE INDEX IF NOT EXISTS ix_ssk_control_coverage_snapshots_run
     ON ssk_control_coverage_snapshots(run_id, control_id);
+CREATE TABLE IF NOT EXISTS ssk_clauses (
+    clause_id      TEXT PRIMARY KEY,
+    control_id     TEXT NOT NULL,
+    source_version TEXT NOT NULL,
+    group_name     TEXT,
+    sequence       INTEGER NOT NULL,
+    clause_text    TEXT NOT NULL,
+    FOREIGN KEY (control_id) REFERENCES ssk_controls(control_id)
+);
+CREATE TABLE IF NOT EXISTS ssk_audit_evidence_items (
+    item_id        TEXT PRIMARY KEY,
+    control_id     TEXT NOT NULL,
+    source_version TEXT NOT NULL,
+    sequence       INTEGER NOT NULL,
+    item_text      TEXT NOT NULL,
+    FOREIGN KEY (control_id) REFERENCES ssk_controls(control_id)
+);
 CREATE TABLE IF NOT EXISTS remediation_plans (
     plan_id         TEXT PRIMARY KEY,
     title           TEXT NOT NULL,
@@ -228,12 +245,24 @@ def _apply_findings_migration(conn):
     if "closure_evidence_id" not in names:
         conn.execute("ALTER TABLE findings ADD COLUMN closure_evidence_id TEXT")
 
+
+def _apply_ssk_controls_migration(conn: sqlite3.Connection) -> None:
+    _NEW_COLS = {"effective_date": "TEXT", "review_date": "TEXT",
+                 "approver": "TEXT", "cadence": "TEXT", "reviewer": "TEXT"}
+    for table in ("ssk_controls", "ssk_controls_history"):
+        existing = {c[1] for c in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+        for col, typ in _NEW_COLS.items():
+            if col not in existing:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
+
+
 def init_db(path: Path = KB_PATH) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(path) as conn:
         conn.execute("PRAGMA journal_mode=WAL")
         conn.executescript(_SCHEMA)
         _apply_findings_migration(conn)
+        _apply_ssk_controls_migration(conn)
         conn.commit()
 
 @contextmanager
