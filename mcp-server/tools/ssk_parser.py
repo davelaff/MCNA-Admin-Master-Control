@@ -8,7 +8,8 @@ class CatalogSourceError(Exception):
 
 
 # Matches MCNA consolidated heading: "01-1: Title textSSK Group 01: ..."
-_CONTROL_HEADING_RE = re.compile(r'^(\d{2}-\d+):\s+(.+?)(?=SSK Group)')
+# SSK Group suffix is optional — some controls (e.g. 03-1) lack it in the heading paragraph
+_CONTROL_HEADING_RE = re.compile(r'^(\d{2}-\d+):\s+(.+?)(?=SSK Group|$)')
 # Extracts category name from heading suffix: "SSK Group 01: Category NameNOF MCNA..."
 _CATEGORY_RE = re.compile(r'SSK Group \d+:\s+(.+?)(?=NOF MCNA|$)')
 # Splits clause ID from text: "01-1.1Some clause text" -> ("01-1.1", "Some clause text")
@@ -22,19 +23,19 @@ _METADATA_KEYS = {
     "Approver": "approver",
 }
 
-# Map Heading3 text -> parser mode
+# Map Heading3 text -> parser mode (keys are lowercase for case-insensitive lookup)
 _SECTION_MAP = {
-    "1. Purpose": "overview",
-    "4. Standards": "clauses",
-    "6. Review & Compliance": "review",
-    "7. Risks of Non-compliance": "risks",
+    "1. purpose": "overview",
+    "4. standards": "clauses",
+    "6. review & compliance": "review",
+    "7. risks of non-compliance": "risks",
 }
 
-# Map Heading4 text (inside "review" mode) -> review sub-field
+# Map Heading4 text (inside "review" mode) -> review sub-field (keys are lowercase, no trailing colon)
 _REVIEW_SUBSECTIONS = {
-    "Cadence": "cadence",
-    "Reviewer": "reviewer",
-    "Audit evidence": "audit_evidence",
+    "cadence": "cadence",
+    "reviewer": "reviewer",
+    "audit evidence": "audit_evidence",
 }
 
 
@@ -124,7 +125,7 @@ def parse_catalog(docx_path: Path, source_version: str) -> dict:
 
         # -- Heading 3: section switch ----------------------------------------
         if level == 3:
-            mode = _SECTION_MAP.get(text, "skip")
+            mode = _SECTION_MAP.get(text.lower(), "skip")
             review_sub = None
             clause_group = None
             continue
@@ -134,7 +135,7 @@ def parse_catalog(docx_path: Path, source_version: str) -> dict:
             if mode == "clauses":
                 clause_group = text
             elif mode == "review":
-                review_sub = _REVIEW_SUBSECTIONS.get(text)
+                review_sub = _REVIEW_SUBSECTIONS.get(text.lower().rstrip(":").strip())
             continue
 
         # -- Normal / ListParagraph: content ----------------------------------
