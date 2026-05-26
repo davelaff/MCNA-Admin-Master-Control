@@ -83,6 +83,14 @@ _DOMAIN_CONFIG: dict = {
         "col_header": "Object",
         "controls":   "",
     },
+    "devices": {
+        "title":      "Entra Directory Registered Devices Scan",
+        "header_sub": "Device Identity Governance",
+        "output_dir": "entra-device-governance",
+        "clean_type": "entra_device",
+        "col_header": "Device",
+        "controls":   "INTUNE-NONCOMPLIANT-01",
+    },
     "copilot": {
         "title":      "Copilot Governance Scan",
         "header_sub": "Copilot Governance",
@@ -392,27 +400,113 @@ def _render_html(by_sev: dict, counts: dict, total: int, clean: list,
     clean_html = ""
     if clean:
         sec_num += 1
-        items = [r.get("entity_name") or r.get("entity_id", "") for r in clean]
-        rows  = []
-        for j in range(0, len(items), 2):
-            left  = _esc(items[j])
-            right = _esc(items[j + 1]) if j + 1 < len(items) else ""
-            rows.append(
-                f'<tr>'
-                f'<td class="chk">&#10003;</td><td>{left}</td>'
-                f'<td class="chk">{"&#10003;" if right else ""}</td>'
-                f'<td>{right}</td>'
-                f'</tr>'
+        entity_type = clean[0].get("entity_type") if clean else None
+        # Special table for Entra devices: show all key attributes
+        if entity_type == "entra_device":
+            clean_header_label = "Clean Directory Devices"
+            # Table header
+            rows = [
+                '<tr>'
+                '<th>Name</th>'
+                '<th>Join Type</th>'
+                '<th>OS</th>'
+                '<th>OS Version</th>'
+                '<th>Last Sign-in</th>'
+                '<th>Device ID</th>'
+                '<th>Creation Date</th>'
+                '<th>Device Owner(s)</th>'
+                '</tr>'
+            ]
+
+            # Group by device name, keep only the row with the most recent last sign-in
+            from collections import defaultdict
+            device_map = defaultdict(list)
+            for r in clean:
+                props = {}
+                if "properties" in r:
+                    try:
+                        props = json.loads(r["properties"] or "{}")
+                    except Exception:
+                        props = {}
+                name = r.get("entity_name") or r.get("entity_id", "")
+                last_seen_raw = props.get("approximateLastSignInDateTime")
+                device_map[name].append((last_seen_raw, r, props))
+
+            # For each name, pick the device with the max last_seen
+            filtered = []
+            for name, entries in device_map.items():
+                # Sort descending by last_seen_raw (None last)
+                entries_sorted = sorted(entries, key=lambda x: x[0] or "", reverse=True)
+                filtered.append(entries_sorted[0])
+
+            for last_seen_raw, r, props in filtered:
+                name = _esc(r.get("entity_name") or r.get("entity_id", ""))
+                trust_type = _esc(props.get("trustType") or "Unknown")
+                os_name = _esc(props.get("operatingSystem") or "Unknown OS")
+                os_version = _esc(props.get("operatingSystemVersion") or "Unknown Version")
+                last_seen = _esc(props.get("approximateLastSignInDateTime") or "Never")
+                device_id = _esc(props.get("id") or r.get("entity_id") or "")
+                creation_date = _esc((props.get("createdDateTime") or "")[:19].replace("T", " ") or "")
+                owners = props.get("owners")
+                if isinstance(owners, list):
+                    owner_str = ", ".join([
+                        o.get("displayName") or o.get("userPrincipalName") or str(o)
+                        for o in owners
+                        if isinstance(o, dict)
+                    ])
+                else:
+                    owner_str = ""
+                rows.append(
+                    f'<tr>'
+                    f'<td>{name}</td>'
+                    f'<td>{trust_type}</td>'
+                    f'<td>{os_name}</td>'
+                    f'<td>{os_version}</td>'
+                    f'<td>{last_seen}</td>'
+                    f'<td>{device_id}</td>'
+                    f'<td>{creation_date}</td>'
+                    f'<td>{_esc(owner_str)}</td>'
+                    f'</tr>'
+                )
+            clean_html = (
+                f'<div class="clean-section" id="sev-clean">'
+                f'<div class="clean-h">'
+                f'{sec_num}. {clean_header_label}'
+                f'<span class="cnt">{len(filtered)} · no open findings</span>'
+                f'</div>'
+                f'<table class="ct"><tbody>{"".join(rows)}</tbody></table>'
+                f'</div>'
             )
-        clean_html = (
-            f'<div class="clean-section" id="sev-clean">'
-            f'<div class="clean-h">'
-            f'{sec_num}. Clean Objects'
-            f'<span class="cnt">{len(clean)} · no open findings</span>'
-            f'</div>'
-            f'<table class="ct"><tbody>{"".join(rows)}</tbody></table>'
-            f'</div>'
-        )
+        else:
+            # Default: two-column name layout
+            items = [r.get("entity_name") or r.get("entity_id", "") for r in clean]
+            rows  = []
+            for j in range(0, len(items), 2):
+                left  = _esc(items[j])
+                right = _esc(items[j + 1]) if j + 1 < len(items) else ""
+                rows.append(
+                    f'<tr>'
+                    f'<td class="chk">&#10003;</td><td>{left}</td>'
+                    f'<td class="chk">{"&#10003;" if right else ""}</td>'
+                    f'<td>{right}</td>'
+                    f'</tr>'
+                )
+            clean_header_label = "Clean Objects"
+            if clean and clean[0].get("entity_type") == "app_registration":
+                clean_header_label = "Clean App Registrations"
+            elif clean and clean[0].get("entity_type") == "mailbox":
+                clean_header_label = "Clean Mailboxes"
+            elif clean and clean[0].get("entity_type") == "site":
+                clean_header_label = "Clean SharePoint Sites"
+            clean_html = (
+                f'<div class="clean-section" id="sev-clean">'
+                f'<div class="clean-h">'
+                f'{sec_num}. {clean_header_label}'
+                f'<span class="cnt">{len(clean)} · no open findings</span>'
+                f'</div>'
+                f'<table class="ct"><tbody>{"".join(rows)}</tbody></table>'
+                f'</div>'
+            )
 
     main = (
         f'<main id="main">'
@@ -483,16 +577,29 @@ def generate_html_report(domain: str, output_path: str = None) -> str:
 
         clean_type = cfg.get("clean_type")
         if clean_type:
-            clean_rows = conn.execute("""
-                SELECT s.entity_id, s.entity_name, s.entity_type
-                FROM tenant_snapshot s
-                WHERE s.domain = ? AND s.entity_type = ?
-                  AND NOT EXISTS (
-                    SELECT 1 FROM findings f
-                    WHERE f.object_id = s.entity_id AND f.domain = ? AND f.status = 'open'
-                  )
-                ORDER BY s.entity_name
-            """, (domain, clean_type, domain)).fetchall()
+            # For Entra devices, also fetch properties for expanded reporting
+            if clean_type == "entra_device":
+                clean_rows = conn.execute("""
+                    SELECT s.entity_id, s.entity_name, s.entity_type, s.properties
+                    FROM tenant_snapshot s
+                    WHERE s.domain = ? AND s.entity_type = ?
+                      AND NOT EXISTS (
+                        SELECT 1 FROM findings f
+                        WHERE f.object_id = s.entity_id AND f.domain = ? AND f.status = 'open'
+                      )
+                    ORDER BY s.entity_name
+                """, (domain, clean_type, domain)).fetchall()
+            else:
+                clean_rows = conn.execute("""
+                    SELECT s.entity_id, s.entity_name, s.entity_type
+                    FROM tenant_snapshot s
+                    WHERE s.domain = ? AND s.entity_type = ?
+                      AND NOT EXISTS (
+                        SELECT 1 FROM findings f
+                        WHERE f.object_id = s.entity_id AND f.domain = ? AND f.status = 'open'
+                      )
+                    ORDER BY s.entity_name
+                """, (domain, clean_type, domain)).fetchall()
         else:
             clean_rows = []
 

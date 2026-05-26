@@ -222,7 +222,6 @@ def entra_scan_guests() -> str:
     return json.dumps({"scanned": len(guests), "findings": findings_count})
 
 
-
 def entra_generate_html_report(output_path: str = None) -> str:
     """Generate a styled HTML report of open Entra findings and write it to disk.
 
